@@ -5,10 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/dbConnector.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/js/TableEditingPage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TableEditng.html" beforeDir="false" afterPath="$PROJECT_DIR$/TableEditng.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/DDSProject.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/copilot.data.migration.ask2agent.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +112,7 @@
       <workItem from="1775043107056" duration="2386000" />
       <workItem from="1775051859453" duration="669000" />
       <workItem from="1775053350995" duration="1126000" />
-      <workItem from="1775054952771" duration="2251000" />
+      <workItem from="1775054952771" duration="4788000" />
     </task>
     <servers />
   </component>

@@ -6,9 +6,10 @@
         <link rel="stylesheet" href="css/styles.css">
     </head>
     <body>
+
         <div id="loggers">
 
-        <h2>Add Your Logger Info</h2>
+        <h2>Logger Info</h2>
         <form>
             <label for="forename-input">Forename</label>
             <input type="text" id="forename-input"> <br>
@@ -19,18 +20,25 @@
             <label for="email-input">Email</label>
             <input type="text" id="email-input"> <br>
 
+            <button>Add Logger</button>
+
         </form>
 
-        <h2>Current Loggers</h2>
+        <h3>Current Loggers</h3>
         <table id="logger-table">
-
+            <tr>
+                <th>Logger ID</th>
+                <th>Forename</th>
+                <th>Surname</th>
+                <th>Email</th>
+            </tr>
         </table>
 
         </div>
 
         <div id="locations">
 
-        <h2>Add a New Location</h2>
+        <h2>Locations</h2>
         <form> <!--form for location?-->
 
             <label for="country-input">Country</label> 
@@ -42,9 +50,11 @@
             <label for="longitude-input">Longitude</label> 
             <input type="text" id="longitude-input"> <br>
 
+            <button>Add New Location</button>
+
         </form>
 
-        <h2>Current Locations</h2>
+        <h3>Current Locations</h3>
         <table id="locations-table">
             <tr>
                 <th>Location ID</th>
@@ -65,13 +75,13 @@
 
         <div id="reports">
 
-        <h2>Submit a Report</h2>
+        <h2>Reports</h2>
 
         <form>
 
         </form>
 
-        <h2>Edit Table of Reports</h2>
+        <h3>Edit Table of Reports</h3>
         <table id="reports-table">
 
         </table>

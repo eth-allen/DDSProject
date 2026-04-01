@@ -5,11 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Webapp/Database/test.sql" beforeDir="false" afterPath="$PROJECT_DIR$/Webapp/Database/test.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Webapp/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/Webapp/css/styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/images/Screenshot 2025-11-04 172747.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Webapp/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/Webapp/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Webapp/js/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/Webapp/js/script.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/js/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/Webapp/js/LoginScript.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,6 +72,11 @@
     "nodejs_package_manager_path": "npm",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "DatabaseDriversLRU": [
+      "mysql"
+    ]
   }
 }]]></component>
   <component name="SharedIndexes">
@@ -90,7 +94,7 @@
       <option name="presentableId" value="Default" />
       <updated>1774018106481</updated>
       <workItem from="1774634010297" duration="379000" />
-      <workItem from="1775043107056" duration="1808000" />
+      <workItem from="1775043107056" duration="2386000" />
     </task>
     <servers />
   </component>

@@ -5,25 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/DDSProject.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/copilot.data.migration.ask2agent.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/BaseSQL.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/CSC1034_Coursework_Spec_202526.docx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/TestData.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Webapp/Database/test.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Webapp/HomePage.html" beforeDir="false" afterPath="$PROJECT_DIR$/HomePage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Webapp/TableEditng.html" beforeDir="false" afterPath="$PROJECT_DIR$/TableEditng.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Webapp/crud.html" beforeDir="false" afterPath="$PROJECT_DIR$/crud.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Webapp/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/styles.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Webapp/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Webapp/js/HomePage.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/HomePage.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Webapp/js/LoginScript.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/LoginScript.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/reports.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/crud.html" beforeDir="false" afterPath="$PROJECT_DIR$/crud.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,7 +98,7 @@
       <updated>1774018106481</updated>
       <workItem from="1774634010297" duration="379000" />
       <workItem from="1775043107056" duration="2386000" />
-      <workItem from="1775051859453" duration="147000" />
+      <workItem from="1775051859453" duration="669000" />
     </task>
     <servers />
   </component>

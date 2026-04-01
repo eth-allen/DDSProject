@@ -5,10 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Webapp/Database/test.sql" beforeDir="false" afterPath="$PROJECT_DIR$/Webapp/Database/test.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Webapp/images/Screenshot 2025-11-04 172747.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Webapp/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/Webapp/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Webapp/js/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/Webapp/js/LoginScript.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/DDSProject.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/copilot.data.migration.ask2agent.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BaseSQL.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CSC1034_Coursework_Spec_202526.docx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TestData.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/Database/test.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/HomePage.html" beforeDir="false" afterPath="$PROJECT_DIR$/HomePage.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/TableEditng.html" beforeDir="false" afterPath="$PROJECT_DIR$/TableEditng.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/crud.html" beforeDir="false" afterPath="$PROJECT_DIR$/crud.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/js/HomePage.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/HomePage.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/js/LoginScript.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/LoginScript.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reports.sql" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,10 +33,11 @@
   <component name="CopilotPersistence">
     <persistenceIdMap>
       <entry key="_/Users/ethanallen/DDSProject" value="3BDKGKiYPRSLoziwy19bYK6eC3T" />
+      <entry key="_/Users/ethanallen/Desktop/DDSProject" value="3Bl7ZVUunaUlT0LLD6hq8p1AxTM" />
     </persistenceIdMap>
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="11" />
+    <option name="cachedIndexableFilesCount" value="19" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
@@ -33,12 +49,12 @@
     &quot;assignee&quot;: &quot;ethanallenn&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/ethanallenn/DDSProject.git",
-    "accountId": "81e03019-34cb-4d42-8c66-e7d6f08f7655"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/ethanallenn/DDSProject.git&quot;,
+    &quot;accountId&quot;: &quot;81e03019-34cb-4d42-8c66-e7d6f08f7655&quot;
   }
-}]]></component>
+}</component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
@@ -64,7 +80,7 @@
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/Users/ethanallen/DDSProject",
+    "last_opened_file_path": "/Users/ethanallen/Desktop/DDSProject",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -79,6 +95,11 @@
     ]
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -95,6 +116,7 @@
       <updated>1774018106481</updated>
       <workItem from="1774634010297" duration="379000" />
       <workItem from="1775043107056" duration="2386000" />
+      <workItem from="1775051859453" duration="147000" />
     </task>
     <servers />
   </component>

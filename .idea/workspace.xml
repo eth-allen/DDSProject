@@ -1,46 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Group69/40471300 - Ethan/test.docx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40478410 - Connor/test.docx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40478797 - Louis/Photographs/Rhino status.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40478797 - Louis/Photographs/SnowLeopardTrust_Mongolia-6.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40478797 - Louis/Photographs/Snowy snowleopard - Face on.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40478797 - Louis/Photographs/TheCheethcat.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40478797 - Louis/Photographs/Tiger endangered status.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40478797 - Louis/Photographs/Tiger in berlin - By Lotse - Own work, CC BY-SA 3.0, httpscommons.wikimedia.orgwindex.phpcurid=19456468.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40478797 - Louis/Photographs/angry tigers.jpeg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40478797 - Louis/Photographs/big tiger.webp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40478797 - Louis/Photographs/india-tigers-00023.jpg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40478797 - Louis/README.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40478797 - Louis/Tiger endangered status.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40478797 - Louis/test.docx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40480980 - Conall/40480980_Design_Spec.docx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40480980 - Conall/dbConnector.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Group69/40485522 - Eoghan/40485522 Design_Spec.docx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/Database/test.sql" beforeDir="false" afterPath="$PROJECT_DIR$/Webapp/Database/test.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/css/styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/Webapp/css/styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/Webapp/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Webapp/js/script.js" beforeDir="false" afterPath="$PROJECT_DIR$/Webapp/js/script.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="CopilotPersistence">
+    <persistenceIdMap>
+      <entry key="_/Users/ethanallen/DDSProject" value="3BDKGKiYPRSLoziwy19bYK6eC3T" />
+    </persistenceIdMap>
+  </component>
   <component name="EmbeddingIndexingInfo">
+    <option name="cachedIndexableFilesCount" value="11" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "ethanallenn"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;ethanallenn&quot;
   }
-}]]></component>
+}</component>
   <component name="GithubPullRequestsUISettings"><![CDATA[{
   "selectedUrlAndAccountId": {
     "url": "https://github.com/ethanallenn/DDSProject.git",
-    "accountId": "c8073716-83c9-4e63-9c8d-151bbf52a6f8"
+    "accountId": "81e03019-34cb-4d42-8c66-e7d6f08f7655"
   }
 }]]></component>
   <component name="McpProjectServerCommands">
@@ -60,17 +57,20 @@
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.MCP Project settings loaded": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
+    "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "/Users/conall",
+    "last_opened_file_path": "/Users/ethanallen/DDSProject",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
     "to.speed.mode.migration.done": "true",
     "vue.rearranger.settings.migration": "true"
   }
@@ -78,7 +78,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.31033.133" />
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.32098.39" />
       </set>
     </attachedChunks>
   </component>
@@ -90,10 +90,19 @@
       <option name="presentableId" value="Default" />
       <updated>1774018106481</updated>
       <workItem from="1774634010297" duration="379000" />
+      <workItem from="1775043107056" duration="1808000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
   </component>
 </project>

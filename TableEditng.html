@@ -19,8 +19,94 @@
     </nav>
 
     <div class="container">
-        <h1>Table Editing</h1>
-        <p>Not my problem -Conall</p>
+        <h1>Data Editor</h1>
+
+        <div id="loggers">
+
+        <h2>Logger Info</h2>
+        <form>
+            <label for="forename-input">Forename</label>
+            <input type="text" id="forename-input"> <br>
+
+            <label for="surname-input">Surname</label>
+            <input type="text" id="surname-input"> <br>
+
+            <label for="email-input">Email</label>
+            <input type="text" id="email-input"> <br>
+
+            <button id="logger-submit-button">Add Logger</button>
+
+        </form>
+
+        <table id="logger-table">
+            <tr>
+                <th>Logger ID</th>
+                <th>Forename</th>
+                <th>Surname</th>
+                <th>Email</th>
+            </tr>
+        </table>
+
+        </div>
+
+        <div id="locations">
+
+        <h2>Locations</h2>
+        <form> <!--form for location?-->
+
+            <label for="country-input">Country</label> 
+            <input type="text" id="country-input"> <br>
+
+            <label for="latitude-input">Latitude</label> 
+            <input type="text" id="latitude-input"> <br>
+
+            <label for="longitude-input">Longitude</label> 
+            <input type="text" id="longitude-input"> <br>
+
+            <button id="location-submit-button">Add New Location</button>
+
+        </form>
+
+        <table id="locations-table">
+            <tr>
+                <th>Location ID</th>
+                <th>Country</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Ireland</td>
+                <td>53.349805</td>
+                <td>-6.260310</td>
+            </tr>
+        </table>
+
+        </div>
+
+        <div id="reports">
+
+        <h2>Reports</h2>
+
+        <form>
+
+        </form>
+
+        <table id="reports-table">
+            <tr>
+                <th>Report ID</th>
+                <th>Logger ID</th>
+                <th>Location ID</th>
+                <th>Evidence ID</th>
+                <th>Date Submitted</th>
+                <th>Species</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+        </table>
+
+        </div>
     </div>
 
     <footer class="footer">

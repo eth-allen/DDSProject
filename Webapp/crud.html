@@ -2,23 +2,80 @@
 <html>
     <head>
         <meta charset="UTF-8" />
-        <title>Edit Database</title>
+        <title>Table Editing</title>
         <link rel="stylesheet" href="css/styles.css">
     </head>
     <body>
-        <h2>Submit A Report</h2>
-        <form> <!---->
-            <h3>Enter Location</h3>
+        <div id="loggers">
+
+        <h2>Add Your Logger Info</h2>
+        <form>
+            <label for="forename-input">Forename</label>
+            <input type="text" id="forename-input"> <br>
+
+            <label for="surname-input">Surname</label>
+            <input type="text" id="surname-input"> <br>
+
+            <label for="email-input">Email</label>
+            <input type="text" id="email-input"> <br>
+
+        </form>
+
+        <h2>Current Loggers</h2>
+        <table id="logger-table">
+
+        </table>
+
+        </div>
+
+        <div id="locations">
+
+        <h2>Add a New Location</h2>
+        <form> <!--form for location?-->
+
+            <label for="country-input">Country</label> 
+            <input type="text" id="country-input"> <br>
 
             <label for="latitude-input">Latitude</label> 
             <input type="text" id="latitude-input"> <br>
+
             <label for="longitude-input">Longitude</label> 
             <input type="text" id="longitude-input"> <br>
 
+        </form>
+
+        <h2>Current Locations</h2>
+        <table id="locations-table">
+            <tr>
+                <th>Location ID</th>
+                <th>Country</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Ireland</td>
+                <td>53.349805</td>
+                <td>-6.260310</td>
+            </tr>
+        </table>
+
+        </div>
+
+        <div id="reports">
+
+        <h2>Submit a Report</h2>
+
+        <form>
 
         </form>
 
         <h2>Edit Table of Reports</h2>
-        <table></table>
+        <table id="reports-table">
+
+        </table>
+
+        </div>
     </body>
 </html>

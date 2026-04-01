@@ -4,15 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="updated idea">
-      <change afterPath="$PROJECT_DIR$/.idea/copilot.data.migration.ask2agent.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/git_toolbox_prj.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/TableEditing.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/js/runQuery.js" afterDir="false" />
+    <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="Added functionality to convert raw JSON language into a Table structure, this has been completed for the Location, Report and Logger tables.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HomePage.html" beforeDir="false" afterPath="$PROJECT_DIR$/HomePage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TableEditng.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/TableEditingPage.js" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,6 +49,9 @@
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7
@@ -118,7 +115,7 @@
       <workItem from="1775051859453" duration="669000" />
       <workItem from="1775053350995" duration="1126000" />
       <workItem from="1775054952771" duration="5086000" />
-      <workItem from="1775067362131" duration="7696000" />
+      <workItem from="1775067362131" duration="8495000" />
     </task>
     <task id="LOCAL-00001" summary="updated idea">
       <option name="closed" value="true" />
@@ -128,7 +125,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775060454320</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Added functionality to convert raw JSON language into a Table structure, this has been completed for the Location, Report and Logger tables.">
+      <option name="closed" value="true" />
+      <created>1775075673539</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1775075673539</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -136,7 +141,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="updated idea" />
-    <option name="LAST_COMMIT_MESSAGE" value="updated idea" />
+    <MESSAGE value="Added functionality to convert raw JSON language into a Table structure, this has been completed for the Location, Report and Logger tables." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added functionality to convert raw JSON language into a Table structure, this has been completed for the Location, Report and Logger tables." />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

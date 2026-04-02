@@ -95,8 +95,7 @@
         <form>
             <label for="logger-selection">Logger</label>
             <select id="logger-selection" required>
-                <option value="user1">1st User</option>
-                <option value="user2">2st User</option>
+
             </select> <br>
 
             <label for="location-selection">Location</label>
@@ -193,6 +192,7 @@
 
         if (loggerResult?.success && Array.isArray(loggerResult.data)) {
             renderLoggers(loggerResult.data);
+            renderLoggerSelection(loggerResult.data);
         }
 
         if (locationResult?.success && Array.isArray(locationResult.data)) {
@@ -205,6 +205,14 @@
 
         if (loggerResult?.error || locationResult?.error || reportResult?.error) {
             console.error("Data load error", { loggerResult, locationResult, reportResult });
+        }
+    }
+
+    function renderLoggerSelection(rows) {
+        const loggerSelection = document.getElementById("logger-selection");
+
+        for (let row of rows) {
+            loggerSelection.innerHTML += `<option value="${row.LoggerID}">${row.Forename} ${row.Surname} (ID: ${row.LoggerID})</option>`
         }
     }
 

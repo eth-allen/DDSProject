@@ -57,7 +57,7 @@
     <div id="locations">
 
         <h2>Locations</h2>
-        <form> <!--form for location?-->
+        <form id="location-form"> 
 
             <label for="country-input">Country</label>
             <input type="text" id="country-input" required> <br>
@@ -211,6 +211,7 @@
     const loggerButton = document.getElementById("logger-submit-button");
 
     const loggerForm = document.getElementById("logger-form");
+    const locationForm = document.getElementById("location-form");
 
     document.addEventListener("DOMContentLoaded", renderTables);
 
@@ -221,15 +222,37 @@
         const surname = document.getElementById("surname-input").value;
         const email = document.getElementById("email-input").value;
 
-        const query = `INSERT INTO Logger (Forename, Surname, Email) VALUES
-            ('Eoghan', 'McCaul', 'mccauleoghan@gmail.com');`;
-
         const insertResult = await runQuery(`INSERT INTO Logger (Forename, Surname, Email) VALUES
             ('${forename}', '${surname}', '${email}');`);
         
         if (insertResult?.error) {
             console.error("Data load error", {insertResult});
         }
+
+        document.getElementById("forename-input").value = "";
+        document.getElementById("surname-input").value = "";
+        document.getElementById("email-input").value = "";
+
+        renderTables();
+    });
+
+    locationForm.addEventListener("submit", async () => {
+        event.preventDefault();
+
+        const country = document.getElementById("country-input").value;
+        const latitude = document.getElementById("latitude-input").value;
+        const longitude = document.getElementById("longitude-input").value;
+
+        const insertResult = await runQuery(`INSERT INTO Location (Country, Latitude, Longitude) VALUES
+            ('${country}', ${latitude}, ${longitude});`);
+        
+        if (insertResult?.error) {
+            console.error("Data load error", {insertResult});
+        }
+
+        document.getElementById("country-input").value = "";
+        document.getElementById("latitude-input").value = "";
+        document.getElementById("longitude-input").value = "";
 
         renderTables();
     });

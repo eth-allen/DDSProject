@@ -217,14 +217,15 @@
     loggerForm.addEventListener("submit", async () => {
         event.preventDefault();
 
-        const forename = document.getElementById("forename-input").innerText;
-        const surname = document.getElementById("surname-input").innerText;
+        const forename = document.getElementById("forename-input").value;
+        const surname = document.getElementById("surname-input").value;
+        const email = document.getElementById("email-input").value;
 
         const query = `INSERT INTO Logger (Forename, Surname, Email) VALUES
             ('Eoghan', 'McCaul', 'mccauleoghan@gmail.com');`;
 
         const insertResult = await runQuery(`INSERT INTO Logger (Forename, Surname, Email) VALUES
-            ('${forename}', 'McCaul', 'mccauleoghan@gmail.com');`);
+            ('${forename}', '${surname}', '${email}');`);
         
         if (insertResult?.error) {
             console.error("Data load error", {insertResult});

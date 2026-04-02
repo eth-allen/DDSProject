@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endangered Species Tracker - Ethan Reports</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-container">
+            <h1 class="navbar-title">Endangered Species Tracker</h1>
+            <ul class="navbar-menu">
+                <li><a href="HomePage.html" class="active">Home</a></li>
+                <li><a href="TableEditing.html">Table Editing</a></li>
+                <li><a href="index.html" class="logout-btn">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="hero-content">
+            <h2>Ethan's Reports</h2>
+            <p>Below you can see the report type, tables used and the dataset results for each of my reports.</p>
+        </div>
+    </div>
+
+    <div>
+        <div class="report-section">
+        <h3>Report 1:</h3>
+        <p>Report Title: Logger Activity Summary</p><br>
+        <p>Business Question: Which loggers have submitted the most reports, what is the average gap in days between their submissions?</p><br>
+        <p>Why this report is useful: Identifies the most active workers and flags who has gone silent.</p><br>
+        <p>Tables Used: Logger, Report</p>
+
+        <div class="report-data">
+        <table id="ethan-reports1" class="data-table">
+            <thead>
+            <tr>
+                <th>Logger ID</th>
+                <th>Logger Name</th>
+                <th>Email</th>
+                <th>Total Reports</th>
+                <th>First Report Date</th>
+                <th>Recent Report Date</th>
+                <th>Days Between Reports</th>
+            </tr>
+            </thead>
+            <tbody id="ethan-reports1-body"></tbody>
+        </table>
+        </div>
+
+        <script src="js/runQuery.js"></script>
+        <script>
+            function jsonGrabberOne (rows) {
+                const tbody = document.getElementById("ethan-reports1-body");
+                tbody.innerHTML = rows.map((row) => `
+                    <tr>
+                        <td>${row.LoggerID ?? ""}</td>
+                        <td>${row.FullName ?? ""}</td>
+                        <td>${row.Email ?? ""}</td>
+                        <td>${row.TotalReports ?? ""}</td>
+                        <td>${row.FirstReport ?? ""}</td>
+                        <td>${row.MostRecentReport ?? ""}</td>
+                        <td>${row.AvgDaysBetweenReports ?? ""}</td>
+                    </tr>
+                `).join("");
+            }
+
+            document.addEventListener("DOMContentLoaded", async () => {
+                const [EthanResultOne] = await Promise.all([
+                    runQuery("SELECT * FROM vw_logger_activity WHERE TotalReports > 0 ORDER BY TotalReports DESC, MostRecentReport DESC;"),
+                ]);
+
+                if (EthanResultOne?.success && Array.isArray(EthanResultOne.data)) {
+                    jsonGrabberOne(EthanResultOne.data);
+                }
+
+                if (EthanResultOne?.error) {
+                    console.error("Data load error", {EthanResultOne});
+                }
+            });
+        </script>
+        </div>
+    </div>
+
+    <div>
+        <div class="report-section">
+        <h3>Report 2:</h3>
+        <p>Report Title: Endangered Species Population Monitoring</p><br>
+        <p>Business Question: Which species with a 'High' status have the most sightings, and what is the date range of these observations?</p><br>
+        <p>Why this report is useful: It allows conservation scientists to identify which critically endangered species are being actively tracked by the public and ensures data is current for population modeling.</p><br>
+        <p>Tables Used: Species, Report</p>
+
+        <div class="report-data">
+            <table id="ethan-reports2" class="data-table">
+                <thead>
+                <tr>
+                    <th>Logger ID</th>
+                    <th>Logger Name</th>
+                    <th>Email</th>
+                    <th>Total Reports</th>
+                    <th>First Report Date</th>
+                    <th>Recent Report Date</th>
+                    <th>Days Between Reports</th>
+                </tr>
+                </thead>
+                <tbody id="ethan-reports2-body"></tbody>
+            </table>
+
+            <script>
+                function jsonGrabberTwo (rows) {
+                    const tbody = document.getElementById("ethan-reports2-body");
+                    tbody.innerHTML = rows.map((row) => `
+                        <tr>
+                            <td>${row.LoggerID ?? ""}</td>
+                            <td>${row.FullName ?? ""}</td>
+                            <td>${row.Email ?? ""}</td>
+                            <td>${row.TotalReports ?? ""}</td>
+                            <td>${row.FirstReport ?? ""}</td>
+                            <td>${row.MostRecentReport ?? ""}</td>
+                            <td>${row.AvgDaysBetweenReports ?? ""}</td>
+                        </tr>
+                    `).join("");
+                }
+
+                document.addEventListener("DOMContentLoaded", async () => {
+                    const [EthanResultTwo] = await Promise.all([
+                        runQuery("SELECT * FROM vw_endangered_species_monitoring WHERE TotalReports > 0 ORDER BY TotalReports DESC, MostRecentReport DESC;"),
+                    ]);
+
+                    if (EthanResultTwo?.success && Array.isArray(EthanResultTwo.data)) {
+                        jsonGrabberTwo(EthanResultTwo.data);
+                    }
+
+                    if (EthanResultTwo?.error) {
+                        console.error("Data load error", {EthanResultTwo});
+                    }
+                });
+        </div>
+
+
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
+    </footer>
+</body>
+</html>

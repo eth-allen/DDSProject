@@ -25,7 +25,7 @@
     <div id="loggers">
 
         <h2>Logger Info</h2>
-        <form>
+        <form id="logger-form">
             <label for="forename-input">Forename</label>
             <input type="text" id="forename-input" required> <br>
 
@@ -184,7 +184,7 @@
                 `).join("");
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
+    const renderTables = async () => {
         const [loggerResult, locationResult, reportResult] = await Promise.all([
             runQuery("SELECT * FROM Logger"),
             runQuery("SELECT * FROM Location"),
@@ -206,11 +206,32 @@
         if (loggerResult?.error || locationResult?.error || reportResult?.error) {
             console.error("Data load error", { loggerResult, locationResult, reportResult });
         }
-    });
+    }
 
     const loggerButton = document.getElementById("logger-submit-button");
 
-    loggerButton.addEventListener("click", );
+    const loggerForm = document.getElementById("logger-form");
+
+    document.addEventListener("DOMContentLoaded", renderTables);
+
+    loggerForm.addEventListener("submit", async () => {
+        event.preventDefault();
+
+        const forename = document.getElementById("forename-input").innerText;
+        const surname = document.getElementById("surname-input").innerText;
+
+        const query = `INSERT INTO Logger (Forename, Surname, Email) VALUES
+            ('Eoghan', 'McCaul', 'mccauleoghan@gmail.com');`;
+
+        const insertResult = await runQuery(`INSERT INTO Logger (Forename, Surname, Email) VALUES
+            ('${forename}', 'McCaul', 'mccauleoghan@gmail.com');`);
+        
+        if (insertResult?.error) {
+            console.error("Data load error", {insertResult});
+        }
+
+        renderTables();
+    });
 
 
 </script>

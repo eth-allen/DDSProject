@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="--">
-      <change afterPath="$PROJECT_DIR$/EthanReports.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dbTester.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/HomePage.html" beforeDir="false" afterPath="$PROJECT_DIR$/HomePage.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/LoginPage.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TableEditing.html" beforeDir="false" afterPath="$PROJECT_DIR$/TableEditing.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/runQuery.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/runQuery.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -28,7 +24,7 @@
     <option name="chatModeId" value="Agent" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="12" />
+    <option name="cachedIndexableFilesCount" value="14" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -126,7 +122,9 @@
       <workItem from="1775053350995" duration="1126000" />
       <workItem from="1775054952771" duration="5086000" />
       <workItem from="1775067362131" duration="8515000" />
-      <workItem from="1775126325806" duration="10029000" />
+      <workItem from="1775126325806" duration="11237000" />
+      <workItem from="1775160986203" duration="2390000" />
+      <workItem from="1775238331227" duration="375000" />
     </task>
     <task id="LOCAL-00001" summary="updated idea">
       <option name="closed" value="true" />

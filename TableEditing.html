@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Endangered Species Tracker - Table Editing</title>
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        form, table {
+            margin:15px 0px 15px 0px;
+        }
+        tr:nth-child(even) {
+            background-color:lightgrey;
+        }
+        table {
+            width:100%;
+        }
+        form button {
+            display:block;
+            padding:5px;
+        }
+    </style>
 
 </head>
 <body>
@@ -22,10 +37,10 @@
 <div class="container">
     <h1>Data Editor</h1>
 
-    <div id="loggers">
+    <div id="loggers" class="form-table-container">
 
         <h2>Logger Info</h2>
-        <form>
+        <form id="logger-form">
             <label for="forename-input">Forename</label>
             <input type="text" id="forename-input" required> <br>
 
@@ -54,10 +69,10 @@
 
     </div>
 
-    <div id="locations">
+    <div id="locations" class="form-table-container">
 
         <h2>Locations</h2>
-        <form> <!--form for location?-->
+        <form id="location-form"> 
 
             <label for="country-input">Country</label>
             <input type="text" id="country-input" required> <br>
@@ -88,21 +103,19 @@
 
     </div>
 
-    <div id="reports">
+    <div id="reports" class="form-table-container">
 
         <h2>Reports</h2>
 
-        <form>
+        <form id="report-form">
             <label for="logger-selection">Logger</label>
             <select id="logger-selection" required>
-                <option value="user1">1st User</option>
-                <option value="user2">2st User</option>
+
             </select> <br>
 
             <label for="location-selection">Location</label>
             <select id="location-selection" required>
-                <option value="location1">1st Location</option>
-                <option value="location2">2st Location</option>
+
             </select> <br>
 
             <label for="evidence-selection">Evidence</label>
@@ -184,7 +197,7 @@
                 `).join("");
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
+    const renderTables = async () => {
         const [loggerResult, locationResult, reportResult] = await Promise.all([
             runQuery("SELECT * FROM Logger"),
             runQuery("SELECT * FROM Location"),
@@ -193,10 +206,12 @@
 
         if (loggerResult?.success && Array.isArray(loggerResult.data)) {
             renderLoggers(loggerResult.data);
+            renderLoggerSelection(loggerResult.data);
         }
 
         if (locationResult?.success && Array.isArray(locationResult.data)) {
             renderLocations(locationResult.data);
+            renderLocationSelection(locationResult.data);
         }
 
         if (reportResult?.success && Array.isArray(reportResult.data)) {
@@ -206,7 +221,87 @@
         if (loggerResult?.error || locationResult?.error || reportResult?.error) {
             console.error("Data load error", { loggerResult, locationResult, reportResult });
         }
+    }
+
+    function renderLoggerSelection(rows) {
+        const loggerSelection = document.getElementById("logger-selection");
+
+        for (let row of rows) {
+            loggerSelection.innerHTML += `<option value="${row.LoggerID}">${row.Forename} ${row.Surname} (ID: ${row.LoggerID})</option>`;
+        }
+    }
+
+    function renderLocationSelection(rows) {
+        const loggerSelection = document.getElementById("location-selection");
+
+        for (let row of rows) {
+            loggerSelection.innerHTML += `<option value="${row.LocationID}">${row.Latitude}, ${row.Longitude}</option>`;
+        }
+    }
+
+    const loggerButton = document.getElementById("logger-submit-button");
+
+    const loggerForm = document.getElementById("logger-form");
+    const locationForm = document.getElementById("location-form");
+    const reportForm = document.getElementById("report-form");
+
+    document.addEventListener("DOMContentLoaded", renderTables);
+
+    loggerForm.addEventListener("submit", async () => {
+        event.preventDefault();
+
+        const forename = document.getElementById("forename-input").value;
+        const surname = document.getElementById("surname-input").value;
+        const email = document.getElementById("email-input").value;
+
+        const insertResult = await runQuery(`INSERT INTO Logger (Forename, Surname, Email) VALUES
+            ('${forename}', '${surname}', '${email}');`);
+        
+        if (insertResult?.error) {
+            console.error("Data load error", {insertResult});
+        }
+
+        document.getElementById("forename-input").value = "";
+        document.getElementById("surname-input").value = "";
+        document.getElementById("email-input").value = "";
+
+        renderTables();
     });
+
+    locationForm.addEventListener("submit", async () => {
+        event.preventDefault();
+
+        const country = document.getElementById("country-input").value;
+        const latitude = document.getElementById("latitude-input").value;
+        const longitude = document.getElementById("longitude-input").value;
+
+        const insertResult = await runQuery(`INSERT INTO Location (Country, Latitude, Longitude) VALUES
+            ('${country}', ${latitude}, ${longitude});`);
+        
+        if (insertResult?.error) {
+            console.error("Data load error", {insertResult});
+        }
+
+        document.getElementById("country-input").value = "";
+        document.getElementById("latitude-input").value = "";
+        document.getElementById("longitude-input").value = "";
+
+        renderTables();
+    });
+
+    /*reportForm.addEventListener("submit", async () => {
+        event.preventDefault();
+
+        const insertResult = await runQuery(``);
+        
+        if (insertResult?.error) {
+            console.error("Data load error", {insertResult});
+        }
+
+        renderTables();
+    });*/ //finish after all selectors are in
+
+
 </script>
 
 

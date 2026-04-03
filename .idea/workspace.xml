@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="--">
-      <change afterPath="$PROJECT_DIR$/dbTester.html" afterDir="false" />
+    <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="Added DB Tester.">
+      <change afterPath="$PROJECT_DIR$/test.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -125,6 +125,8 @@
       <workItem from="1775126325806" duration="11237000" />
       <workItem from="1775160986203" duration="2390000" />
       <workItem from="1775238331227" duration="375000" />
+      <workItem from="1775241614093" duration="31000" />
+      <workItem from="1775241705360" duration="33000" />
     </task>
     <task id="LOCAL-00001" summary="updated idea">
       <option name="closed" value="true" />
@@ -158,7 +160,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775126379487</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Added DB Tester.">
+      <option name="closed" value="true" />
+      <created>1775241630396</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1775241630396</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -168,7 +178,8 @@
     <MESSAGE value="updated idea" />
     <MESSAGE value="Added functionality to convert raw JSON language into a Table structure, this has been completed for the Location, Report and Logger tables." />
     <MESSAGE value="--" />
-    <option name="LAST_COMMIT_MESSAGE" value="--" />
+    <MESSAGE value="Added DB Tester." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added DB Tester." />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

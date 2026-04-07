@@ -8,10 +8,15 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
 
             const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
 
-            // For now, perform basic validation
-            if (username && password) {
+            // Need to better validate username like whitespace stuff
+            if (!username) {
+                alert('Please enter a username.');
+                return;
+            }
+
+            // TODO: Implement actual authentication logic here
+            if (username) {
                 // Redirect to homepage
                 window.location.href = 'HomePage.html';
             }

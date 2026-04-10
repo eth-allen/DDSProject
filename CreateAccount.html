@@ -15,30 +15,31 @@
             <div class="form-group">
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" placeholder="Enter your username" required>
-                <p><small> Cannot be &lt 1 character, &gt 32 characters, contain spaces or contain special characters (&lt;, &gt;, &amp;, &quot;, &#39;) </small></p>
+                <p><small id ="usernameConditions"> Cannot be &lt 1 character, &gt 32 characters, contain spaces or contain special characters (&lt;, &gt;, &amp;, &quot;, &#39;) </small></p>
             </div>
 
             <div class="form-group">
                 <label for="forename">Forename:</label>
                 <input type="text" id="forename" name="forename" placeholder="Enter your forename" required>
-                <p><small> Must be &gt1 characters & &lt= 32 and cannot contain any special characters</small></p>
+                <p><small id ="forenameConditions"> Must be &gt1 characters & &lt= 32 and cannot contain any special characters</small></p>
             </div>
 
             <div class="form-group">
             <label for="surname">Surname:</label>
             <input type="text" id="surname" name="surname" placeholder="Enter your email" required>
-            <p><small> Must be &gt1 characters & &lt= 32 and cannot contain any special characters</small></p>
+            <p><small id ="surnameConditions"> Must be &gt1 characters & &lt= 32 and cannot contain any special characters</small></p>
             </div>
             
             <div class="form-group">
-            <label for="forename">Email:</label>
+            <label for="email">Email:</label>
             <input type="text" id="email" name="email" placeholder="Enter your email" required>
+            <p><small id ="emailConditions"> Must be a valid email address</small></p>
             </div>
 
             <button type="submit" class="btn">Register</button>
         </form>
     </div>
 
-    <script src="script.js"></script>
+    <script src="CreateAccount.js"></script>
 </body>
 </html>

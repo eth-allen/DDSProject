@@ -1,6 +1,6 @@
 const runQuery = async (sql) => {
 
-    const url = "../dbConnector.php";
+    const url = "dbConnector.php";
 
     try {
 

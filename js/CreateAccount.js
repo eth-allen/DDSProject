@@ -29,14 +29,12 @@ loginForm.addEventListener("submit", function(event) {
 
     // Turns entered form information into form data variable
     const formData = new FormData(loginForm); 
-    
 
     // Splits up data into seperate varaibles from formData
     const username = formData.get("username");
     const forename = formData.get("forename");
     const surname = formData.get("surname");
     const email = formData.get("email");
-
 
     // ---------- VALIDATION OF USER INPUT ------------ //
 
@@ -75,7 +73,7 @@ loginForm.addEventListener("submit", function(event) {
     // --- FORM SUBMISSION
     if (isValid) {
         // Magic database stuff goes here:
-
+        
         // fetch() 
         // loginForm.submit(); 
     } else {

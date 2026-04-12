@@ -11,7 +11,7 @@
     <div class="login-box">
 
         <h1>Create an account</h1>
-        <form action="/login" method="post" id="loginForm">
+        <form id="loginForm">
             <div class="form-group">
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" placeholder="Enter your username" required>
@@ -26,7 +26,7 @@
 
             <div class="form-group">
             <label for="surname">Surname:</label>
-            <input type="text" id="surname" name="surname" placeholder="Enter your email" required>
+            <input type="text" id="surname" name="surname" placeholder="Enter your surname" required>
             <p><small id ="surnameConditions"> Must be &gt1 characters & &lt= 32 and cannot contain any special characters</small></p>
             </div>
             
@@ -40,6 +40,6 @@
         </form>
     </div>
 
-    <script src="CreateAccount.js"></script>
+    <script src="js/CreateAccount.js"></script>
 </body>
 </html>

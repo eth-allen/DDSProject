@@ -7,17 +7,16 @@ document.addEventListener('DOMContentLoaded', function() {
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
 
-            const username = document.getElementById('username').value;
+            const username = document.getElementById('username').value.trim(); // removes whitespace with .trim();
 
-            // Need to better validate username like whitespace stuff
-            if (!username) {
-                alert('Please enter a username.');
-                return;
+            if (!username || username === "") {
+                alert('Please enter a valid username.');
+                return; 
             }
 
             // TODO: Implement actual authentication logic here
             if (username) {
-                // Redirect to homepage
+                // Figure out how to validate
                 window.location.href = 'HomePage.html';
             }
         });

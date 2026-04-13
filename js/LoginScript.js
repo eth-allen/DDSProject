@@ -16,10 +16,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // TODO: Implement actual authentication logic here
             if (username) {
-<<<<<<< Updated upstream
-                const existingUsernames = await runQuery(`SELECT Username FROM Logger WHERE Username = '${username}';`);
-=======
-                const retrievedUsername = runQuery(`SELECT Username FROM Logger WHERE Username = '${username}';`);
+
+                const retrievedUsername = await runQuery(`SELECT Username FROM Logger WHERE Username = '${username}';`);
 
                 if(retrievedUsername.data != []) {
                     alert("Username does not exist.");
@@ -33,8 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.location.href = "HomePage.html"; // Sends user to homepage
                 }
                 
-
->>>>>>> Stashed changes
                 console.log(existingUsernames);
                 // Figure out how to validate
                 window.location.href = 'HomePage.html';

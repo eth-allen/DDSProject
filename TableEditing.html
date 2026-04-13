@@ -198,9 +198,10 @@
     }
 
     const renderTables = async () => {
-        const [loggerResult, locationResult, reportResult] = await Promise.all([
+        const [loggerResult, locationResult, evidenceResult, reportResult] = await Promise.all([
             runQuery("SELECT * FROM Logger"),
             runQuery("SELECT * FROM Location"),
+            runQuery("SELECT * FROM Evidence"),
             runQuery("SELECT * FROM Report")
         ]);
 
@@ -214,12 +215,16 @@
             renderLocationSelection(locationResult.data);
         }
 
+        if (evidenceResult?.success && Array.isArray(evidenceResult.data)) {
+            renderEvidenceSelection(evidenceResult.data);
+        }
+
         if (reportResult?.success && Array.isArray(reportResult.data)) {
             renderReports(reportResult.data);
         }
 
-        if (loggerResult?.error || locationResult?.error || reportResult?.error) {
-            console.error("Data load error", { loggerResult, locationResult, reportResult });
+        if (loggerResult?.error || locationResult?.error || evidenceResult?.error || reportResult?.error) {
+            console.error("Data load error", { loggerResult, locationResult, evidenceResult, reportResult });
         }
     }
 
@@ -236,6 +241,14 @@
 
         for (let row of rows) {
             loggerSelection.innerHTML += `<option value="${row.LocationID}">${row.Latitude}, ${row.Longitude}</option>`;
+        }
+    }
+
+    function renderEvidenceSelection(rows) {
+        const evidenceSelection = document.getElementById("evidence-selection");
+
+        for (let row of rows) {
+            evidenceSelection.innerHTML += `<option value="${row.EvidenceID}"></option>`;
         }
     }
 
@@ -297,7 +310,7 @@
         if (insertResult?.error) {
             console.error("Data load error", {insertResult});
         }
-
+        
         renderTables();
     });*/ //finish after all selectors are in
 

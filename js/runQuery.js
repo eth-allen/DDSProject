@@ -14,7 +14,7 @@ const runQuery = async (sql) => {
         if (!response.ok) {
             throw new Error(`HTTP Error ${response.status}`);
         }
-
+        
         const contentType = response.headers.get("content-type") || "";
         const rawBody = await response.text();
 

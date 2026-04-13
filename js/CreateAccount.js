@@ -90,16 +90,17 @@ loginForm.addEventListener("submit", function(event) {
     // --- FORM SUBMISSION
     if (isValid) {
         // might be bad idea need to check design spec probably sql injection risk 
-        //const insertResult = runQuery(`INSERT INTO Logger (username, forename, surname, email) VALUES ('${username}', '${forename}', '${surname}', '${email}')`);
+        const insertResult = runQuery(`INSERT INTO Logger (username, forename, surname, email) VALUES ('${username}', '${forename}', '${surname}', '${email}')`);
 
-        // If theres an error with sql query
-        //if (insertResult?.error) {
-        //    console.error("Data load error", {insertResult});
-        //}
+        //If theres an error with sql query
+        if (insertResult?.error) {
+            console.error("Data load error", {insertResult});
+        }
         // Else direct user to homepage logged in (or login page if thats too hard)
-        //else { }
-        alert("Account created successfully, directing you to login page"); // probably better less intrusvie way of doing this like through html editing     
-        window.location.href = "index.html"; 
+        else { 
+            alert("Account created successfully, directing you to login page"); // probably better less intrusvie way of doing this like through html editing     
+            window.location.href = "index.html"; 
+        }
     }
     else {
         console.log("Form validation failed (isValid is false)");

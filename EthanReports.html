@@ -97,13 +97,11 @@
             <table id="ethan-reports2" class="data-table">
                 <thead>
                 <tr>
-                    <th>Logger ID</th>
-                    <th>Logger Name</th>
-                    <th>Email</th>
-                    <th>Total Reports</th>
-                    <th>First Report Date</th>
-                    <th>Recent Report Date</th>
-                    <th>Days Between Reports</th>
+                    <th>Species Name</th>
+                    <th>Conservation Status</th>
+                    <th>Total Sightings</th>
+                    <th>Earliest Sighting</th>
+                    <th>Most Recent Sighting</th>
                 </tr>
                 </thead>
                 <tbody id="ethan-reports2-body"></tbody>
@@ -114,20 +112,18 @@
                     const tbody = document.getElementById("ethan-reports2-body");
                     tbody.innerHTML = rows.map((row) => `
                         <tr>
-                            <td>${row.LoggerID ?? ""}</td>
-                            <td>${row.FullName ?? ""}</td>
-                            <td>${row.Email ?? ""}</td>
-                            <td>${row.TotalReports ?? ""}</td>
-                            <td>${row.FirstReport ?? ""}</td>
-                            <td>${row.MostRecentReport ?? ""}</td>
-                            <td>${row.AvgDaysBetweenReports ?? ""}</td>
+                            <td>${row.Species_Name ?? ""}</td>
+                            <td>${row.Conservation_Status ?? ""}</td>
+                            <td>${row.Total_Sightings ?? ""}</td>
+                            <td>${row.Earliest_Record ?? ""}</td>
+                            <td>${row.Most_Recent_Record ?? ""}</td>
                         </tr>
                     `).join("");
                 }
 
                 document.addEventListener("DOMContentLoaded", async () => {
                     const [EthanResultTwo] = await Promise.all([
-                        runQuery("SELECT * FROM vw_endangered_species_monitoring WHERE TotalReports > 0 ORDER BY TotalReports DESC, MostRecentReport DESC;"),
+                        runQuery("SELECT S.Name AS Species_Name, S.Status AS Conservation_Status, COUNT(R.ReportID) AS Total_Sightings, MIN(R.ReportDate) AS Earliest_Record, MAX(R.ReportDate) AS Most_Recent_Record FROM Species S INNER JOIN Report R ON S.SpeciesID = R.SpeciesID WHERE S.Status = 'High' GROUP BY S.Name, S.Status HAVING Total_Sightings > 0 ORDER BY Total_Sightings DESC;"),
                     ]);
 
                     if (EthanResultTwo?.success && Array.isArray(EthanResultTwo.data)) {
@@ -138,10 +134,56 @@
                         console.error("Data load error", {EthanResultTwo});
                     }
                 });
+            </script>
         </div>
 
+            <div>
+                <div class="report-section">
+                    <h3>Report 3:</h3>
+                    <p>Report Title: Regional Poaching Summary</p><br>
+                    <p>Business Question: What is the volume of poaching evidence types reported across different countries and methods used?</p><br>
+                    <p>Why this report is useful: It helps governments identify hotspots for unusual activity, allowing them to allocate resources more effectively.</p><br>
+                    <p>Tables Used: Report, Location, Evidencet</p>
 
-        </div>
+                    <div class="report-data">
+                        <table id="ethan-reports3" class="data-table">
+                            <thead>
+                            <tr>
+                                <th>Country</th>
+                                <th>Incident Count</th>
+                                <th>Evidence</th>
+                            </tr>
+                            </thead>
+                            <tbody id="ethan-reports3-body"></tbody>
+                        </table>
+
+                        <script>
+                            function jsonGrabberThree (rows) {
+                                const tbody = document.getElementById("ethan-reports2-body");
+                                tbody.innerHTML = rows.map((row) => `
+                        <tr>
+                            <td>${row.Country ?? ""}</td>
+                            <td>${row.Incident_Count ?? ""}</td>
+                            <td>${row.Evidence_Methods ?? ""}</td>
+                        </tr>
+                    `).join("");
+                            }
+
+                            document.addEventListener("DOMContentLoaded", async () => {
+                                const [EthanResultThree] = await Promise.all([
+                                    runQuery("SELECT Country, COUNT(*) AS Incident_Count, GROUP_CONCAT(DISTINCT EvidenceType) AS Evidence_Methods FROM GlobalThreatAudit WHERE ReportDate >= '2025-01-01' GROUP BY Country ORDER BY Incident_Count DESC LIMIT 10;"),
+                                ]);
+
+                                if (EthanResultThree?.success && Array.isArray(EthanResultThree.data)) {
+                                    jsonGrabberThree(EthanResultThree.data);
+                                }
+
+                                if (EthanResultThree?.error) {
+                                    console.error("Data load error", {EthanResultThree});
+                                }
+                            });
+                        </script>
+                    </div>
     </div>
 
     <footer class="footer">

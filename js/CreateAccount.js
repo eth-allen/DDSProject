@@ -98,6 +98,7 @@ loginForm.addEventListener("submit", function(event) {
         //If theres an error with sql query
         if (insertResult?.error) {
             console.error("Data load error", {insertResult});
+            alert("An error occured. Account creation unsuccessful")
         }
         // Else direct user to homepage logged in (or login page if thats too hard)
         else { 

@@ -29,6 +29,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else if (retrievedUsername.success) {
                     alert("Successful login. Directing you to the home page");
                     window.location.href = "HomePage.html"; // Sends user to homepage
+                } else {
+                    alert("Unknown failiure");
                 }
                 
                 console.log(existingUsernames);

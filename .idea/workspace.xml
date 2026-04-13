@@ -5,8 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="REM dbConnector.php">
+      <change afterPath="$PROJECT_DIR$/dbConnector.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dbConnector.php" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TableEditing.html" beforeDir="false" afterPath="$PROJECT_DIR$/TableEditing.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/CreateAccount.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/CreateAccount.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/LoginScript.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/LoginScript.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -26,7 +30,6 @@
   </component>
   <component name="EmbeddingIndexingInfo">
     <option name="cachedIndexableFilesCount" value="14" />
-    <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -44,12 +47,12 @@
     &quot;assignee&quot;: &quot;ethanallenn&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/ethanallenn/DDSProject.git&quot;,
-    &quot;accountId&quot;: &quot;81e03019-34cb-4d42-8c66-e7d6f08f7655&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/ethanallenn/DDSProject.git",
+    "accountId": "e558c5af-3b78-46de-9f11-d2c4f2e071c1"
   }
-}</component>
+}]]></component>
   <component name="McpProjectServerCommands">
     <commands />
     <urls />
@@ -101,6 +104,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Ethan Allen\DDSProject" />
       <recent name="$PROJECT_DIR$" />
     </key>
   </component>
@@ -130,6 +134,7 @@
       <workItem from="1775241614093" duration="31000" />
       <workItem from="1775241705360" duration="33000" />
       <workItem from="1776070852947" duration="911000" />
+      <workItem from="1776082479510" duration="1656000" />
     </task>
     <task id="LOCAL-00001" summary="updated idea">
       <option name="closed" value="true" />

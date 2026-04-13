@@ -1,4 +1,7 @@
 // Gets all HTML elements required
+
+<script src="runQuery.js"></script>
+
 const loginForm = document.getElementById("loginForm");
 
 const usernameBox = document.getElementById("username");

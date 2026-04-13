@@ -251,8 +251,8 @@
 
 <script src="js/runQuery.js"></script>
 <script>
-    const loggerForm = document.getElementById("logger-form");
-    const locationForm = document.getElementById("location-form");
+    //const loggerForm = document.getElementById("logger-form");
+    //const locationForm = document.getElementById("location-form");
 
     const loggerTableBody = document.getElementById("logger-table-body");
     const locationTableBody = document.getElementById("location-table-body");
@@ -338,6 +338,24 @@
             locationSelection.innerHTML += `<option value="${row.LocationID}">${row.Latitude}, ${row.Longitude}</option>`;
         }
     }
+
+    function renderEvidenceSelection(rows) {
+        const evidenceSelection = document.getElementById("evidence-selection");
+        evidenceSelection.innerHTML = "";
+
+        for (let row of rows) {
+            evidenceSelection.innerHTML += `<option value="${row.EvidenceID}">${row.Description} (ID: ${row.EvidenceID})</option>`;
+        }
+    };
+
+    function renderEvidenceSelection(rows) {
+        const evidenceSelection = document.getElementById("evidence-selection");
+        evidenceSelection.innerHTML = "";
+
+        for (let row of rows) {
+            evidenceSelection.innerHTML += `<option value="${row.EvidenceID}">${row.Description} (ID: ${row.EvidenceID})</option>`;
+        }
+    };
 
     function renderLocations(rows) {
         currentLocationRows = rows;
@@ -492,7 +510,7 @@
 
             await renderTables();
         }
-    }
+    });
 
     const loggerButton = document.getElementById("logger-submit-button");
 

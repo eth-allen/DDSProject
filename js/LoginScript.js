@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('loginForm');
 
     if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
+        loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
             const username = document.getElementById('username').value.trim(); // removes whitespace with .trim();
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // TODO: Implement actual authentication logic here
             if (username) {
-                const existingUsernames = runQuery(`SELECT Username FROM Logger WHERE Username = '${username}';`);
+                const existingUsernames = await runQuery(`SELECT Username FROM Logger WHERE Username = '${username}';`);
                 console.log(existingUsernames);
                 // Figure out how to validate
                 window.location.href = 'HomePage.html';

@@ -47,52 +47,40 @@ loginForm.addEventListener("submit", function(event) {
 
     // ---------- VALIDATION OF USER INPUT ------------ //
 
-    // validation variable
-    let isValid = true; 
+    let isValid = true;
+
+    if(username.isValidUsername) {
+
+        isValid = false;
+        //usernameBox.style.border = "2px solid red";
+        //usernameConditions.style.color = "red";
+    }
+    if(forename) {
+        isValid = false;
+                                //forenameBox.style.border = "2px solid red";
+            //forenameConditions.style.color = "red";
+    }
+
     
-    // Character lists for the .test() validation 
-    const usernameRegex = /^[^<>&"'\s]+$/ // banned special character list (<, >, &, ", ' and whitespace))
-    const namesRegex = /^[a-zA-Z\-']+$/; // allowed char list for forename/surname (a to z and A to Z + hypons and '), +$ makes it check entire word/input
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // looked up email regex list which should do fairly simple validation on emails 
 
-    // --- USERNAME VALIDATION: (Check lengths not < 1 and > 32, no spaces and no special characters &lt;, &gt;, &amp;, &quot;, &#39;)
-    // Tests if username fails any validation criteria
-    if ((username.length > 32 || username.length < 1) || !(usernameRegex.test(username)))  {
-        isValid = false; // If it does it fails validation
-        
-        // TODO: like highlight the conditions for the box red like small text/box border somehow
-        usernameBox.style.border = "2px solid red";
-        usernameConditions.style.color = "red";
-    }
 
-    // --- FORENAME VALIDATION (Check lengths not < 1 and > 32, no spaces and no special characters whatsoever)
-    if ( (forename.length > 32 || forename.length < 1) || !(namesRegex.test(forename)) ) {
-        isValid = false;
-        // like highlight the conditions for the box red like small text/box border somehow
-        forenameBox.style.border = "2px solid red";
-        forenameConditions.style.color = "red";
-    }
 
-    // --- SURNAME VALIDATION (Check lengths not < 1 and > 32, no spaces and no special characters whatsoever)
-    if ((surname.length > 32 || surname.length < 1) || !(namesRegex.test(surname))) {
-        isValid = false;
-        // like highlight the conditions for the box red like small text/box border somehow
-        surnameBox.style.border = "2px solid red";
-        surnameConditions.style.color = "red";
-    }
 
-    // --- EMAIL VALIDATION (checks regex list + length as emails cant be longer than 254 or less than 2 characters and could cause db issues if entered)
-    if (!emailRegex.test(email) || email.length > 254 || email.length < 3) {
-        isValid = false;
-        emailBox.style.border = "2px solid red";
-        emailConditions.style.color = "red";
-    }
+
+                        //surnameBox.style.border = "2px solid red";
+        //surnameConditions.style.color = "red";
+
+                    //emailBox.style.border = "2px solid red";
+            //emailConditions.style.color = "red";
+    // ---------- VALIDATION (using validationUtilities) ------- //
+    if()
+
 
     // ---------- SUBMISSION OF FORM TO DATABASE ------------ //
 
     // --- FORM SUBMISSION
     if (isValid) {
-        // might be bad idea need to check design spec probably sql injection risk 
+        // sql injection heaven  
         const insertResult = runQuery(`INSERT INTO Logger (username, forename, surname, email) VALUES ('${username}', '${forename}', '${surname}', '${email}')`);
 
         //If theres an error with sql query

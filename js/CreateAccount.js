@@ -1,7 +1,7 @@
-// Gets all HTML elements required
-
 <script src="runQuery.js"></script>
+import {isValidName, isValidUsername, isValidEmail} from '/validationUtilities.js';
 
+// Gets all HTML elements required
 const loginForm = document.getElementById("loginForm");
 
 const usernameBox = document.getElementById("username");
@@ -49,38 +49,32 @@ loginForm.addEventListener("submit", function(event) {
 
     let isValid = true;
 
-    if(username.isValidUsername) {
-
+    if(!isValidUsername(username)) {
         isValid = false;
-        //usernameBox.style.border = "2px solid red";
-        //usernameConditions.style.color = "red";
+        usernameBox.style.border = "2px solid red";
+        usernameConditions.style.color = "red";
     }
-    if(forename) {
+    if(!isValidName(forename)) {
         isValid = false;
-                                //forenameBox.style.border = "2px solid red";
-            //forenameConditions.style.color = "red";
+        forenameBox.style.border = "2px solid red";
+        forenameConditions.style.color = "red";
     }
-
-    
-
-
-
-
-
-                        //surnameBox.style.border = "2px solid red";
-        //surnameConditions.style.color = "red";
-
-                    //emailBox.style.border = "2px solid red";
-            //emailConditions.style.color = "red";
-    // ---------- VALIDATION (using validationUtilities) ------- //
-    if()
-
+    if(!isValidName(surname)) {
+        isValid = false;
+        surnameBox.style.border = "2px solid red";
+        surnameConditions.style.color = "red";
+    }
+    if(!isValidEmail(email)) {
+        isValid = false;
+        emailBox.style.border = "2px solid red";
+        emailConditions.style.color = "red";
+    }
 
     // ---------- SUBMISSION OF FORM TO DATABASE ------------ //
 
     // --- FORM SUBMISSION
     if (isValid) {
-        // sql injection heaven  
+        // Inserts form data into database (sql injection heaven)  
         const insertResult = runQuery(`INSERT INTO Logger (username, forename, surname, email) VALUES ('${username}', '${forename}', '${surname}', '${email}')`);
 
         //If theres an error with sql query
@@ -95,7 +89,8 @@ loginForm.addEventListener("submit", function(event) {
         }
     }
     else {
+        // If anything in form was invalid (isValid is false)
         console.log("Form validation failed (isValid is false)");
-        alert("Invalid form data entered."); // probably better less intrusvie way of doing this like through html editing 
+        alert("Invalid form data entered."); // Probably better less intrusvie way of doing this like through html editing 
     }
 }); // } + ) is normal because of how event listener works 

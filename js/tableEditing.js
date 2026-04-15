@@ -83,7 +83,7 @@ function renderLocationSelection(rows) {
     locationSelection.innerHTML = "";
 
     for (let row of rows) {
-        locationSelection.innerHTML += `<option value="${row.LocationID}">${row.Latitude}, ${row.Longitude} Country: </option>`;
+        locationSelection.innerHTML += `<option value="${row.LocationID}">${row.Latitude}, ${row.Longitude} (Country: ${row.Country})</option>`;
     }
 }
 
@@ -273,7 +273,7 @@ const reportForm = document.getElementById("report-form");
 
 document.addEventListener("DOMContentLoaded", renderTables);
 
-loggerForm.addEventListener("submit", async () => {
+loggerForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     if (editingLocationId === null) {

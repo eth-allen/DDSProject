@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // figure out how to reset page or something probably
                     
                 } else if (retrievedUsername.success) { 
+                    sessionStorage.setItem("loggedInUser", username); // Saves current logged in user to session
                     alert("Successful login. Directing you to the home page");
                     window.location.href = "HomePage.html"; // Sends user to homepage
                 } else {

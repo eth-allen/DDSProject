@@ -83,7 +83,7 @@ function renderLocationSelection(rows) {
     locationSelection.innerHTML = "";
 
     for (let row of rows) {
-        locationSelection.innerHTML += `<option value="${row.LocationID}">${row.Latitude}, ${row.Longitude}</option>`;
+        locationSelection.innerHTML += `<option value="${row.LocationID}">${row.Latitude}, ${row.Longitude} Country: </option>`;
     }
 }
 
@@ -367,4 +367,4 @@ reportForm.addEventListener("submit", async (event) => {
     reportForm.reset();
     
     renderTables();
-}); //finish after all selectors are in
+}); 

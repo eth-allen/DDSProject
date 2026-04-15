@@ -5,12 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="REM dbConnector.php">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CreateAccount.html" beforeDir="false" afterPath="$PROJECT_DIR$/CreateAccount.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TableEditing.html" beforeDir="false" afterPath="$PROJECT_DIR$/TableEditing.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ModifyAccount.html" beforeDir="false" afterPath="$PROJECT_DIR$/ModifyAccount.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/CreateAccount.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/CreateAccount.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/LoginScript.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/LoginScript.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/js/tableEditing.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/tableEditing.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +81,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "codeWithMe.voiceChat.enabledByDefault": "false",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "Merging main",
     "ignore.virus.scanning.warn.message": "true",
     "javascript.preferred.runtime.type.id": "node",
     "junie.onboarding.icon.badge.shown": "true",
@@ -136,7 +134,7 @@
       <workItem from="1775241705360" duration="33000" />
       <workItem from="1776070852947" duration="911000" />
       <workItem from="1776082479510" duration="1656000" />
-      <workItem from="1776251894853" duration="1380000" />
+      <workItem from="1776251894853" duration="1543000" />
     </task>
     <task id="LOCAL-00001" summary="updated idea">
       <option name="closed" value="true" />

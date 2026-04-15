@@ -1,4 +1,4 @@
-import { runQuery } from './runQuery.js';
+//import { runQuery } from './runQuery.js';
 import {isValidName, isValidUsername, isValidEmail} from './validationUtilities.js';
 
 // Gets all HTML elements required

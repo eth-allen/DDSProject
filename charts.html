@@ -5,37 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Endangered Species Tracker</title>
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+    </style>
 </head>
 <body>
     <div class="container">
-        <div>
-            <canvas id="myChart"></canvas>
+        <nav class="navbar">
+            <div class="navbar-container">
+                <h1 class="navbar-title">Endangered Species Tracker</h1>
+                <ul class="navbar-menu">
+                    <li><a href="HomePage.html" class="active">Home</a></li>
+                    <li><a href="TableEditing.html">Table Editing</a></li>
+                    <li><a href="index.html" class="logout-btn">Logout</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <div class="chart-container">
+            <canvas id="myChart">
+                <p>alt fallback text?</p>
+            </canvas>
         </div>
-            
+        
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script src="js/runQuery.js"></script>
     <script>
+    
     const ctx = document.getElementById('myChart');
     
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-        datasets: [{
-            label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
-            borderWidth: 1
-        }]
-        },
-        options: {
-        scales: {
-            y: {
-            beginAtZero: true
+    function createChart() {
+        const animalNames = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange']; //species names will go here
+        const sightingNumbers = [120, 19, 3, 5, 2, 3]; //number of reports with reporttype of animal sightings would go here
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+            labels: animalNames,
+            datasets: [{
+                label: 'Top 10 Reported Evidence/Sightings',
+                data: sightingNumbers,
+                backgroundColor:"green"
+            }]
+            },
+            options: {
+                
             }
-        }
-        }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        
+
+        createChart();
     });
+
     </script>
 </body>
 </html>

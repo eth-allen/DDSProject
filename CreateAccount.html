@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create an account</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+    <div class="login-box">
+
+        <h1>Create an account</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                <p><small id ="usernameConditions"> Cannot be &lt 1 character, &gt 32 characters, contain spaces or contain special characters (&lt;, &gt;, &amp;, &quot;, &#39;) </small></p>
+            </div>
+
+            <div class="form-group">
+                <label for="forename">Forename:</label>
+                <input type="text" id="forename" name="forename" placeholder="Enter your forename" required>
+                <p><small id ="forenameConditions"> Must be &gt;1 characters & &lt;= 32 and cannot contain any special characters</small></p>
+            </div>
+
+            <div class="form-group">
+            <label for="surname">Surname:</label>
+            <input type="text" id="surname" name="surname" placeholder="Enter your surname" required>
+            <p><small id ="surnameConditions"> Must be &gt;1 characters & &lt;= 32 and cannot contain any special characters</small></p>
+            </div>
+            
+            <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email" placeholder="Enter your email" required>
+            <p><small id ="emailConditions"> Must be a valid email address</small></p>
+            </div>
+
+            <button type="submit" class="btn">Register</button>
+        </form>
+    </div>
+    </div>
+    <script src = '/js/runQuery.js'></script>
+    <script type="module" src="js/CreateAccount.js"></script>
+</body>
+</html>

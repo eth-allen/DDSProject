@@ -14,10 +14,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 return; 
             }
 
-            const escapedUsername = username.replace(/'/g, "''");
-            const retrievedUsername = await runQuery(
-                `SELECT Username FROM Logger WHERE Username = '${escapedUsername}' LIMIT 1;`
-            );
+            // TODO: Implement actual authentication logic here
+            if (username) {
 
                 const retrievedUsername = await runQuery(`SELECT Username FROM Logger WHERE Username = '${username}';`);
 
@@ -33,26 +31,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     // figure out how to reset page or something probably
                     
                 } else if (retrievedUsername.success) { 
-                    sessionStorage.setItem("loggedInUser", username); // Saves current logged in user to session
                     alert("Successful login. Directing you to the home page");
+                    sessionStorage.setItem("loggedInUser", username); // Saves current logged in user to session
                     window.location.href = "HomePage.html"; // Sends user to homepage
                 } else {
                     alert("Unknown failiure");
                 }
             }
-
-            if (!retrievedUsername?.success || !Array.isArray(retrievedUsername.data)) {
-                alert("Login unsuccessful. Please try again.");
-                return;
-            }
-
-            if (retrievedUsername.data.length === 0) {
-                alert("Username does not exist.");
-                return;
-            }
-
-            alert("Successful login. Directing you to the home page.");
-            window.location.href = "HomePage.html"; // Sends user to homepage
         });
     }
 });

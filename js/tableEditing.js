@@ -69,6 +69,52 @@ function closeEditModal() {
     locationEditForm.reset();
 }
 
+async function deleteLoggerWithDependencies(loggerId) {
+    const linkedReportsResult = await runQuery(`SELECT ReportID FROM Report WHERE LoggerID = ${loggerId};`);
+    if (linkedReportsResult?.error) {
+        return linkedReportsResult;
+    }
+
+    if (Array.isArray(linkedReportsResult?.data) && linkedReportsResult.data.length > 0) {
+        const shouldDeleteReports = confirm(
+            `Logger ${loggerId} is used in ${linkedReportsResult.data.length} report(s). Delete those reports as well?`
+        );
+        if (!shouldDeleteReports) {
+            return { cancelled: true };
+        }
+
+        const deleteReportsResult = await runQuery(`DELETE FROM Report WHERE LoggerID = ${loggerId};`);
+        if (deleteReportsResult?.error) {
+            return deleteReportsResult;
+        }
+    }
+
+    return runQuery(`DELETE FROM Logger WHERE LoggerID = ${loggerId};`);
+}
+
+async function deleteLocationWithDependencies(locationId) {
+    const linkedReportsResult = await runQuery(`SELECT ReportID FROM Report WHERE LocationID = ${locationId};`);
+    if (linkedReportsResult?.error) {
+        return linkedReportsResult;
+    }
+
+    if (Array.isArray(linkedReportsResult?.data) && linkedReportsResult.data.length > 0) {
+        const shouldDeleteReports = confirm(
+            `Location ${locationId} is used in ${linkedReportsResult.data.length} report(s). Delete those reports as well?`
+        );
+        if (!shouldDeleteReports) {
+            return { cancelled: true };
+        }
+
+        const deleteReportsResult = await runQuery(`DELETE FROM Report WHERE LocationID = ${locationId};`);
+        if (deleteReportsResult?.error) {
+            return deleteReportsResult;
+        }
+    }
+
+    return runQuery(`DELETE FROM Location WHERE LocationID = ${locationId};`);
+}
+
 function renderLoggerSelection(rows) {
     const loggerSelection = document.getElementById("logger-selection");
     loggerSelection.innerHTML = "";
@@ -191,6 +237,22 @@ const renderTables = async () => {
 
 document.addEventListener("DOMContentLoaded", renderTables);
 
+editModalCloseButton.addEventListener("click", closeEditModal);
+loggerEditCancel.addEventListener("click", closeEditModal);
+locationEditCancel.addEventListener("click", closeEditModal);
+
+editModal.addEventListener("click", (event) => {
+    if (event.target === editModal) {
+        closeEditModal();
+    }
+});
+
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && editModal.classList.contains("is-open")) {
+        closeEditModal();
+    }
+});
+
 loggerTableBody.addEventListener("click", async (event) => {
     const button = event.target.closest("button[data-action]");
     if (!button) {
@@ -213,10 +275,13 @@ loggerTableBody.addEventListener("click", async (event) => {
             return;
         }
 
-        const deleteResult = await runQuery(`DELETE FROM Logger WHERE LoggerID = ${row.LoggerID};`);
+        const deleteResult = await deleteLoggerWithDependencies(row.LoggerID);
+        if (deleteResult?.cancelled) {
+            return;
+        }
         if (deleteResult?.error) {
             console.error("Logger delete failed", { deleteResult });
-            alert("Unable to delete this logger.");
+            alert(`Unable to delete this logger. ${deleteResult.error}`);
             return;
         }
 
@@ -250,10 +315,13 @@ locationTableBody.addEventListener("click", async (event) => {
             return;
         }
 
-        const deleteResult = await runQuery(`DELETE FROM Location WHERE LocationID = ${row.LocationID};`);
+        const deleteResult = await deleteLocationWithDependencies(row.LocationID);
+        if (deleteResult?.cancelled) {
+            return;
+        }
         if (deleteResult?.error) {
             console.error("Location delete failed", { deleteResult });
-            alert("Unable to delete this location.");
+            alert(`Unable to delete this location. ${deleteResult.error}`);
             return;
         }
 
@@ -271,9 +339,34 @@ const loggerForm = document.getElementById("logger-form");
 const locationForm = document.getElementById("location-form");
 const reportForm = document.getElementById("report-form");
 
-document.addEventListener("DOMContentLoaded", renderTables);
+loggerEditForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-loggerForm.addEventListener("submit", async (event) => {
+    if (editingLoggerId === null) {
+        return;
+    }
+
+    const forename = editForenameInput.value.trim();
+    const surname = editSurnameInput.value.trim();
+    const email = editEmailInput.value.trim();
+
+    if (!forename || !surname || !email) {
+        alert("Please fill in all logger fields.");
+        return;
+    }
+
+    const saveResult = await runQuery(`UPDATE Logger SET Forename = '${escapeSql(forename)}', Surname = '${escapeSql(surname)}', Email = '${escapeSql(email)}' WHERE LoggerID = ${editingLoggerId};`);
+    if (saveResult?.error) {
+        console.error("Logger save failed", { saveResult });
+        alert(`Unable to save logger. ${saveResult.error}`);
+        return;
+    }
+
+    closeEditModal();
+    await renderTables();
+});
+
+locationEditForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     if (editingLocationId === null) {
@@ -292,7 +385,7 @@ loggerForm.addEventListener("submit", async (event) => {
     const saveResult = await runQuery(`UPDATE Location SET Country = '${escapeSql(country)}', Latitude = ${latitude}, Longitude = ${longitude} WHERE LocationID = ${editingLocationId};`);
     if (saveResult?.error) {
         console.error("Location save failed", { saveResult });
-        alert("Unable to save location.");
+        alert(`Unable to save location. ${saveResult.error}`);
         return;
     }
 

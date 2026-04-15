@@ -1,5 +1,19 @@
-<script src="runQuery.js"></script>
-import {isValidName, isValidUsername, isValidEmail} from '/validationUtilities.js';
+
+const usernameRegex = /^[^<>&"'\s]+$/;
+const namesRegex = /^[a-zA-Z\-']+$/;
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function isValidUsername(username) {
+    return !((username.length > 32 || username.length < 1) || !(usernameRegex.test(username)));
+}
+
+function isValidName(name) {
+    return !((name.length > 32 || name.length < 1) || !(namesRegex.test(name)));
+}
+
+function isValidEmail(email) {
+    return !(!emailRegex.test(email) || email.length > 254 || email.length < 3);
+}
 
 // Gets all HTML elements required
 const loginForm = document.getElementById("loginForm");
@@ -16,8 +30,12 @@ const surnameConditions = document.getElementById("surnameConditions")
 const emailBox = document.getElementById("email");
 const emailConditions = document.getElementById("emailConditions")
 
+function escapeSql(value) {
+    return String(value).replace(/'/g, "''");
+}
+
 // Event listener, when submit button in login form is pressed, stuff in event listener occurs
-loginForm.addEventListener("submit", function(event) {
+loginForm.addEventListener("submit", async function(event) {
     
     event.preventDefault(); // stops page automatically refreshing when submits pressed
 
@@ -34,7 +52,6 @@ loginForm.addEventListener("submit", function(event) {
     emailBox.style.border = "";
     emailConditions.style.color = "";
 
-    // ---------- SEPERATING FORM ELEMENTS INTO VARIALES ------------ //
 
     // Turns entered form information into form data variable
     const formData = new FormData(loginForm); 
@@ -44,8 +61,6 @@ loginForm.addEventListener("submit", function(event) {
     const forename = formData.get("forename");
     const surname = formData.get("surname");
     const email = formData.get("email");
-
-    // ---------- VALIDATION OF USER INPUT ------------ //
 
     let isValid = true;
 
@@ -70,12 +85,9 @@ loginForm.addEventListener("submit", function(event) {
         emailConditions.style.color = "red";
     }
 
-    // ---------- SUBMISSION OF FORM TO DATABASE ------------ //
-
-    // --- FORM SUBMISSION
     if (isValid) {
         // Inserts form data into database (sql injection heaven)  
-        const insertResult = runQuery(`INSERT INTO Logger (username, forename, surname, email) VALUES ('${username}', '${forename}', '${surname}', '${email}')`);
+        const insertResult = await runQuery(`INSERT INTO Logger (Username, Forename, Surname, Email) VALUES ('${escapeSql(username)}', '${escapeSql(forename)}', '${escapeSql(surname)}', '${escapeSql(email)}')`);
 
         //If theres an error with sql query
         if (insertResult?.error) {

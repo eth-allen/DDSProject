@@ -14,29 +14,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 return; 
             }
 
-            // TODO: Implement actual authentication logic here
-            if (username) {
+            const escapedUsername = username.replace(/'/g, "''");
+            const retrievedUsername = await runQuery(
+                `SELECT Username FROM Logger WHERE Username = '${escapedUsername}' LIMIT 1;`
+            );
 
-                const retrievedUsername = await runQuery(`SELECT Username FROM Logger WHERE Username = '${username}';`);
-
-                if(retrievedUsername.data != []) {
-                    alert("Username does not exist.");
-                    // figure out how to like reset page or something
-
-                } else if (retrievedUsername.error === undefined){
-                    alert("Login unsuccessful, error occured");
-                    // figure out how to reset page or something probably
-                } else if (retrievedUsername.success) {
-                    alert("Successful login. Directing you to the home page");
-                    window.location.href = "HomePage.html"; // Sends user to homepage
-                } else {
-                    alert("Unknown failiure");
-                }
-                
-                console.log(existingUsernames);
-                // Figure out how to validate
-                window.location.href = 'HomePage.html';
+            if (retrievedUsername?.error) {
+                alert(`Login unsuccessful: ${retrievedUsername.error}`);
+                return;
             }
+
+            if (!retrievedUsername?.success || !Array.isArray(retrievedUsername.data)) {
+                alert("Login unsuccessful. Please try again.");
+                return;
+            }
+
+            if (retrievedUsername.data.length === 0) {
+                alert("Username does not exist.");
+                return;
+            }
+
+            alert("Successful login. Directing you to the home page.");
+            window.location.href = "HomePage.html"; // Sends user to homepage
         });
     }
 });

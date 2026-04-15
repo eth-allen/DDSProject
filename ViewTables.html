@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endangered Species Tracker - Manage user reports</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/viewTables.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-container">
+            <h1 class="navbar-title">Endangered Species Tracker</h1>
+            <ul class="navbar-menu">
+                <li><a href="HomePage.html" class="active">Home</a></li>
+                <li><a href="TableEditing.html">Table Editing</a></li>
+                <li><a href="index.html" class="logout-btn">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="hero-content">
+            <h2>Existing user accounts</h2>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>View loggers</h1>
+
+            <div id="loggers" class="form-table-container">
+
+            <table id="logger-table">
+                <thead>
+                <tr>
+                    <th>Logger ID</th>
+                    <th>Forename</th>
+                    <th>Surname</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="logger-table-body"></tbody>
+            </table>
+        </div>
+
+
+    <div id="locations" class="form-table-container">
+
+        <h2>View Locations</h2>
+        <form id="location-form"> 
+
+            <label for="country-input">Country</label>
+            <input type="text" id="country-input" required> <br>
+
+            <label for="latitude-input">Latitude</label>
+            <input type="number" step="any" id="latitude-input" required> <br>
+
+            <label for="longitude-input">Longitude</label>
+            <input type="number" step="any" id="longitude-input" required> <br>
+
+            <button id="location-submit-button">Add New Location</button>
+
+        </form>
+
+        <table id="location-table">
+            <thead>
+            <tr>
+                <th>Location ID</th>
+                <th>Country</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="location-table-body"></tbody>
+        </table>
+    </div>
+
+
+
+    
+    <footer class="footer">
+        <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
+    </footer>
+</body>
+</html>

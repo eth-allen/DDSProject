@@ -1,0 +1,62 @@
+
+form, table {
+    margin: 15px 0;
+}
+tr:nth-child(even) {
+    background-color:lightgrey;
+}
+table {
+    width:100%;
+}
+form button {
+    display:block;
+    padding:5px;
+}
+
+.edit-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 1000;
+}
+
+.edit-modal.is-open {
+    display: flex;
+}
+
+.edit-modal-panel {
+    position: relative;
+    width: min(520px, 100%);
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.edit-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: none;
+    background: transparent;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.edit-modal-section {
+    display: none;
+}
+
+.edit-modal-section.is-active {
+    display: block;
+}
+
+.edit-modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}

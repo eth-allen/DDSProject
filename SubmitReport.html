@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endangered Species Tracker - Report submission</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        form, table {
+            margin: 15px 0;
+        }
+        tr:nth-child(even) {
+            background-color:lightgrey;
+        }
+        table {
+            width:100%;
+        }
+        form button {
+            display:block;
+            padding:5px;
+        }
+
+        .edit-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .edit-modal.is-open {
+            display: flex;
+        }
+
+        .edit-modal-panel {
+            position: relative;
+            width: min(520px, 100%);
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .edit-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            border: none;
+            background: transparent;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .edit-modal-section {
+            display: none;
+        }
+
+        .edit-modal-section.is-active {
+            display: block;
+        }
+
+        .edit-modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+    </style>
+
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-container">
+        <h1 class="navbar-title">Endangered Species Tracker</h1>
+        <ul class="navbar-menu">
+            <li><a href="HomePage.html">Home</a></li>
+            <li><a href="SubmitReport.html" class="active">Submit a report</a></li>
+            <li><a href="index.html" class="logout-btn">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+    <div id="reports" class="form-table-container">
+
+        <h2>Submit a report</h2>
+
+        <form id="report-form">
+            <label for="logger-selection">Logger</label>
+            <select id="logger-selection" required>
+
+            </select> <br>
+
+            <label for="location-selection">Location</label>
+            <select id="location-selection" required>
+
+            </select> <br>
+
+            <label for="evidence-selection">Evidence</label>
+            <select id="evidence-selection" required>
+                <option value="evidence1">1st Evidence</option>
+                <option value="evidence2">2st Evidence</option>
+            </select> <br>
+
+            <label for="species-selection">Species</label>
+            <select id="species-selection" required>
+                <option value="species1">1st Species</option>
+                <option value="species2">2st Species</option>
+            </select> <br>
+
+            <label for="description-input">Description</label>
+            <input type="text" id="description-input" required> <br>
+
+            <button id="report-submit-button">Submit Report</button>
+        </form>
+    </div>
+
+</div>
+
+
+
+<script src="js/runQuery.js"></script>
+<script src="js/tableEditing.js"></script>
+
+
+<footer class="footer">
+    <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
+</footer>
+</body>
+</html>

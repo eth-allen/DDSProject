@@ -19,14 +19,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const retrievedUsername = await runQuery(`SELECT Username FROM Logger WHERE Username = '${username}';`);
 
+                // If no usernames returned (username doesn't exist)
                 if(retrievedUsername.data != []) {
                     alert("Username does not exist.");
-                    // figure out how to like reset page or something
+                    // Figure out how to reset page or something
 
-                } else if (retrievedUsername.error === undefined){
+                } else if (retrievedUsername.error === undefined){ // If runqueory returns an error for whatever reason
                     alert("Login unsuccessful, error occured");
+                    console.log(retrievedUsername.error);
                     // figure out how to reset page or something probably
-                } else if (retrievedUsername.success) {
+                } else if (retrievedUsername.success) { 
                     alert("Successful login. Directing you to the home page");
                     window.location.href = "HomePage.html"; // Sends user to homepage
                 } else {

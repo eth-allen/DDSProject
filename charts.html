@@ -34,9 +34,9 @@
     
     const ctx = document.getElementById('myChart');
     
-    function createChart() {
-        const animalNames = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange']; //species names will go here
-        const sightingNumbers = [120, 19, 3, 5, 2, 3]; //number of reports with reporttype of animal sightings would go here
+    function createChart(animalNames, sightingNumbers) {
+        //const animalNames = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange']; //species names will go here
+        //const sightingNumbers = [120, 19, 3, 5, 2, 3]; //number of reports with reporttype of animal sightings would go here
 
         new Chart(ctx, {
             type: 'bar',
@@ -55,9 +55,32 @@
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
+        const queryResult = await runQuery(
+            `SELECT Species.Name, COUNT(Report.SpeciesID)
+            FROM Report
+            JOIN Species ON Report.SpeciesID=Species.SpeciesID
+            GROUP BY Report.SpeciesID
+            LIMIT 10;`
+        );
+
+        if (queryResult.success && Array.isArray(queryResult.data)) {
+            let animalNames = [];
+            let sightingNumbers = [];
+
+            for (let i = 0; i < queryResult.data.length; i++) {
+                animalNames[i] = queryResult.data[i].Name;
+                sightingNumbers[i] = queryResult.data[i]["COUNT(Report.SpeciesID)"];
+            }
+
+            console.log(animalNames);
+            console.log(sightingNumbers);
+
+            createChart(animalNames, sightingNumbers);
+        }
+
         
 
-        createChart();
+        
     });
 
     </script>

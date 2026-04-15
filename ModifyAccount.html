@@ -3,60 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modify account</title>
+    <title>Endangered Species Tracker - Modify account</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/modifyAccount.css">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="navbar-container">
             <h1 class="navbar-title">Endangered Species Tracker</h1>
             <ul class="navbar-menu">
-                <li><a href="HomePage.html" class="active">Home</a></li>
+                <li><a href="HomePage.html">Home</a></li>
                 <li><a href="TableEditing.html">Table Editing</a></li>
                 <li><a href="index.html" class="logout-btn">Logout</a></li>
             </ul>
         </div>
     </nav>
 
-    <div class="dashboard-container">
+    <div class="account-wrapper">
         
-
         <aside class="sidebar">
-            <button class="sidebar-btn">VIEW ACCOUNT</button>
-            <button class="sidebar-btn active">MODIFY ACCOUNT</button>
-            <button class="sidebar-btn">DELETE ACCOUNT</button>
+            <button class="sidebar-btn">View Account</button>
+            <button class="sidebar-btn active">Modify Account</button>
+            <button class="sidebar-btn">Delete Account</button>
         </aside>
 
         <main class="main-content">
-            <div class="modify-header">Modify account details:</div>
+            <div class="account-card">
+                <h2 class="section-title" style="text-align: left; margin-bottom: 25px; font-size: 26px;">Modify Account Details</h2>
 
-            <form id="modifyForm" class="modify-form">
-                
-                <div class="input-row">
-                    <input type="text" id="username" name="username" placeholder="Enter new username">
-                    <button type="submit" class="submit-btn">Submit</button>
-                </div>
+                <form id="modifyForm" class="account-form">
+                    
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Enter new username">
+                    </div>
 
-                <div class="input-row">
-                    <input type="text" id="forename" name="forename" placeholder="Enter new forename">
-                    <button type="submit" class="submit-btn">Submit</button>
-                </div>
+                    <div class="form-group">
+                        <label for="forename">Forename</label>
+                        <input type="text" id="forename" name="forename" placeholder="Enter new forename">
+                    </div>
 
-                <div class="input-row">
-                    <input type="text" id="surname" name="surname" placeholder="Enter new surname">
-                    <button type="submit" class="submit-btn">Submit</button>
-                </div>
+                    <div class="form-group">
+                        <label for="surname">Surname</label>
+                        <input type="text" id="surname" name="surname" placeholder="Enter new surname">
+                    </div>
 
-                <div class="input-row">
-                    <input type="email" id="email" name="email" placeholder="Enter new email">
-                    <button type="submit" class="submit-btn">Submit</button>
-                </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="Enter new email">
+                    </div>
 
-            </form>
+                    <button type="submit" class="btn update-btn">Save Changes</button>
+
+                </form>
+            </div>
         </main>
 
     </div>
-
+    
+    <footer class="footer">
+        <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
+    </footer>
     <script src="CreateAccount.js"></script>
 </body>
-</html>

@@ -22,16 +22,19 @@ const loggerEditSection = document.getElementById("logger-edit-section");
 const locationEditSection = document.getElementById("location-edit-section");
 const evidenceEditSection = document.getElementById("evidence-edit-section");
 const speciesEditSection = document.getElementById("species-edit-section");
+const reportEditSection = document.getElementById("report-edit-section");
 
 const loggerEditForm = document.getElementById("logger-edit-form");
 const locationEditForm = document.getElementById("location-edit-form");
 const evidenceEditForm = document.getElementById("evidence-edit-form");
 const speciesEditForm = document.getElementById("species-edit-form");
+const reportEditForm = document.getElementById("report-edit-form");
 
 const loggerEditCancelButton = document.getElementById("logger-edit-cancel");
 const locationEditCancelButton = document.getElementById("location-edit-cancel");
 const evidenceEditCancelButton = document.getElementById("evidence-edit-cancel");
 const speciesEditCancelButton = document.getElementById("species-edit-cancel");
+const reportEditCancelButton = document.getElementById("report-edit-cancel");
 
 const editForenameInput = document.getElementById("edit-forename-input");
 const editSurnameInput = document.getElementById("edit-surname-input");
@@ -43,19 +46,28 @@ const editEvidenceTypeInput = document.getElementById("edit-evidence-type-input"
 const editEvidenceDescInput = document.getElementById("edit-evidence-desc-input");
 const editSpeciesNameInput = document.getElementById("edit-species-name-input");
 const editSpeciesStatusInput = document.getElementById("edit-species-status-input");
+const editReportLoggerIdInput = document.getElementById("edit-report-logger-id-input");
+const editReportLocationIdInput = document.getElementById("edit-report-location-id-input");
+const editReportEvidenceIdInput = document.getElementById("edit-report-evidence-id-input");
+const editReportDateInput = document.getElementById("edit-report-date-input");
+const editReportSpeciesIdInput = document.getElementById("edit-report-species-id-input");
+const editReportTypeInput = document.getElementById("edit-report-type-input");
+const editReportDescriptionInput = document.getElementById("edit-report-description-input");
 
 let currentLoggerRows = [];
 let currentLocationRows = [];
 let currentEvidenceRows = [];
 let currentSpeciesRows = [];
+let currentReportRows = [];
 
 let editingLoggerId = null;
 let editingLocationId = null;
 let editingEvidenceId = null;
 let editingSpeciesId = null;
+let editingReportId = null;
 
 const hasTableView = Boolean(loggerTableBody || locationTableBody || evidenceTableBody || speciesTableBody || reportsTableBody);
-const hasEditModal = Boolean(editModal && editModalCloseButton && editModalTitle && loggerEditSection && locationEditSection && evidenceEditSection && speciesEditSection);
+const hasEditModal = Boolean(editModal && editModalCloseButton && editModalTitle);
 
 function escapeHtml(value) {
     return String(value)
@@ -74,6 +86,11 @@ function isPositiveInteger(value) {
     return /^\d+$/.test(String(value));
 }
 
+function toDateInputValue(value) {
+    if (!value) return "";
+    return String(value).slice(0, 10);
+}
+
 function setActiveTableTab(tabName) {
     Object.entries(tablePanels).forEach(([name, panel]) => {
         if (panel) {
@@ -90,11 +107,12 @@ function setActiveTableTab(tabName) {
 }
 
 function openEditModal(title, activeSection) {
-    if (!hasEditModal) {
+    if (!hasEditModal || !activeSection) {
         return;
     }
 
-    [loggerEditSection, locationEditSection, evidenceEditSection, speciesEditSection].forEach((section) => {
+    [loggerEditSection, locationEditSection, evidenceEditSection, speciesEditSection, reportEditSection].forEach((section) => {
+        if (!section) return;
         section.classList.remove("is-active");
     });
 
@@ -113,6 +131,7 @@ function closeEditModal() {
     editingLocationId = null;
     editingEvidenceId = null;
     editingSpeciesId = null;
+    editingReportId = null;
 
     if (!hasEditModal) {
         return;
@@ -120,7 +139,8 @@ function closeEditModal() {
 
     editModal.classList.remove("is-open");
     editModal.setAttribute("aria-hidden", "true");
-    [loggerEditSection, locationEditSection, evidenceEditSection, speciesEditSection].forEach((section) => {
+    [loggerEditSection, locationEditSection, evidenceEditSection, speciesEditSection, reportEditSection].forEach((section) => {
+        if (!section) return;
         section.classList.remove("is-active");
     });
 }
@@ -201,6 +221,7 @@ function renderSpecies(rows) {
 }
 
 function renderReports(rows) {
+    currentReportRows = rows;
     renderTableBody(reportsTableBody, rows, (row) => `
         <tr>
             <td>${escapeHtml(row.ReportID)}</td>
@@ -211,8 +232,12 @@ function renderReports(rows) {
             <td>${escapeHtml(row.SpeciesID)}</td>
             <td>${escapeHtml(row.ReportType)}</td>
             <td>${escapeHtml(row.ReportDescription)}</td>
+            <td>
+                <button type="button" data-action="edit" data-id="${escapeHtml(row.ReportID)}">Edit</button>
+                <button type="button" data-action="delete" data-id="${escapeHtml(row.ReportID)}">Delete</button>
+            </td>
         </tr>
-    `, 8);
+    `, 9);
 }
 
 const renderTables = async () => {
@@ -368,6 +393,41 @@ if (speciesTableBody) {
     });
 }
 
+if (reportsTableBody) {
+    reportsTableBody.addEventListener("click", async (event) => {
+        const btn = event.target.closest("button[data-action]");
+        if (!btn) return;
+
+        const id = btn.dataset.id;
+        if (!isPositiveInteger(id)) return;
+
+        if (btn.dataset.action === "edit") {
+            const row = getRowById(currentReportRows, "ReportID", id);
+            if (!row || !reportEditSection || !editReportLoggerIdInput || !editReportLocationIdInput || !editReportEvidenceIdInput || !editReportDateInput || !editReportSpeciesIdInput || !editReportTypeInput || !editReportDescriptionInput) return;
+
+            editingReportId = Number(id);
+            editReportLoggerIdInput.value = row.LoggerID ?? "";
+            editReportLocationIdInput.value = row.LocationID ?? "";
+            editReportEvidenceIdInput.value = row.EvidenceID ?? "";
+            editReportDateInput.value = toDateInputValue(row.ReportDate);
+            editReportSpeciesIdInput.value = row.SpeciesID ?? "";
+            editReportTypeInput.value = row.ReportType ?? "";
+            editReportDescriptionInput.value = row.ReportDescription ?? "";
+            openEditModal(`Edit Report #${id}`, reportEditSection);
+            return;
+        }
+
+        if (btn.dataset.action === "delete" && confirm(`Delete Report ID ${id}?`)) {
+            const result = await runQuery(`DELETE FROM Report WHERE ReportID = ${id}`);
+            if (!result?.success) {
+                alert(result?.error || "Unable to delete Report.");
+                return;
+            }
+            await renderTables();
+        }
+    });
+}
+
 if (loggerEditForm) {
     loggerEditForm.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -470,6 +530,36 @@ if (speciesEditForm) {
     });
 }
 
+if (reportEditForm) {
+    reportEditForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!editingReportId || !editReportLoggerIdInput || !editReportLocationIdInput || !editReportEvidenceIdInput || !editReportDateInput || !editReportSpeciesIdInput || !editReportTypeInput || !editReportDescriptionInput) return;
+
+        const loggerId = Number(editReportLoggerIdInput.value);
+        const locationId = Number(editReportLocationIdInput.value);
+        const evidenceId = Number(editReportEvidenceIdInput.value);
+        const reportDate = editReportDateInput.value;
+        const speciesId = Number(editReportSpeciesIdInput.value);
+        const reportType = editReportTypeInput.value.trim();
+        const reportDescription = editReportDescriptionInput.value.trim();
+
+        if (![loggerId, locationId, evidenceId, speciesId].every((value) => Number.isInteger(value) && value > 0) || !reportDate || !reportType || !reportDescription) {
+            alert("Please provide valid Report values.");
+            return;
+        }
+
+        const query = `UPDATE Report SET LoggerID = ${loggerId}, LocationID = ${locationId}, EvidenceID = ${evidenceId}, ReportDate = '${escapeSql(reportDate)}', SpeciesID = ${speciesId}, ReportType = '${escapeSql(reportType)}', ReportDescription = '${escapeSql(reportDescription)}' WHERE ReportID = ${editingReportId}`;
+        const result = await runQuery(query);
+        if (!result?.success) {
+            alert(result?.error || "Unable to update Report.");
+            return;
+        }
+
+        closeEditModal();
+        await renderTables();
+    });
+}
+
 if (hasEditModal) {
     editModalCloseButton.addEventListener("click", closeEditModal);
 
@@ -481,7 +571,7 @@ if (hasEditModal) {
         if (event.key === "Escape" && editModal.classList.contains("is-open")) closeEditModal();
     });
 
-    [loggerEditCancelButton, locationEditCancelButton, evidenceEditCancelButton, speciesEditCancelButton]
+    [loggerEditCancelButton, locationEditCancelButton, evidenceEditCancelButton, speciesEditCancelButton, reportEditCancelButton]
         .filter(Boolean)
         .forEach((button) => button.addEventListener("click", closeEditModal));
 }

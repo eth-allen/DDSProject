@@ -6,10 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="Started updated on ViewTables.html">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConallReport/40480980 Report.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConallReport/TestData.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ConallReport/tables.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/EthanReports.html" beforeDir="false" afterPath="$PROJECT_DIR$/EthanReports.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ViewTables.html" beforeDir="false" afterPath="$PROJECT_DIR$/ViewTables.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/css/viewTables.css" beforeDir="false" afterPath="$PROJECT_DIR$/css/viewTables.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/js/viewTables.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/viewTables.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -139,7 +138,7 @@
       <workItem from="1776251894853" duration="1543000" />
       <workItem from="1776347422216" duration="3158000" />
       <workItem from="1776352555069" duration="161000" />
-      <workItem from="1776352774971" duration="861000" />
+      <workItem from="1776352774971" duration="5813000" />
     </task>
     <task id="LOCAL-00001" summary="updated idea">
       <option name="closed" value="true" />

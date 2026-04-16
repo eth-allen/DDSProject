@@ -124,32 +124,7 @@ function renderLoggerSelection(rows) {
     }
 }
 
-function renderLocationSelection(rows) {
-    const locationSelection = document.getElementById("location-selection");
-    locationSelection.innerHTML = "";
 
-    for (let row of rows) {
-        locationSelection.innerHTML += `<option value="${row.LocationID}">${row.Latitude}, ${row.Longitude} (Country: ${row.Country})</option>`;
-    }
-}
-
-function renderEvidenceSelection(rows) {
-    const evidenceSelection = document.getElementById("evidence-selection");
-    evidenceSelection.innerHTML = "";
-
-    for (let row of rows) {
-        evidenceSelection.innerHTML += `<option value="${row.EvidenceID}">${row.Description} (ID: ${row.EvidenceID})</option>`;
-    }
-};
-
-function renderSpeciesSelection(rows) {
-    const speciesSelection = document.getElementById("species-selection");
-    speciesSelection.innerHTML = "";
-
-    for (let row of rows) {
-        speciesSelection.innerHTML += `<option value="${row.SpeciesID}">${row.Name}</option>`;
-    }
-};
 
 function renderLocations(rows) {
     currentLocationRows = rows;
@@ -203,35 +178,23 @@ const renderTables = async () => {
     const [loggerResult, locationResult, evidenceResult, speciesResult, reportResult] = await Promise.all([
         runQuery("SELECT * FROM Logger"),
         runQuery("SELECT * FROM Location"),
-        runQuery("SELECT * FROM Evidence"),
-        runQuery("SELECT * FROM Species"),
         runQuery("SELECT * FROM Report")
     ]);
 
     if (loggerResult?.success && Array.isArray(loggerResult.data)) {
         renderLoggers(loggerResult.data);
-        renderLoggerSelection(loggerResult.data);
     }
 
     if (locationResult?.success && Array.isArray(locationResult.data)) {
         renderLocations(locationResult.data);
-        renderLocationSelection(locationResult.data);
-    }
-
-    if (evidenceResult?.success && Array.isArray(evidenceResult.data)) {
-        renderEvidenceSelection(evidenceResult.data);
-    }
-
-    if (speciesResult?.success && Array.isArray(speciesResult.data)) {
-        renderSpeciesSelection(speciesResult.data);
     }
 
     if (reportResult?.success && Array.isArray(reportResult.data)) {
         renderReports(reportResult.data);
     }
 
-    if (loggerResult?.error || locationResult?.error || evidenceResult?.error || speciesResult?.error || reportResult?.error) {
-        console.error("Data load error", { loggerResult, locationResult, evidenceResult, speciesResult, reportResult });
+    if (loggerResult?.error || locationResult?.error || reportResult?.error) {
+        console.error("Data load error", { loggerResult, locationResult, reportResult });
     }
 }
 
@@ -336,8 +299,6 @@ locationTableBody.addEventListener("click", async (event) => {
 const loggerButton = document.getElementById("logger-submit-button");
 
 const loggerForm = document.getElementById("logger-form");
-const locationForm = document.getElementById("location-form");
-const reportForm = document.getElementById("report-form");
 
 loggerEditForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -392,72 +353,3 @@ locationEditForm.addEventListener("submit", async (event) => {
     closeEditModal();
     await renderTables();
 });
-
-loggerForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const forename = document.getElementById("forename-input").value.trim();
-    const surname = document.getElementById("surname-input").value.trim();
-    const email = document.getElementById("email-input").value.trim();
-
-    if (!forename || !surname || !email) {
-        alert("Please fill in all logger fields.");
-        return;
-    } //this is redundant I think because html already marks these fields as manditory
-
-    const saveResult = await runQuery(`INSERT INTO Logger (Forename, Surname, Email) VALUES ('${escapeSql(forename)}', '${escapeSql(surname)}', '${escapeSql(email)}');`);
-    if (saveResult?.error) {
-        console.error("Logger save failed", { saveResult });
-        alert("Unable to save logger.");
-        return;
-    }
-
-    loggerForm.reset();
-    renderTables();
-});
-
-locationForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    const country = document.getElementById("country-input").value.trim();
-    const latitude = Number(document.getElementById("latitude-input").value);
-    const longitude = Number(document.getElementById("longitude-input").value);
-
-    if (!country || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-        alert("Please enter a valid country, latitude, and longitude.");
-        return;
-    }
-
-    const saveResult = await runQuery(`INSERT INTO Location (Country, Latitude, Longitude) VALUES ('${escapeSql(country)}', ${latitude}, ${longitude});`);
-    if (saveResult?.error) {
-        console.error("Location save failed", { saveResult });
-        alert("Unable to save location.");
-        return;
-    }
-
-    locationForm.reset();
-    renderTables();
-});
-
-reportForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    
-    const currentDate = new Date();
-
-    const loggerID = document.getElementById("logger-selection").value;
-    const locationID = document.getElementById("location-selection").value;
-    const evidenceID = document.getElementById("evidence-selection").value;
-    const reportDate = currentDate.toISOString().substring(0, 10);
-    const speciesID = document.getElementById("species-selection").value;
-    const description = document.getElementById("description-input").value;
-
-    const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${description}')`);
-    
-    if (insertResult?.error) {
-        console.error("Data load error", {insertResult});
-    }
-
-    reportForm.reset();
-    
-    renderTables();
-}); 

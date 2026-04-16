@@ -60,8 +60,14 @@ if ($result = $conn->query($query)) {
         echo json_encode($response, JSON_PRETTY_PRINT);
         $result->free();
     } else {
-        // For non-SELECT queries, return the affected rows
-        $response = ["success" => true, "affected_rows" => $conn->affected_rows];
+        // For non-SELECT queries, return the affected rows and any insert ID
+        $response = [
+            "success" => true,
+            "affected_rows" => $conn->affected_rows
+        ];
+        if (preg_match('/^\s*INSERT\s+/i', $query)) {
+            $response["insert_id"] = $conn->insert_id;
+        }
         echo json_encode($response, JSON_PRETTY_PRINT);
     }
 } else {

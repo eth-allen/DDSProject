@@ -86,37 +86,20 @@
         </div>
     </nav>
 
-<form id="location-form"> 
-<h2>Add a location</h2>
-    <label for="country-input">Country</label>
-    <input type="text" id="country-input" required> <br>
-
-    <label for="latitude-input">Latitude</label>
-    <input type="number" step="any" id="latitude-input" required> <br>
-
-    <label for="longitude-input">Longitude</label>
-    <input type="number" step="any" id="longitude-input" required> <br>
-
-    <button id="location-submit-button">Add New Location</button>
-
-</form>
-
-
 <div class="container">
-    <div id="reports" class="form-table-container">
+    <div id="reports">
 
         <h2>Submit a report</h2>
 
         <form id="report-form">
-            <label for="logger-selection">Logger</label>
-            <select id="logger-selection" required>
+            <label for="country-input">Country</label>
+            <input type="text" id="country-input" required> <br>
 
-            </select> <br>
+            <label for="latitude-input">Latitude</label>
+            <input type="number" step="any" id="latitude-input" required> <br>
 
-            <label for="location-selection">Location</label>
-            <select id="location-selection" required>
-
-            </select> <br>
+            <label for="longitude-input">Longitude</label>
+            <input type="number" step="any" id="longitude-input" required> <br>
 
             <label for="evidence-selection">Evidence</label>
             <select id="evidence-selection" required>
@@ -142,7 +125,7 @@
 
 
 <script src="js/runQuery.js"></script>
-<script src="js/viewTables.js"></script>
+<script src="js/submitReport.js"></script>
 
 
 <footer class="footer">

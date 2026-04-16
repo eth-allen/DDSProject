@@ -24,7 +24,7 @@
         </div>
     </nav>
 
-    <div class="account-wrapper">
+    <div class="wrapper">
         
         <!--Sidebar tabs-->
         <aside class="sidebar">
@@ -37,7 +37,7 @@
         <main class="main-content">
 
             <!--View account panel section-->
-            <section id="view-panel" class="account-panel">
+            <section id="view-panel" class="panel">
                 <h2 class="section-title" style="text-align: left; margin-bottom: 25px; font-size: 26px;">View account details</h2>
                     <div class="account-detail-group">
                         <span class="account-detail-label">Username</span>
@@ -60,8 +60,8 @@
                     </div>
             </section>
 
-            <!--Edit account panel section-->
-            <section id="edit-panel" class="account-panel">
+            <!--Modify account panel section-->
+            <section id="modify-panel" class="panel">
                 <h2 class="section-title" style="text-align: left; margin-bottom: 25px; font-size: 26px;">Modify Account Details</h2>
 
                 <form id="modifyForm" class="account-form"></form>
@@ -90,8 +90,19 @@
             </section>
 
             <!--Delete account panel section-->
-            <section id="delete-panel" class="account-panel">
-                
+            <section id="delete-panel" class="panel">
+                <h2 class="section-title warning-text">Delete Account</h2>
+    
+                <div class="warning-box">
+                    <p><strong>Warning:</strong> This action is permanent. If you delete all your submitted reports + account details will be deleted</p>
+                </div>
+
+                <div class="form-group confirmation-group">
+                    <input type="checkbox" id="confirm-delete">
+                    <label for="confirm-delete">I understand this is permanant</label>
+                </div>
+
+            <button id="delete-account-button" class="button warning-button" disabled>Permanently Delete Account</button>
             </section>
         </main>
     </div>

@@ -114,6 +114,7 @@
                 <th>Species ID</th>
                 <th>Report Type</th>
                 <th>Description</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody id="reports-table-body"></tbody>
@@ -191,6 +192,36 @@
                     <div class="edit-modal-actions">
                         <button type="submit">Save Species</button>
                         <button type="button" id="species-edit-cancel">Cancel</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="report-edit-section" class="edit-modal-section">
+                <form id="report-edit-form">
+                    <label for="edit-report-logger-id-input">Logger ID</label>
+                    <input type="number" id="edit-report-logger-id-input" min="1" required><br>
+
+                    <label for="edit-report-location-id-input">Location ID</label>
+                    <input type="number" id="edit-report-location-id-input" min="1" required><br>
+
+                    <label for="edit-report-evidence-id-input">Evidence ID</label>
+                    <input type="number" id="edit-report-evidence-id-input" min="1" required><br>
+
+                    <label for="edit-report-date-input">Date Submitted</label>
+                    <input type="date" id="edit-report-date-input" required><br>
+
+                    <label for="edit-report-species-id-input">Species ID</label>
+                    <input type="number" id="edit-report-species-id-input" min="1" required><br>
+
+                    <label for="edit-report-type-input">Report Type</label>
+                    <input type="text" id="edit-report-type-input" required><br>
+
+                    <label for="edit-report-description-input">Description</label>
+                    <input type="text" id="edit-report-description-input" required><br>
+
+                    <div class="edit-modal-actions">
+                        <button type="submit">Save Report</button>
+                        <button type="button" id="report-edit-cancel">Cancel</button>
                     </div>
                 </form>
             </section>

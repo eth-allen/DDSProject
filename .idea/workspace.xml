@@ -4,13 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="REM dbConnector.php">
-      <change beforePath="$PROJECT_DIR$/.idea/copilotDiffState.xml" beforeDir="false" />
+    <list default="true" id="0787b73d-c568-4fd7-8669-20cd624d6b00" name="Changes" comment="Started updated on ViewTables.html">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Locations.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Loggers.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/StaticReports.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConallReport/40480980 Report.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConallReport/TestData.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ConallReport/tables.sql" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/ViewTables.html" beforeDir="false" afterPath="$PROJECT_DIR$/ViewTables.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/viewTables.js" beforeDir="false" afterPath="$PROJECT_DIR$/js/viewTables.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,7 +30,6 @@
     <option name="chatModeId" value="Agent" />
   </component>
   <component name="EmbeddingIndexingInfo">
-    <option name="cachedIndexableFilesCount" value="28" />
     <option name="fileBasedEmbeddingIndicesEnabled" value="true" />
   </component>
   <component name="FileTemplateManagerImpl">
@@ -113,7 +112,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.32098.39" />
+        <option value="bundled-js-predefined-d6986cc7102b-3bd3a6803838-JavaScript-WS-261.22158.274" />
       </set>
     </attachedChunks>
   </component>
@@ -140,6 +139,7 @@
       <workItem from="1776251894853" duration="1543000" />
       <workItem from="1776347422216" duration="3158000" />
       <workItem from="1776352555069" duration="161000" />
+      <workItem from="1776352774971" duration="861000" />
     </task>
     <task id="LOCAL-00001" summary="updated idea">
       <option name="closed" value="true" />
@@ -181,7 +181,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775241630396</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Started updated on ViewTables.html">
+      <option name="closed" value="true" />
+      <created>1776352807253</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1776352807253</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -192,7 +200,8 @@
     <MESSAGE value="Added functionality to convert raw JSON language into a Table structure, this has been completed for the Location, Report and Logger tables." />
     <MESSAGE value="--" />
     <MESSAGE value="Added DB Tester." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added DB Tester." />
+    <MESSAGE value="Started updated on ViewTables.html" />
+    <option name="LAST_COMMIT_MESSAGE" value="Started updated on ViewTables.html" />
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

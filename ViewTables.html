@@ -30,8 +30,16 @@
     </div>
 </div>
 
+<div class="table-tabs" role="tablist" aria-label="Database tables">
+    <button id="loggers-tab" type="button" class="table-tab-button is-active" data-table-tab="loggers" role="tab" aria-selected="true" aria-controls="loggers">Loggers</button>
+    <button id="locations-tab" type="button" class="table-tab-button" data-table-tab="locations" role="tab" aria-selected="false" aria-controls="locations">Locations</button>
+    <button id="evidence-tab" type="button" class="table-tab-button" data-table-tab="evidence" role="tab" aria-selected="false" aria-controls="evidence">Evidence</button>
+    <button id="species-tab" type="button" class="table-tab-button" data-table-tab="species" role="tab" aria-selected="false" aria-controls="species">Species</button>
+    <button id="reports-tab" type="button" class="table-tab-button" data-table-tab="reports" role="tab" aria-selected="false" aria-controls="reports">Reports</button>
+</div>
+
 <div class="container">
-    <div id="loggers" class="form-table-container">
+    <div id="loggers" class="form-table-container table-tab-panel is-active" data-table-panel="loggers" role="tabpanel" aria-labelledby="loggers-tab">
         <h2>View Loggers</h2>
         <table id="logger-table">
             <thead>
@@ -47,7 +55,7 @@
         </table>
     </div>
 
-    <div id="locations" class="form-table-container">
+    <div id="locations" class="form-table-container table-tab-panel" data-table-panel="locations" role="tabpanel" aria-labelledby="locations-tab">
         <h2>View Locations</h2>
         <table id="location-table">
             <thead>
@@ -63,7 +71,7 @@
         </table>
     </div>
 
-    <div id="evidence" class="form-table-container">
+    <div id="evidence" class="form-table-container table-tab-panel" data-table-panel="evidence" role="tabpanel" aria-labelledby="evidence-tab">
         <h2>View Evidence</h2>
         <table id="evidence-table">
             <thead>
@@ -78,7 +86,7 @@
         </table>
     </div>
 
-    <div id="species" class="form-table-container">
+    <div id="species" class="form-table-container table-tab-panel" data-table-panel="species" role="tabpanel" aria-labelledby="species-tab">
         <h2>View Species</h2>
         <table id="species-table">
             <thead>
@@ -93,7 +101,7 @@
         </table>
     </div>
 
-    <div id="reports" class="form-table-container">
+    <div id="reports" class="form-table-container table-tab-panel" data-table-panel="reports" role="tabpanel" aria-labelledby="reports-tab">
         <h2>View Reports</h2>
         <table id="reports-table">
             <thead>
@@ -106,6 +114,7 @@
                 <th>Species ID</th>
                 <th>Report Type</th>
                 <th>Description</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody id="reports-table-body"></tbody>
@@ -186,13 +195,43 @@
                     </div>
                 </form>
             </section>
+
+            <section id="report-edit-section" class="edit-modal-section">
+                <form id="report-edit-form">
+                    <label for="edit-report-logger-id-input">Logger ID</label>
+                    <input type="number" id="edit-report-logger-id-input" min="1" required><br>
+
+                    <label for="edit-report-location-id-input">Location ID</label>
+                    <input type="number" id="edit-report-location-id-input" min="1" required><br>
+
+                    <label for="edit-report-evidence-id-input">Evidence ID</label>
+                    <input type="number" id="edit-report-evidence-id-input" min="1" required><br>
+
+                    <label for="edit-report-date-input">Date Submitted</label>
+                    <input type="date" id="edit-report-date-input" required><br>
+
+                    <label for="edit-report-species-id-input">Species ID</label>
+                    <input type="number" id="edit-report-species-id-input" min="1" required><br>
+
+                    <label for="edit-report-type-input">Report Type</label>
+                    <input type="text" id="edit-report-type-input" required><br>
+
+                    <label for="edit-report-description-input">Description</label>
+                    <input type="text" id="edit-report-description-input" required><br>
+
+                    <div class="edit-modal-actions">
+                        <button type="submit">Save Report</button>
+                        <button type="button" id="report-edit-cancel">Cancel</button>
+                    </div>
+                </form>
+            </section>
         </div>
     </div>
 </div> <footer class="footer">
     <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
 </footer>
 
-<script src="js/viewTables.js"></script>
 <script src="js/runQuery.js"></script>
+<script src="js/viewTables.js"></script>
 </body>
 </html>

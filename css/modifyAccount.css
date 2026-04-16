@@ -1,5 +1,5 @@
 /* ---- ACCOUNT SETTINGS LAYOUT  */
-.account-wrapper {
+.wrapper {
     max-width: 1200px;
     margin: 40px auto;
     padding: 0 20px;
@@ -9,7 +9,7 @@
     min-height: 60vh;
 }
 
-/* Sidebar Styling */
+/* ----- SIDEBAR STYLING ----- */
 .sidebar {
     background: white;
     padding: 20px 0;
@@ -18,7 +18,10 @@
     height: fit-content;
 }
 
-.sidebar-btn {
+/* Sidebar button styling */
+
+/* General styling + alignment */
+.sidebar-button {
     width: 100%;
     text-align: left;
     padding: 15px 25px;
@@ -32,59 +35,62 @@
     font-weight: 500;
 }
 
-.sidebar-btn:hover {
+/* When hovering over sidebar button */
+.sidebar-button:hover {
     background: #f9fdf6; /* Light green hover */
     color: #2d5016;
 }
 
-.sidebar-btn.active {
+/* When pressing on sidebar button */
+.sidebar-button.active {
     background: #eef5e8;
     border-left-color: #2d5016;
     color: #2d5016;
     font-weight: 600;
 }
 
-/* Main Content & Form Styling */
-.account-card {
+/* --- MAIN CONTENT/FORMS */
+
+.panel {
     background: white;
     padding: 40px;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-.account-form {
+.modify-account-form {
     max-width: 500px; /* Keeps the form inputs from stretching too wide on big screens */
 }
 
-.update-btn {
+.submit-button {
     margin-top: 15px;
-    width: auto; /* Overrides the 100% width from your global .btn class */
+    width: auto; /* Overrides 100% width from global css */
     padding: 12px 30px;
 }
 
-/* Responsive Account Layout */
+/* RESPONSIVE ELEMENTS TO SCREEN SIZE */
 @media (max-width: 768px) {
     .account-wrapper {
         grid-template-columns: 1fr;
         margin: 20px auto;
     }
     
-    /* Make sidebar horizontal on mobile */
+    /* Sidebar general stuff */
     .sidebar {
         display: flex;
         overflow-x: auto;
         padding: 10px;
     }
     
-    .sidebar-btn {
+    .sidebar-button {
         border-left: none;
         border-bottom: 3px solid transparent;
         text-align: center;
         white-space: nowrap;
         padding: 10px 20px;
     }
-    
-    .sidebar-btn.active {
+
+    .sidebar-button.active {
         border-left-color: transparent;
         border-bottom-color: #2d5016;
     }

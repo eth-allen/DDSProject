@@ -3,191 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Endangered Species Tracker - Ethan Reports</title>
+    <title>Endangered Species Tracker - View submitted data</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/viewTables.css">
 </head>
 <body>
-
-    <nav class="navbar">
-        <div class="navbar-container">
-            <h1 class="navbar-title">Endangered Species Tracker</h1>
-            <ul class="navbar-menu">
-                <li><a href="HomePage.html" class="active">Home</a></li>
-                <li><a href="TableEditing.html">Table Editing</a></li>
-                <li><a href="index.html" class="logout-btn">Logout</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <div class="hero-section">
-        <div class="hero-content">
-            <h2>Ethan's Reports</h2>
-            <p>Below you can see the report type, tables used and the dataset results for each of my reports.</p>
-        </div>
+<nav class="navbar">
+    <div class="navbar-container">
+        <h1 class="navbar-title">
+            <a href="HomePage.html" class="logo-link">Endangered Species Tracker</a>
+        </h1>
+        <ul class="navbar-menu">
+            <li><a href="HomePage.html" class="active">Home</a></li>
+            <li><a href="SubmitReport.html">Submit a report</a></li>
+            <li><a href="ViewTables.html">View user reports</a></li>
+            <li><a href="ModifyAccount.html">Modify your account</a></li>
+            <li><a href="AboutUs.html">About us</a></li>
+            <li><a href="index.html" class="logout-btn">Logout</a></li>
+        </ul>
     </div>
+</nav>
 
-    <div>
-        <div class="report-section">
-        <h3>Report 1:</h3>
-        <p>Report Title: Logger Activity Summary</p><br>
-        <p>Business Question: Which loggers have submitted the most reports, what is the average gap in days between their submissions?</p><br>
-        <p>Why this report is useful: Identifies the most active workers and flags who has gone silent.</p><br>
-        <p>Tables Used: Logger, Report</p>
+<div class="hero-section">
+    <div class="hero-content">
+        <h2>View submitted user data</h2>
+    </div>
+</div>
 
-        <div class="report-data">
-        <table id="ethan-reports1" class="data-table">
+<div class="table-tabs" role="tablist" aria-label="Database tables">
+    <button id="loggers-tab" type="button" class="table-tab-button is-active" data-table-tab="loggers" role="tab" aria-selected="true" aria-controls="loggers-section">Loggers</button>
+    <button id="locations-tab" type="button" class="table-tab-button" data-table-tab="locations" role="tab" aria-selected="false" aria-controls="locations-section">Locations</button>
+    <button id="evidence-tab" type="button" class="table-tab-button" data-table-tab="evidence" role="tab" aria-selected="false" aria-controls="evidence-section">Evidence</button>
+    <button id="species-tab" type="button" class="table-tab-button" data-table-tab="species" role="tab" aria-selected="false" aria-controls="species-section">Species</button>
+    <button id="reports-tab" type="button" class="table-tab-button" data-table-tab="reports" role="tab" aria-selected="false" aria-controls="reports-section">Reports</button>
+</div>
+
+<div class="container">
+    <h1>Database Records</h1>
+
+    <div id="loggers-section" class="form-table-container table-tab-panel is-active" data-table-panel="loggers" role="tabpanel" aria-labelledby="loggers-tab">
+        <h2>View Loggers</h2>
+        <table id="logger-table">
             <thead>
             <tr>
                 <th>Logger ID</th>
-                <th>Logger Name</th>
+                <th>Forename</th>
+                <th>Surname</th>
                 <th>Email</th>
-                <th>Total Reports</th>
-                <th>First Report Date</th>
-                <th>Recent Report Date</th>
-                <th>Days Between Reports</th>
+                <th>Actions</th>
             </tr>
             </thead>
-            <tbody id="ethan-reports1-body"></tbody>
+            <tbody id="logger-table-body"></tbody>
         </table>
-        </div>
-
-        <script src="js/runQuery.js"></script>
-        <script>
-            function jsonGrabberOne (rows) {
-                const tbody = document.getElementById("ethan-reports1-body");
-                tbody.innerHTML = rows.map((row) => `
-                    <tr>
-                        <td>${row.LoggerID ?? ""}</td>
-                        <td>${row.FullName ?? ""}</td>
-                        <td>${row.Email ?? ""}</td>
-                        <td>${row.TotalReports ?? ""}</td>
-                        <td>${row.FirstReport ?? ""}</td>
-                        <td>${row.MostRecentReport ?? ""}</td>
-                        <td>${row.AvgDaysBetweenReports ?? ""}</td>
-                    </tr>
-                `).join("");
-            }
-
-            document.addEventListener("DOMContentLoaded", async () => {
-                const [EthanResultOne] = await Promise.all([
-                    runQuery("SELECT * FROM vw_logger_activity WHERE TotalReports > 0 ORDER BY TotalReports DESC, MostRecentReport DESC;"),
-                ]);
-
-                if (EthanResultOne?.success && Array.isArray(EthanResultOne.data)) {
-                    jsonGrabberOne(EthanResultOne.data);
-                }
-
-                if (EthanResultOne?.error) {
-                    console.error("Data load error", {EthanResultOne});
-                }
-            });
-        </script>
-        </div>
     </div>
 
-    <div>
-        <div class="report-section">
-        <h3>Report 2:</h3>
-        <p>Report Title: Endangered Species Population Monitoring</p><br>
-        <p>Business Question: Which species with a 'High' status have the most sightings, and what is the date range of these observations?</p><br>
-        <p>Why this report is useful: It allows conservation scientists to identify which critically endangered species are being actively tracked by the public and ensures data is current for population modeling.</p><br>
-        <p>Tables Used: Species, Report</p>
+    <div id="locations-section" class="form-table-container table-tab-panel" data-table-panel="locations" role="tabpanel" aria-labelledby="locations-tab">
+        <h2>View Locations</h2>
+        <table id="location-table">
+            <thead>
+            <tr>
+                <th>Location ID</th>
+                <th>Country</th>
+                <th>Latitude</th>
+                <th>Longitude</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="location-table-body"></tbody>
+        </table>
+    </div>
 
-        <div class="report-data">
-            <table id="ethan-reports2" class="data-table">
-                <thead>
-                <tr>
-                    <th>Species Name</th>
-                    <th>Conservation Status</th>
-                    <th>Total Sightings</th>
-                    <th>Earliest Sighting</th>
-                    <th>Most Recent Sighting</th>
-                </tr>
-                </thead>
-                <tbody id="ethan-reports2-body"></tbody>
-            </table>
+    <div id="evidence-section" class="form-table-container table-tab-panel" data-table-panel="evidence" role="tabpanel" aria-labelledby="evidence-tab">
+        <h2>View Evidence</h2>
+        <table id="evidence-table">
+            <thead>
+            <tr>
+                <th>Evidence ID</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="evidence-table-body"></tbody>
+        </table>
+    </div>
 
-            <script>
-                function jsonGrabberTwo (rows) {
-                    const tbody = document.getElementById("ethan-reports2-body");
-                    tbody.innerHTML = rows.map((row) => `
-                        <tr>
-                            <td>${row.Species_Name ?? ""}</td>
-                            <td>${row.Conservation_Status ?? ""}</td>
-                            <td>${row.Total_Sightings ?? ""}</td>
-                            <td>${row.Earliest_Record ?? ""}</td>
-                            <td>${row.Most_Recent_Record ?? ""}</td>
-                        </tr>
-                    `).join("");
-                }
+    <div id="species-section" class="form-table-container table-tab-panel" data-table-panel="species" role="tabpanel" aria-labelledby="species-tab">
+        <h2>View Species</h2>
+        <table id="species-table">
+            <thead>
+            <tr>
+                <th>Species ID</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="species-table-body"></tbody>
+        </table>
+    </div>
 
-                document.addEventListener("DOMContentLoaded", async () => {
-                    const [EthanResultTwo] = await Promise.all([
-                        runQuery("SELECT S.Name AS Species_Name, S.Status AS Conservation_Status, COUNT(R.ReportID) AS Total_Sightings, MIN(R.ReportDate) AS Earliest_Record, MAX(R.ReportDate) AS Most_Recent_Record FROM Species S INNER JOIN Report R ON S.SpeciesID = R.SpeciesID WHERE S.Status = 'High' GROUP BY S.Name, S.Status HAVING Total_Sightings > 0 ORDER BY Total_Sightings DESC;"),
-                    ]);
+    <div id="reports-section" class="form-table-container table-tab-panel" data-table-panel="reports" role="tabpanel" aria-labelledby="reports-tab">
+        <h2>View Reports</h2>
+        <table id="reports-table">
+            <thead>
+            <tr>
+                <th>Report ID</th>
+                <th>Logger ID</th>
+                <th>Location ID</th>
+                <th>Evidence ID</th>
+                <th>Date Submitted</th>
+                <th>Species ID</th>
+                <th>Report Type</th>
+                <th>Description</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="reports-table-body"></tbody>
+        </table>
+    </div>
 
-                    if (EthanResultTwo?.success && Array.isArray(EthanResultTwo.data)) {
-                        jsonGrabberTwo(EthanResultTwo.data);
-                    }
+    <div id="edit-modal" class="edit-modal" aria-hidden="true">
+        <div class="edit-modal-panel" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+            <button type="button" id="edit-modal-close" class="edit-modal-close" aria-label="Close edit popup">&times;</button>
+            <h2 id="edit-modal-title">Edit Record</h2>
 
-                    if (EthanResultTwo?.error) {
-                        console.error("Data load error", {EthanResultTwo});
-                    }
-                });
-            </script>
-        </div>
-
-            <div>
-                <div class="report-section">
-                    <h3>Report 3:</h3>
-                    <p>Report Title: Regional Poaching Summary</p><br>
-                    <p>Business Question: What is the volume of poaching evidence types reported across different countries and methods used?</p><br>
-                    <p>Why this report is useful: It helps governments identify hotspots for unusual activity, allowing them to allocate resources more effectively.</p><br>
-                    <p>Tables Used: Report, Location, Evidencet</p>
-
-                    <div class="report-data">
-                        <table id="ethan-reports3" class="data-table">
-                            <thead>
-                            <tr>
-                                <th>Country</th>
-                                <th>Incident Count</th>
-                                <th>Evidence</th>
-                            </tr>
-                            </thead>
-                            <tbody id="ethan-reports3-body"></tbody>
-                        </table>
-
-                        <script>
-                            function jsonGrabberThree (rows) {
-                                const tbody = document.getElementById("ethan-reports2-body");
-                                tbody.innerHTML = rows.map((row) => `
-                        <tr>
-                            <td>${row.Country ?? ""}</td>
-                            <td>${row.Incident_Count ?? ""}</td>
-                            <td>${row.Evidence_Methods ?? ""}</td>
-                        </tr>
-                    `).join("");
-                            }
-
-                            document.addEventListener("DOMContentLoaded", async () => {
-                                const [EthanResultThree] = await Promise.all([
-                                    runQuery("SELECT Country, COUNT(*) AS Incident_Count, GROUP_CONCAT(DISTINCT EvidenceType) AS Evidence_Methods FROM GlobalThreatAudit WHERE ReportDate >= '2025-01-01' GROUP BY Country ORDER BY Incident_Count DESC LIMIT 10;"),
-                                ]);
-
-                                if (EthanResultThree?.success && Array.isArray(EthanResultThree.data)) {
-                                    jsonGrabberThree(EthanResultThree.data);
-                                }
-
-                                if (EthanResultThree?.error) {
-                                    console.error("Data load error", {EthanResultThree});
-                                }
-                            });
-                        </script>
+            <section id="logger-edit-section" class="edit-modal-section">
+                <form id="logger-edit-form">
+                    <label for="edit-forename-input">Forename</label>
+                    <input type="text" id="edit-forename-input" required><br>
+                    <label for="edit-surname-input">Surname</label>
+                    <input type="text" id="edit-surname-input" required><br>
+                    <label for="edit-email-input">Email</label>
+                    <input type="email" id="edit-email-input" required><br>
+                    <div class="edit-modal-actions">
+                        <button type="submit">Save Logger</button>
+                        <button type="button" id="logger-edit-cancel">Cancel</button>
                     </div>
-    </div>
+                </form>
+            </section>
 
-    <footer class="footer">
-        <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
-    </footer>
+            <section id="location-edit-section" class="edit-modal-section">
+                <form id="location-edit-form">
+                    <label for="edit-country-input">Country</label>
+                    <input type="text" id="edit-country-input" required><br>
+                    <label for="edit-latitude-input">Latitude</label>
+                    <input type="number" step="any" id="edit-latitude-input" required><br>
+                    <label for="edit-longitude-input">Longitude</label>
+                    <input type="number" step="any" id="edit-longitude-input" required><br>
+                    <div class="edit-modal-actions">
+                        <button type="submit">Save Location</button>
+                        <button type="button" id="location-edit-cancel">Cancel</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="evidence-edit-section" class="edit-modal-section">
+                <form id="evidence-edit-form">
+                    <label for="edit-evidence-type-input">Type</label>
+                    <input type="text" id="edit-evidence-type-input" required><br>
+                    <label for="edit-evidence-desc-input">Description</label>
+                    <input type="text" id="edit-evidence-desc-input" required><br>
+                    <div class="edit-modal-actions">
+                        <button type="submit">Save Evidence</button>
+                        <button type="button" id="evidence-edit-cancel">Cancel</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="species-edit-section" class="edit-modal-section">
+                <form id="species-edit-form">
+                    <label for="edit-species-name-input">Name</label>
+                    <input type="text" id="edit-species-name-input" required><br>
+                    <label for="edit-species-status-input">Status</label>
+                    <select id="edit-species-status-input" required>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select><br>
+                    <div class="edit-modal-actions">
+                        <button type="submit">Save Species</button>
+                        <button type="button" id="species-edit-cancel">Cancel</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="report-edit-section" class="edit-modal-section">
+                <form id="report-edit-form">
+                    <label for="edit-report-logger-id-input">Logger ID</label>
+                    <input type="number" id="edit-report-logger-id-input" min="1" required><br>
+                    <label for="edit-report-location-id-input">Location ID</label>
+                    <input type="number" id="edit-report-location-id-input" min="1" required><br>
+                    <label for="edit-report-evidence-id-input">Evidence ID</label>
+                    <input type="number" id="edit-report-evidence-id-input" min="1" required><br>
+                    <label for="edit-report-date-input">Date Submitted</label>
+                    <input type="date" id="edit-report-date-input" required><br>
+                    <label for="edit-report-species-id-input">Species ID</label>
+                    <input type="number" id="edit-report-species-id-input" min="1" required><br>
+                    <label for="edit-report-type-input">Report Type</label>
+                    <input type="text" id="edit-report-type-input" required><br>
+                    <label for="edit-report-description-input">Description</label>
+                    <input type="text" id="edit-report-description-input" required><br>
+                    <div class="edit-modal-actions">
+                        <button type="submit">Save Report</button>
+                        <button type="button" id="report-edit-cancel">Cancel</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
+</footer>
+
+<script src="js/runQuery.js"></script>
+<script src="js/viewTables.js"></script>
 </body>
 </html>

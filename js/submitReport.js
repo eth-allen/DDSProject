@@ -77,8 +77,8 @@ reportForm.addEventListener("submit", async (event) => {
         return;
     }
 
-    const lastGivenLocation = mostRecentLocationResults.data["MAX(LocationID)"];
-    
+    const lastGivenLocation = mostRecentLocationResults.data[0]["MAX(LocationID)"];
+
     const currentDate = new Date();
 
     const loggerID = 1;

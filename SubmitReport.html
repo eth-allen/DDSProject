@@ -58,6 +58,33 @@
             gap: 10px;
             margin-top: 15px;
         }
+
+        .form-group-radio {
+            margin-bottom: 20px;
+        }
+
+        .form-group-radio div {
+            margin-bottom: 8px;
+        }
+
+        .form-group-radio label {
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group-radio input {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group-radio input:focus {
+            outline: none;
+            border-color: #2d5016;
+            background-color: #f9fdf6;
+        }
     </style>
 
 </head>
@@ -91,39 +118,55 @@
         <form id="report-form">
             
             <div class="form-group">
-            <label for="country-input">Country</label> 
-            <input type="text" id="country-input" required> 
+                <label for="country-input">Country</label> 
+                <input type="text" id="country-input" placeholder="Enter country name" list="country-names" required> 
+            </div>
+
+            <datalist id="country-names">
+
+            </datalist>
+
+            <div class="form-group">
+                <label for="latitude-input">Latitude</label> 
+                <input type="number" step="any" id="latitude-input" placeholder="Enter latitude" required> 
             </div>
 
             <div class="form-group">
-            <label for="latitude-input">Latitude</label> 
-            <input type="number" step="any" id="latitude-input" required> 
+                <label for="longitude-input">Longitude</label> 
+                <input type="number" step="any" id="longitude-input" placeholder="Enter longitude" required> 
             </div>
 
             <div class="form-group">
-            <label for="longitude-input">Longitude</label> 
-            <input type="number" step="any" id="longitude-input" required> 
+                <label for="evidence-selection">Evidence</label>
+                <select id="evidence-selection" required>
+                    <option value="evidence1">1st Evidence</option>
+                    <option value="evidence2">2st Evidence</option>
+                </select> 
             </div>
 
             <div class="form-group">
-            <label for="evidence-selection">Evidence</label>
-            <select id="evidence-selection" required>
-                <option value="evidence1">1st Evidence</option>
-                <option value="evidence2">2st Evidence</option>
-            </select> 
+                <label for="species-selection">Species</label>
+                <select id="species-selection" required>
+                    <option value="species1">1st Species</option>
+                    <option value="species2">2st Species</option>
+                </select> 
             </div>
 
             <div class="form-group">
-            <label for="species-selection">Species</label>
-            <select id="species-selection" required>
-                <option value="species1">1st Species</option>
-                <option value="species2">2st Species</option>
-            </select> 
+                <label for="description-input">Description</label>
+                <input type="text" id="description-input" placeholder="Enter description here" required> 
             </div>
 
-            <div class="form-group">
-            <label for="description-input">Description</label>
-            <input type="text" id="description-input" required> 
+            <div class="form-group-radio">
+                <div>
+                <label for="poaching-radio">Poaching</label> 
+                <input type="radio" id="poaching-radio" name="report-type-input" value="poaching">
+                </div>
+                
+                <div>
+                <label for="animal-spotting">Animal Spotting</label>
+                <input type="radio" id="spotting-radio" name="report-type-input" value="animal-spotting">
+                </div>
             </div>
 
             <button id="report-submit-button">Submit Report</button>

@@ -55,7 +55,22 @@ const renderSelections = async () => {
     }
 }
 
-document.addEventListener("DOMContentLoaded", renderSelections);
+document.addEventListener("DOMContentLoaded", async () => {
+    const countryNamesResult = await runQuery("SELECT Country FROM Location GROUP BY Country");
+
+    if (countryNamesResult?.success && Array.isArray(countryNamesResult.data)) {
+        for (let i = 0; i < countryNamesResult.data.length; i++) {
+            const countryNamesDatalist = document.getElementById("country-names");
+
+            countryNamesDatalist.innerHTML += `<option value="${countryNamesResult.data[i].Country}"></option>`;
+        }
+    }
+    if (countryNamesResult?.error) {
+        console.error("Error getting country names", {countryNamesResult});
+    }
+
+    renderSelections();
+});
 
 reportForm.addEventListener("submit", async (event) => {
     event.preventDefault();

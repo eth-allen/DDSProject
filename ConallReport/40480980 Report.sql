@@ -76,7 +76,7 @@ LIMIT 15;
 
 
 -- REPORT 2: Logger Performance and Geographic Coverage
--- BUSINESS QUESTION: Which loggers are most productive in 2024
+-- BUSINESS QUESTION: Which loggers are most productive
 -- and how diverse is their reporting?
 
 

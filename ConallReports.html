@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endangered Species Tracker - Conall Reports</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-container">
+            <h1 class="navbar-title">Endangered Species Tracker</h1>
+            <ul class="navbar-menu">
+                <li><a href="HomePage.html" class="active">Home</a></li>
+                <li><a href="TableEditing.html">Table Editing</a></li>
+                <li><a href="index.html" class="logout-btn">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="hero-content">
+            <h2>Conall's Reports</h2>
+            <p>Below you can see the report type, tables used and the dataset results for each of my reports.</p>
+        </div>
+    </div>
+
+    <div>
+        <div class="report-section">
+        <h3>Report 1: High Priority Species Report</h3>
+        <p>Report Title: High Priority Species Report</p><br>
+        <p>Business Question: Which high-priority species are being actively reported, where are they being spotted, and how many loggers are contributing to their documentation?</p><br>
+        <p>Why this report is useful: Identifies which critically endangered species are receiving the most attention and geographic coverage, helping prioritize conservation efforts.</p><br>
+        <p>Tables Used: Species, Report, Location, Evidence</p>
+
+        <div class="report-data">
+        <table id="conall-reports1" class="data-table">
+            <thead>
+            <tr>
+                <th>Species Name</th>
+                <th>Conservation Status</th>
+                <th>Total Reports</th>
+                <th>Active Contributors</th>
+                <th>Countries Diversity</th>
+                <th>Reporting Period</th>
+                <th>Evidence Types Used</th>
+            </tr>
+            </thead>
+            <tbody id="conall-reports1-body"></tbody>
+        </table>
+        </div>
+
+        <script src="js/runQuery.js"></script>
+        <script>
+            function jsonGrabberOne (rows) {
+                const tbody = document.getElementById("conall-reports1-body");
+                tbody.innerHTML = rows.map((row) => `
+                    <tr>
+                        <td>${row.SpeciesName ?? ""}</td>
+                        <td>${row.ConservationStatus ?? ""}</td>
+                        <td>${row.TotalReports ?? ""}</td>
+                        <td>${row.ActiveContributors ?? ""}</td>
+                        <td>${row.CountriesDiversity ?? ""}</td>
+                        <td>${row.ReportingPeriod ?? ""}</td>
+                        <td>${row.EvidenceTypesUsed ?? ""}</td>
+                    </tr>
+                `).join("");
+            }
+
+            document.addEventListener("DOMContentLoaded", async () => {
+                const [ConallResultOne] = await Promise.all([
+                    runQuery("SELECT s.SpeciesID, s.Name AS SpeciesName, s.Status AS ConservationStatus, COUNT(r.ReportID) AS TotalReports, COUNT(DISTINCT r.LoggerID) AS ActiveContributors, COUNT(DISTINCT loc.Country) AS CountriesDiversity, CONCAT(DATE_FORMAT(MIN(r.ReportDate), '%d %b %Y'), ' - ', DATE_FORMAT(MAX(r.ReportDate), '%d %b %Y')) AS ReportingPeriod, GROUP_CONCAT(DISTINCT e.EvidenceType ORDER BY e.EvidenceType SEPARATOR ', ') AS EvidenceTypesUsed FROM Species s INNER JOIN Report r ON s.SpeciesID = r.SpeciesID LEFT JOIN Location loc ON r.LocationID = loc.LocationID LEFT JOIN Evidence e ON r.EvidenceID = e.EvidenceID WHERE s.Status = 'High' GROUP BY s.SpeciesID, s.Name, s.Status HAVING COUNT(r.ReportID) > 0 ORDER BY TotalReports DESC, s.Name ASC LIMIT 15;"),
+                ]);
+
+                if (ConallResultOne?.success && Array.isArray(ConallResultOne.data)) {
+                    jsonGrabberOne(ConallResultOne.data);
+                }
+
+                if (ConallResultOne?.error) {
+                    console.error("Data load error", {ConallResultOne});
+                }
+            });
+        </script>
+        </div>
+    </div>
+
+    <div>
+        <div class="report-section">
+        <h3>Report 2: Logger Performance and Geographic Coverage</h3>
+        <p>Report Title: Logger Performance and Geographic Coverage</p><br>
+        <p>Business Question: Which loggers are most productive and how diverse is their reporting?</p><br>
+        <p>Why this report is useful: Identifies top contributors and evaluates the geographic and species diversity of their submissions to recognize active field workers.</p><br>
+        <p>Tables Used: Logger, Report, Species, Location</p>
+
+        <div class="report-data">
+            <table id="conall-reports2" class="data-table">
+                <thead>
+                <tr>
+                    <th>Logger Name</th>
+                    <th>Contact Email</th>
+                    <th>Total Reports</th>
+                    <th>Unique Species Reported</th>
+                    <th>High Priority Reports</th>
+                    <th>Countries Covered</th>
+                </tr>
+                </thead>
+                <tbody id="conall-reports2-body"></tbody>
+            </table>
+
+            <script>
+                function jsonGrabberTwo (rows) {
+                    const tbody = document.getElementById("conall-reports2-body");
+                    tbody.innerHTML = rows.map((row) => `
+                        <tr>
+                            <td>${row.LoggerName ?? ""}</td>
+                            <td>${row.ContactEmail ?? ""}</td>
+                            <td>${row.TotalReports ?? ""}</td>
+                            <td>${row.UniqueSpeciesReported ?? ""}</td>
+                            <td>${row.HighPriorityReports ?? ""}</td>
+                            <td>${row.CountriesCovered ?? ""}</td>
+                        </tr>
+                    `).join("");
+                }
+
+                document.addEventListener("DOMContentLoaded", async () => {
+                    const [ConallResultTwo] = await Promise.all([
+                        runQuery("SELECT CONCAT(UPPER(l.Surname), ', ', l.Forename) AS LoggerName, l.Email AS ContactEmail, COUNT(r.ReportID) AS TotalReports, COUNT(DISTINCT r.SpeciesID) AS UniqueSpeciesReported, COUNT(DISTINCT CASE WHEN s.Status = 'High' THEN r.ReportID END) AS HighPriorityReports, COUNT(DISTINCT loc.Country) AS CountriesCovered FROM Logger l INNER JOIN Report r ON l.LoggerID = r.LoggerID INNER JOIN Species s ON r.SpeciesID = s.SpeciesID LEFT JOIN Location loc ON r.LocationID = loc.LocationID WHERE YEAR(r.ReportDate) = 2024 GROUP BY l.LoggerID, l.Surname, l.Forename, l.Email HAVING COUNT(r.ReportID) >= 5 ORDER BY TotalReports DESC, HighPriorityReports DESC, LoggerName ASC LIMIT 20;"),
+                    ]);
+
+                    if (ConallResultTwo?.success && Array.isArray(ConallResultTwo.data)) {
+                        jsonGrabberTwo(ConallResultTwo.data);
+                    }
+
+                    if (ConallResultTwo?.error) {
+                        console.error("Data load error", {ConallResultTwo});
+                    }
+                });
+            </script>
+        </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="report-section">
+            <h3>Report 3: Geographic Hotspot Analysis by Country</h3>
+            <p>Report Title: Geographic Hotspot Analysis by Country</p><br>
+            <p>Business Question: What countries have the most loggers and have a high diversity of species being reported?</p><br>
+            <p>Why this report is useful: Identifies geographic regions with the most conservation activity and species diversity, helping coordinate international conservation efforts.</p><br>
+            <p>Tables Used: Location, Report, Species</p>
+
+            <div class="report-data">
+                <table id="conall-reports3" class="data-table">
+                    <thead>
+                    <tr>
+                        <th>Country</th>
+                        <th>Species Diversity</th>
+                        <th>Total Observations</th>
+                        <th>Contributing Loggers</th>
+                        <th>High Priority Species Count</th>
+                        <th>Last Observation Date</th>
+                    </tr>
+                    </thead>
+                    <tbody id="conall-reports3-body"></tbody>
+                </table>
+
+                <script>
+                    function jsonGrabberThree (rows) {
+                        const tbody = document.getElementById("conall-reports3-body");
+                        tbody.innerHTML = rows.map((row) => `
+                            <tr>
+                                <td>${row.Country ?? ""}</td>
+                                <td>${row.TotalSpeciesDiversity ?? ""}</td>
+                                <td>${row.TotalObservations ?? ""}</td>
+                                <td>${row.TotalContributingLoggers ?? ""}</td>
+                                <td>${row.HighPrioritySpeciesCount ?? ""}</td>
+                                <td>${row.LastObservationDate ?? ""}</td>
+                            </tr>
+                        `).join("");
+                    }
+
+                    document.addEventListener("DOMContentLoaded", async () => {
+                        const [ConallResultThree] = await Promise.all([
+                            runQuery("SELECT loc.Country, COUNT(DISTINCT r.SpeciesID) AS TotalSpeciesDiversity, COUNT(DISTINCT r.ReportID) AS TotalObservations, COUNT(DISTINCT r.LoggerID) AS TotalContributingLoggers, COUNT(DISTINCT CASE WHEN s.Status = 'High' THEN r.SpeciesID END) AS HighPrioritySpeciesCount, DATE_FORMAT(MAX(r.ReportDate), '%d %b %Y') AS LastObservationDate FROM Location loc INNER JOIN Report r ON loc.LocationID = r.LocationID INNER JOIN Species s ON r.SpeciesID = s.SpeciesID GROUP BY loc.Country HAVING HighPrioritySpeciesCount > 0 ORDER BY HighPrioritySpeciesCount DESC, TotalSpeciesDiversity DESC, TotalObservations DESC LIMIT 25;"),
+                        ]);
+
+                        if (ConallResultThree?.success && Array.isArray(ConallResultThree.data)) {
+                            jsonGrabberThree(ConallResultThree.data);
+                        }
+
+                        if (ConallResultThree?.error) {
+                            console.error("Data load error", {ConallResultThree});
+                        }
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
+    </footer>
+</body>
+</html>

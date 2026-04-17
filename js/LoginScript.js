@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // If no usernames returned (username doesn't exist)
                 if(retrievedUsername.data.length === 0) {
                     alert("Username does not exist.");
-                    console.log("runQuery returned no data! retrievedUsername.data: " + retrievedUsername.data + ", retrievedUsername.error: " + retrievedUsername.error + ", retrievedUsername.success: " + retrievedUsername.success);
+                    console.log("runQuery returned no data! retrievedUsernamedo.data: " + retrievedUsername.data + ", retrievedUsername.error: " + retrievedUsername.error + ", retrievedUsername.success: " + retrievedUsername.success);
                     // Figure out how to reset page or something
 
                 } else if (retrievedUsername.error != undefined) { // If runqueory returns an error for whatever reason

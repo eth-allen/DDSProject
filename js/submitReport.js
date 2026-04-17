@@ -96,7 +96,7 @@ reportForm.addEventListener("submit", async (event) => {
 
     const currentDate = new Date();
 
-    const loggerID = 1;
+    const loggerID = sessionStorage.getItem("loggedInUser"); // Retrieves username from session storage
     const locationID = lastGivenLocation;
     const evidenceID = document.getElementById("evidence-selection").value;
     const reportDate = currentDate.toISOString().substring(0, 10);

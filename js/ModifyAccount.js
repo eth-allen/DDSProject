@@ -40,26 +40,22 @@ sidebarTabs.forEach(function(sidebarTab) {
     
     sidebarTab.addEventListener('click', function() {
         
-        // 2. Reset Phase: Remove 'active' from all buttons
-        sidebarTabs.forEach(function(buttonToReset) {
-            buttonToReset.classList.remove('active');
+        // Remove active class from all tabs so they are not shown
+        sidebarTabs.forEach(function(tab) {
+            tab.classList.remove('active');
         });
 
-        // Adds hiden to all paensl to hide them
+        // Adds hiden class to all panels to hide them
         panels.forEach(function(panelToHide) {
             panelToHide.classList.add('hidden');
         });
 
-        // Adds actrive to clicked on panel to show it
+        // Adds active to clicked on tab to show its currently selected
         sidebarTab.classList.add('active');
 
-        // 5. Activation Phase: Show the linked panel
-        const targetPanelId = sidebarTab.getAttribute('data-target');
-        const panelToShow = document.getElementById(targetPanelId);
-        
-        if (panelToShow) {
-            panelToShow.classList.remove('hidden');
-        }
+        // Gets relevant panel linked to button pressed
+        const panelToShow = document.getElementById(sidebarTab.getAttribute('data-target'));
+        panelToShow.classList.remove('hidden'); // removes hidden tag so its shown
     });
 });
 

@@ -58,8 +58,12 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
+.hidden {
+    display: none !important; /* Hides a panel (important so it overrides other stuff for panel)
+}
+
 .modify-account-form {
-    max-width: 500px; /* Keeps the form inputs from stretching too wide on big screens */
+    max-width: 500px; /* Keeps the form inputs from stretching too wide on large displayus */
 }
 
 .submit-button {
@@ -67,6 +71,17 @@
     width: auto; /* Overrides 100% width from global css */
     padding: 12px 30px;
 }
+
+
+
+
+
+
+
+
+
+
+
 
 /* RESPONSIVE ELEMENTS TO SCREEN SIZE */
 @media (max-width: 768px) {

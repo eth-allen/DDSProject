@@ -29,9 +29,9 @@
         
         <!--Sidebar tabs-->
         <aside class="sidebar">
-            <button class="sidebar-btn">View Account</button>
-            <button class="sidebar-btn active">Modify Account</button>
-            <button class="sidebar-btn">Delete Account</button>
+            <button class="sidebar-button active" data-target="view-panel">View Account</button>
+            <button class="sidebar-button" data-target="modify-panel">Modify Account</button>
+            <button class="sidebar-button" data-target="delete-panel">Delete Account</button>
         </aside>
 
          <!--Main content section-->
@@ -62,28 +62,33 @@
             </section>
 
             <!--Modify account panel section-->
-            <section id="modify-panel" class="panel">
+            <section id="modify-panel" class="panel hidden"> <!--Panels hidden by default -->
+
                 <h2 class="section-title" style="text-align: left; margin-bottom: 25px; font-size: 26px;">Modify Account Details</h2>
 
-                <form id="modifyForm" class="account-form"></form>
+                <form id="modify-form" class="modify-form"></form>
                     <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="entered-username" name="username" placeholder="Enter new username">
+                        <label for="username">Username:</label>
+                        <input type="text" id="entered-username" name="entered-username" placeholder="Enter your username" required>
+                        <p><small id ="username-conditions"> Cannot be &lt 1 character, &gt 32 characters, contain spaces or contain special characters (&lt;, &gt;, &amp;, &quot;, &#39;) </small></p>
                     </div>
 
                     <div class="form-group">
-                        <label for="forename">Forename</label>
-                        <input type="text" id="entered-forename" name="forename" placeholder="Enter new forename">
+                        <label for="forename">Forename:</label>
+                        <input type="text" id="entered-forename" name="entered-forename" placeholder="Enter your forename" required>
+                        <p><small id ="forename-conditions"> Must be &gt;1 characters & &lt;= 32 and cannot contain any special characters</small></p>
                     </div>
 
                     <div class="form-group">
-                        <label for="surname">Surname</label>
-                        <input type="text" id="entered-surname" name="surname" placeholder="Enter new surname">
+                        <label for="surname">Surname:</label>
+                        <input type="text" id="entered-surname" name="entered-surname" placeholder="Enter your surname" required>
+                        <p><small id ="surname-conditions"> Must be &gt;1 characters & &lt;= 32 and cannot contain any special characters</small></p>
                     </div>
 
                     <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="entered-email" name="email" placeholder="Enter new email">
+                        <label for="email">Email:</label>
+                        <input type="text" id="entered-email" name="entered-email" placeholder="Enter your email" required>
+                        <p><small id ="email-conditions"> Must be a valid email address</small></p>
                     </div>
 
                     <button type="submit" class="btn update-btn">Save Changes</button>
@@ -91,7 +96,8 @@
             </section>
 
             <!--Delete account panel section-->
-            <section id="delete-panel" class="panel">
+            <section id="delete-panel" class="panel hidden "> <!--Panels hidden by default -->
+
                 <h2 class="section-title warning-text">Delete Account</h2>
     
                 <div class="warning-box">

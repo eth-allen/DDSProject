@@ -11,7 +11,6 @@ function handle_error($error_message) {
     exit;
 }
 
-// Set up an exception handler to catch any uncaught exceptions
 set_exception_handler(function($exception) {
     handle_error("Error: " . $exception->getMessage());
 });
@@ -36,7 +35,7 @@ CHANGE NOTHING AFTER THIS  LINE
 ******************************************************************************* */
 
 
-// Get POST data - the SQL Query 
+// Get POST data - the SQL Query
 $query = $_POST['query'];
 
 // Create connection
@@ -47,7 +46,6 @@ if ($conn->connect_error) {
     handle_error("Connection failed: " . $conn->connect_error);
 }
 
-// Execute query
 if ($result = $conn->query($query)) {
     // Check if the result is a SELECT query
     if (strpos(strtoupper($query), 'SELECT') === 0) {

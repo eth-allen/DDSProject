@@ -1,8 +1,12 @@
-const loggerTableBody = document.getElementById("logger-table-body");
-const locationTableBody = document.getElementById("location-table-body");
-const evidenceTableBody = document.getElementById("evidence-table-body");
-const speciesTableBody = document.getElementById("species-table-body");
-const reportsTableBody = document.getElementById("reports-table-body");
+const el = (id) => document.getElementById(id);
+
+const tableBodies = {
+    logger: el("logger-table-body"),
+    location: el("location-table-body"),
+    evidence: el("evidence-table-body"),
+    species: el("species-table-body"),
+    report: el("reports-table-body")
+};
 
 const tablePanels = {
     loggers: document.querySelector('[data-table-panel="loggers"]'),
@@ -14,60 +18,56 @@ const tablePanels = {
 
 const tableTabButtons = [...document.querySelectorAll("[data-table-tab]")];
 
-const editModal = document.getElementById("edit-modal");
-const editModalCloseButton = document.getElementById("edit-modal-close");
-const editModalTitle = document.getElementById("edit-modal-title");
+const modal = {
+    root: el("edit-modal"),
+    title: el("edit-modal-title"),
+    close: el("edit-modal-close"),
+    sections: {
+        logger: el("logger-edit-section"),
+        location: el("location-edit-section"),
+        evidence: el("evidence-edit-section"),
+        species: el("species-edit-section"),
+        report: el("report-edit-section")
+    }
+};
 
-const loggerEditSection = document.getElementById("logger-edit-section");
-const locationEditSection = document.getElementById("location-edit-section");
-const evidenceEditSection = document.getElementById("evidence-edit-section");
-const speciesEditSection = document.getElementById("species-edit-section");
-const reportEditSection = document.getElementById("report-edit-section");
+const forms = {
+    logger: el("logger-edit-form"),
+    location: el("location-edit-form"),
+    evidence: el("evidence-edit-form"),
+    species: el("species-edit-form"),
+    report: el("report-edit-form")
+};
 
-const loggerEditForm = document.getElementById("logger-edit-form");
-const locationEditForm = document.getElementById("location-edit-form");
-const evidenceEditForm = document.getElementById("evidence-edit-form");
-const speciesEditForm = document.getElementById("species-edit-form");
-const reportEditForm = document.getElementById("report-edit-form");
+const cancelButtons = [
+    el("logger-edit-cancel"),
+    el("location-edit-cancel"),
+    el("evidence-edit-cancel"),
+    el("species-edit-cancel"),
+    el("report-edit-cancel")
+].filter(Boolean);
 
-const loggerEditCancelButton = document.getElementById("logger-edit-cancel");
-const locationEditCancelButton = document.getElementById("location-edit-cancel");
-const evidenceEditCancelButton = document.getElementById("evidence-edit-cancel");
-const speciesEditCancelButton = document.getElementById("species-edit-cancel");
-const reportEditCancelButton = document.getElementById("report-edit-cancel");
+const fields = {
+    logger: { forename: el("edit-forename-input"), surname: el("edit-surname-input"), email: el("edit-email-input") },
+    location: { country: el("edit-country-input"), latitude: el("edit-latitude-input"), longitude: el("edit-longitude-input") },
+    evidence: { type: el("edit-evidence-type-input"), description: el("edit-evidence-desc-input") },
+    species: { name: el("edit-species-name-input"), status: el("edit-species-status-input") },
+    report: {
+        loggerId: el("edit-report-logger-id-input"),
+        locationId: el("edit-report-location-id-input"),
+        evidenceId: el("edit-report-evidence-id-input"),
+        date: el("edit-report-date-input"),
+        speciesId: el("edit-report-species-id-input"),
+        type: el("edit-report-type-input"),
+        description: el("edit-report-description-input")
+    }
+};
 
-const editForenameInput = document.getElementById("edit-forename-input");
-const editSurnameInput = document.getElementById("edit-surname-input");
-const editEmailInput = document.getElementById("edit-email-input");
-const editCountryInput = document.getElementById("edit-country-input");
-const editLatitudeInput = document.getElementById("edit-latitude-input");
-const editLongitudeInput = document.getElementById("edit-longitude-input");
-const editEvidenceTypeInput = document.getElementById("edit-evidence-type-input");
-const editEvidenceDescInput = document.getElementById("edit-evidence-desc-input");
-const editSpeciesNameInput = document.getElementById("edit-species-name-input");
-const editSpeciesStatusInput = document.getElementById("edit-species-status-input");
-const editReportLoggerIdInput = document.getElementById("edit-report-logger-id-input");
-const editReportLocationIdInput = document.getElementById("edit-report-location-id-input");
-const editReportEvidenceIdInput = document.getElementById("edit-report-evidence-id-input");
-const editReportDateInput = document.getElementById("edit-report-date-input");
-const editReportSpeciesIdInput = document.getElementById("edit-report-species-id-input");
-const editReportTypeInput = document.getElementById("edit-report-type-input");
-const editReportDescriptionInput = document.getElementById("edit-report-description-input");
+const rowsCache = { logger: [], location: [], evidence: [], species: [], report: [] };
+const editingState = { key: null, id: null };
 
-let currentLoggerRows = [];
-let currentLocationRows = [];
-let currentEvidenceRows = [];
-let currentSpeciesRows = [];
-let currentReportRows = [];
-
-let editingLoggerId = null;
-let editingLocationId = null;
-let editingEvidenceId = null;
-let editingSpeciesId = null;
-let editingReportId = null;
-
-const hasTableView = Boolean(loggerTableBody || locationTableBody || evidenceTableBody || speciesTableBody || reportsTableBody);
-const hasEditModal = Boolean(editModal && editModalCloseButton && editModalTitle);
+const hasTableView = Object.values(tableBodies).some(Boolean);
+const hasEditModal = Boolean(modal.root && modal.title && modal.close);
 
 function escapeHtml(value) {
     return String(value)
@@ -87,17 +87,11 @@ function isPositiveInteger(value) {
 }
 
 function toDateInputValue(value) {
-    if (!value) return "";
-    return String(value).slice(0, 10);
+    return value ? String(value).slice(0, 10) : "";
 }
 
 function setActiveTableTab(tabName) {
-    Object.entries(tablePanels).forEach(([name, panel]) => {
-        if (panel) {
-            panel.classList.toggle("is-active", name === tabName);
-        }
-    });
-
+    Object.entries(tablePanels).forEach(([name, panel]) => panel?.classList.toggle("is-active", name === tabName));
     tableTabButtons.forEach((button) => {
         const isActive = button.dataset.tableTab === tabName;
         button.classList.toggle("is-active", isActive);
@@ -106,474 +100,303 @@ function setActiveTableTab(tabName) {
     });
 }
 
-function openEditModal(title, activeSection) {
-    if (!hasEditModal || !activeSection) {
-        return;
-    }
-
-    [loggerEditSection, locationEditSection, evidenceEditSection, speciesEditSection, reportEditSection].forEach((section) => {
-        if (!section) return;
-        section.classList.remove("is-active");
-    });
-
-    activeSection.classList.add("is-active");
-    editModalTitle.textContent = title;
-    editModal.classList.add("is-open");
-    editModal.setAttribute("aria-hidden", "false");
-}
-
-function getRowById(rows, rowIdKey, id) {
-    return rows.find((row) => String(row[rowIdKey]) === String(id));
+function openEditModal(title, key) {
+    if (!hasEditModal || !modal.sections[key]) return;
+    Object.values(modal.sections).forEach((section) => section?.classList.remove("is-active"));
+    modal.sections[key].classList.add("is-active");
+    modal.title.textContent = title;
+    modal.root.classList.add("is-open");
+    modal.root.setAttribute("aria-hidden", "false");
 }
 
 function closeEditModal() {
-    editingLoggerId = null;
-    editingLocationId = null;
-    editingEvidenceId = null;
-    editingSpeciesId = null;
-    editingReportId = null;
+    editingState.key = null;
+    editingState.id = null;
+    if (!hasEditModal) return;
 
-    if (!hasEditModal) {
-        return;
-    }
+    modal.root.classList.remove("is-open");
+    modal.root.setAttribute("aria-hidden", "true");
+    Object.values(modal.sections).forEach((section) => section?.classList.remove("is-active"));
+}
 
-    editModal.classList.remove("is-open");
-    editModal.setAttribute("aria-hidden", "true");
-    [loggerEditSection, locationEditSection, evidenceEditSection, speciesEditSection, reportEditSection].forEach((section) => {
-        if (!section) return;
-        section.classList.remove("is-active");
-    });
+function getRowById(rows, idKey, id) {
+    return rows.find((row) => String(row[idKey]) === String(id));
 }
 
 function renderTableBody(tableBody, rows, rowRenderer, emptyColspan) {
-    if (!tableBody) {
-        return;
-    }
-
-    if (!Array.isArray(rows) || rows.length === 0) {
+    if (!tableBody) return;
+    if (!Array.isArray(rows) || !rows.length) {
         tableBody.innerHTML = `<tr><td colspan="${emptyColspan}">No records found.</td></tr>`;
         return;
     }
-
     tableBody.innerHTML = rows.map(rowRenderer).join("");
 }
 
-function renderLoggers(rows) {
-    currentLoggerRows = rows;
-    renderTableBody(loggerTableBody, rows, (row) => `
-        <tr>
-            <td>${escapeHtml(row.LoggerID)}</td>
-            <td>${escapeHtml(row.Forename)}</td>
-            <td>${escapeHtml(row.Surname)}</td>
-            <td>${escapeHtml(row.Email)}</td>
-            <td>
-                <button type="button" data-action="edit" data-id="${escapeHtml(row.LoggerID)}">Edit</button>
-                <button type="button" data-action="delete" data-id="${escapeHtml(row.LoggerID)}">Delete</button>
-            </td>
-        </tr>
-    `, 5);
+async function runQueryChecked(query) {
+    const result = await runQuery(query);
+    if (!result?.success) throw new Error(result?.error || "Database query failed.");
+    return result;
 }
 
-function renderLocations(rows) {
-    currentLocationRows = rows;
-    renderTableBody(locationTableBody, rows, (row) => `
-        <tr>
-            <td>${escapeHtml(row.LocationID)}</td>
-            <td>${escapeHtml(row.Country)}</td>
-            <td>${escapeHtml(row.Latitude)}</td>
-            <td>${escapeHtml(row.Longitude)}</td>
-            <td>
-                <button type="button" data-action="edit" data-id="${escapeHtml(row.LocationID)}">Edit</button>
-                <button type="button" data-action="delete" data-id="${escapeHtml(row.LocationID)}">Delete</button>
-            </td>
-        </tr>
-    `, 5);
+async function resequenceReportIds() {
+    await runQueryChecked("SET @next_report_id := 0");
+    await runQueryChecked("UPDATE Report SET ReportID = (@next_report_id := @next_report_id + 1) ORDER BY ReportID");
 }
 
-function renderEvidence(rows) {
-    currentEvidenceRows = rows;
-    renderTableBody(evidenceTableBody, rows, (row) => `
-        <tr>
-            <td>${escapeHtml(row.EvidenceID)}</td>
-            <td>${escapeHtml(row.EvidenceType)}</td>
-            <td>${escapeHtml(row.Description)}</td>
-            <td>
-                <button type="button" data-action="edit" data-id="${escapeHtml(row.EvidenceID)}">Edit</button>
-                <button type="button" data-action="delete" data-id="${escapeHtml(row.EvidenceID)}">Delete</button>
-            </td>
-        </tr>
-    `, 4);
+async function deleteParentAndResequence(tableName, idColumn, reportFkColumn, id) {
+    const numericId = Number(id);
+    if (!Number.isInteger(numericId) || numericId < 1) return { success: false, error: "Invalid ID." };
+
+    try {
+        await runQueryChecked(`DELETE FROM Report WHERE ${reportFkColumn} = ${numericId}`);
+        await resequenceReportIds();
+        await runQueryChecked(`DELETE FROM ${tableName} WHERE ${idColumn} = ${numericId}`);
+        await runQueryChecked(`UPDATE ${tableName} SET ${idColumn} = ${idColumn} - 1 WHERE ${idColumn} > ${numericId}`);
+        await runQueryChecked(`UPDATE Report SET ${reportFkColumn} = ${reportFkColumn} - 1 WHERE ${reportFkColumn} > ${numericId}`);
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
 }
 
-function renderSpecies(rows) {
-    currentSpeciesRows = rows;
-    renderTableBody(speciesTableBody, rows, (row) => `
-        <tr>
-            <td>${escapeHtml(row.SpeciesID)}</td>
-            <td>${escapeHtml(row.Name)}</td>
-            <td>${escapeHtml(row.Status)}</td>
-            <td>
-                <button type="button" data-action="edit" data-id="${escapeHtml(row.SpeciesID)}">Edit</button>
-                <button type="button" data-action="delete" data-id="${escapeHtml(row.SpeciesID)}">Delete</button>
-            </td>
-        </tr>
-    `, 4);
+async function deleteReportAndResequence(id) {
+    const numericId = Number(id);
+    if (!Number.isInteger(numericId) || numericId < 1) return { success: false, error: "Invalid ID." };
+
+    try {
+        await runQueryChecked(`DELETE FROM Report WHERE ReportID = ${numericId}`);
+        await runQueryChecked(`UPDATE Report SET ReportID = ReportID - 1 WHERE ReportID > ${numericId}`);
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
 }
 
-function renderReports(rows) {
-    currentReportRows = rows;
-    renderTableBody(reportsTableBody, rows, (row) => `
-        <tr>
-            <td>${escapeHtml(row.ReportID)}</td>
-            <td>${escapeHtml(row.LoggerID)}</td>
-            <td>${escapeHtml(row.LocationID)}</td>
-            <td>${escapeHtml(row.EvidenceID)}</td>
-            <td>${escapeHtml(row.ReportDate)}</td>
-            <td>${escapeHtml(row.SpeciesID)}</td>
-            <td>${escapeHtml(row.ReportType)}</td>
-            <td>${escapeHtml(row.ReportDescription)}</td>
-            <td>
-                <button type="button" data-action="edit" data-id="${escapeHtml(row.ReportID)}">Edit</button>
-                <button type="button" data-action="delete" data-id="${escapeHtml(row.ReportID)}">Delete</button>
-            </td>
-        </tr>
-    `, 9);
+const tableConfigs = {
+    logger: {
+        idKey: "LoggerID", body: tableBodies.logger, emptyColspan: 5, label: "Logger",
+        listQuery: "SELECT * FROM Logger ORDER BY LoggerID",
+        cells: (row) => [row.LoggerID, row.Forename, row.Surname, row.Email],
+        onDelete: (id) => deleteParentAndResequence("Logger", "LoggerID", "LoggerID", id)
+    },
+    location: {
+        idKey: "LocationID", body: tableBodies.location, emptyColspan: 5, label: "Location",
+        listQuery: "SELECT * FROM Location ORDER BY LocationID",
+        cells: (row) => [row.LocationID, row.Country, row.Latitude, row.Longitude],
+        onDelete: (id) => deleteParentAndResequence("Location", "LocationID", "LocationID", id)
+    },
+    evidence: {
+        idKey: "EvidenceID", body: tableBodies.evidence, emptyColspan: 4, label: "Evidence",
+        listQuery: "SELECT * FROM Evidence ORDER BY EvidenceID",
+        cells: (row) => [row.EvidenceID, row.EvidenceType, row.Description],
+        onDelete: (id) => deleteParentAndResequence("Evidence", "EvidenceID", "EvidenceID", id)
+    },
+    species: {
+        idKey: "SpeciesID", body: tableBodies.species, emptyColspan: 4, label: "Species",
+        listQuery: "SELECT * FROM Species ORDER BY SpeciesID",
+        cells: (row) => [row.SpeciesID, row.Name, row.Status],
+        onDelete: (id) => deleteParentAndResequence("Species", "SpeciesID", "SpeciesID", id)
+    },
+    report: {
+        idKey: "ReportID", body: tableBodies.report, emptyColspan: 9, label: "Report",
+        listQuery: "SELECT * FROM Report ORDER BY ReportID",
+        cells: (row) => [row.ReportID, row.LoggerID, row.LocationID, row.EvidenceID, row.ReportDate, row.SpeciesID, row.ReportType, row.ReportDescription],
+        onDelete: (id) => deleteReportAndResequence(id)
+    }
+};
+
+function renderRows(key, rows) {
+    const cfg = tableConfigs[key];
+    rowsCache[key] = rows;
+
+    renderTableBody(cfg.body, rows, (row) => {
+        const cellsHtml = cfg.cells(row).map((value) => `<td>${escapeHtml(value)}</td>`).join("");
+        const id = escapeHtml(row[cfg.idKey]);
+        return `<tr>${cellsHtml}<td><button type="button" data-action="edit" data-id="${id}">Edit</button><button type="button" data-action="delete" data-id="${id}">Delete</button></td></tr>`;
+    }, cfg.emptyColspan);
 }
 
 const renderTables = async () => {
-    if (!hasTableView || typeof runQuery !== "function") {
-        return;
-    }
+    if (!hasTableView || typeof runQuery !== "function") return;
 
-    const [loggerRes, locationRes, evidenceRes, speciesRes, reportRes] = await Promise.all([
-        runQuery("SELECT * FROM Logger"),
-        runQuery("SELECT * FROM Location"),
-        runQuery("SELECT * FROM Evidence"),
-        runQuery("SELECT * FROM Species"),
-        runQuery("SELECT * FROM Report")
-    ]);
-
-    if (loggerRes?.success) renderLoggers(loggerRes.data);
-    if (locationRes?.success) renderLocations(locationRes.data);
-    if (evidenceRes?.success) renderEvidence(evidenceRes.data);
-    if (speciesRes?.success) renderSpecies(speciesRes.data);
-    if (reportRes?.success) renderReports(reportRes.data);
+    const keys = Object.keys(tableConfigs);
+    const responses = await Promise.all(keys.map((key) => runQuery(tableConfigs[key].listQuery)));
+    responses.forEach((res, index) => {
+        if (res?.success) renderRows(keys[index], res.data);
+    });
 };
 
-async function deleteWithReports(reportColumnName, tableName, idColumnName, id) {
-    await runQuery(`DELETE FROM Report WHERE ${reportColumnName} = ${id}`);
-    return runQuery(`DELETE FROM ${tableName} WHERE ${idColumnName} = ${id}`);
+const editHandlers = {
+    logger: {
+        open: (id, row) => {
+            editingState.key = "logger";
+            editingState.id = Number(id);
+            fields.logger.forename.value = row.Forename ?? "";
+            fields.logger.surname.value = row.Surname ?? "";
+            fields.logger.email.value = row.Email ?? "";
+            openEditModal(`Edit Logger #${id}`, "logger");
+        },
+        submit: () => {
+            const forename = fields.logger.forename.value.trim();
+            const surname = fields.logger.surname.value.trim();
+            const email = fields.logger.email.value.trim();
+            if (!forename || !surname || !email) return { ok: false, msg: "Please fill all Logger fields." };
+            return { ok: true, query: `UPDATE Logger SET Forename = '${escapeSql(forename)}', Surname = '${escapeSql(surname)}', Email = '${escapeSql(email)}' WHERE LoggerID = ${editingState.id}`, err: "Unable to update Logger." };
+        }
+    },
+    location: {
+        open: (id, row) => {
+            editingState.key = "location";
+            editingState.id = Number(id);
+            fields.location.country.value = row.Country ?? "";
+            fields.location.latitude.value = row.Latitude ?? "";
+            fields.location.longitude.value = row.Longitude ?? "";
+            openEditModal(`Edit Location #${id}`, "location");
+        },
+        submit: () => {
+            const country = fields.location.country.value.trim();
+            const latitude = Number(fields.location.latitude.value);
+            const longitude = Number(fields.location.longitude.value);
+            if (!country || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return { ok: false, msg: "Please provide valid Location values." };
+            return { ok: true, query: `UPDATE Location SET Country = '${escapeSql(country)}', Latitude = ${latitude}, Longitude = ${longitude} WHERE LocationID = ${editingState.id}`, err: "Unable to update Location." };
+        }
+    },
+    evidence: {
+        open: (id, row) => {
+            editingState.key = "evidence";
+            editingState.id = Number(id);
+            fields.evidence.type.value = row.EvidenceType ?? "";
+            fields.evidence.description.value = row.Description ?? "";
+            openEditModal(`Edit Evidence #${id}`, "evidence");
+        },
+        submit: () => {
+            const type = fields.evidence.type.value.trim();
+            const description = fields.evidence.description.value.trim();
+            if (!type || !description) return { ok: false, msg: "Please fill all Evidence fields." };
+            return { ok: true, query: `UPDATE Evidence SET EvidenceType = '${escapeSql(type)}', Description = '${escapeSql(description)}' WHERE EvidenceID = ${editingState.id}`, err: "Unable to update Evidence." };
+        }
+    },
+    species: {
+        open: (id, row) => {
+            editingState.key = "species";
+            editingState.id = Number(id);
+            fields.species.name.value = row.Name ?? "";
+            fields.species.status.value = row.Status ?? "Low";
+            openEditModal(`Edit Species #${id}`, "species");
+        },
+        submit: () => {
+            const name = fields.species.name.value.trim();
+            const status = fields.species.status.value;
+            if (!name || !status) return { ok: false, msg: "Please fill all Species fields." };
+            return { ok: true, query: `UPDATE Species SET Name = '${escapeSql(name)}', Status = '${escapeSql(status)}' WHERE SpeciesID = ${editingState.id}`, err: "Unable to update Species." };
+        }
+    },
+    report: {
+        open: (id, row) => {
+            const f = fields.report;
+            editingState.key = "report";
+            editingState.id = Number(id);
+            f.loggerId.value = row.LoggerID ?? "";
+            f.locationId.value = row.LocationID ?? "";
+            f.evidenceId.value = row.EvidenceID ?? "";
+            f.date.value = toDateInputValue(row.ReportDate);
+            f.speciesId.value = row.SpeciesID ?? "";
+            f.type.value = row.ReportType ?? "";
+            f.description.value = row.ReportDescription ?? "";
+            openEditModal(`Edit Report #${id}`, "report");
+        },
+        submit: () => {
+            const f = fields.report;
+            const loggerId = Number(f.loggerId.value);
+            const locationId = Number(f.locationId.value);
+            const evidenceId = Number(f.evidenceId.value);
+            const reportDate = f.date.value;
+            const speciesId = Number(f.speciesId.value);
+            const reportType = f.type.value.trim();
+            const reportDescription = f.description.value.trim();
+
+            if (![loggerId, locationId, evidenceId, speciesId].every((value) => Number.isInteger(value) && value > 0) || !reportDate || !reportType || !reportDescription) {
+                return { ok: false, msg: "Please provide valid Report values." };
+            }
+
+            return {
+                ok: true,
+                query: `UPDATE Report SET LoggerID = ${loggerId}, LocationID = ${locationId}, EvidenceID = ${evidenceId}, ReportDate = '${escapeSql(reportDate)}', SpeciesID = ${speciesId}, ReportType = '${escapeSql(reportType)}', ReportDescription = '${escapeSql(reportDescription)}' WHERE ReportID = ${editingState.id}`,
+                err: "Unable to update Report."
+            };
+        }
+    }
+};
+
+function bindTableActions(key) {
+    const cfg = tableConfigs[key];
+    if (!cfg.body) return;
+
+    cfg.body.addEventListener("click", async (event) => {
+        const btn = event.target.closest("button[data-action]");
+        if (!btn) return;
+
+        const id = btn.dataset.id;
+        if (!isPositiveInteger(id)) return;
+
+        if (btn.dataset.action === "edit") {
+            const row = getRowById(rowsCache[key], cfg.idKey, id);
+            if (row) editHandlers[key].open(id, row);
+            return;
+        }
+
+        if (btn.dataset.action === "delete" && confirm(`Delete ${cfg.label} ID ${id}?`)) {
+            const result = await cfg.onDelete(id);
+            if (!result?.success) {
+                alert(result?.error || `Unable to delete ${cfg.label}.`);
+                return;
+            }
+            await renderTables();
+        }
+    });
 }
+
+function bindEditForm(key) {
+    const form = forms[key];
+    if (!form) return;
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (editingState.key !== key || !editingState.id) return;
+
+        const outcome = editHandlers[key].submit();
+        if (!outcome.ok) {
+            alert(outcome.msg);
+            return;
+        }
+
+        const result = await runQuery(outcome.query);
+        if (!result?.success) {
+            alert(result?.error || outcome.err);
+            return;
+        }
+
+        closeEditModal();
+        await renderTables();
+    });
+}
+
+Object.keys(tableConfigs).forEach(bindTableActions);
+Object.keys(forms).forEach(bindEditForm);
 
 if (tableTabButtons.length) {
-    tableTabButtons.forEach((button) => {
-        button.addEventListener("click", () => setActiveTableTab(button.dataset.tableTab));
-    });
-}
-
-if (loggerTableBody) {
-    loggerTableBody.addEventListener("click", async (event) => {
-        const btn = event.target.closest("button[data-action]");
-        if (!btn) return;
-
-        const id = btn.dataset.id;
-        if (!isPositiveInteger(id)) return;
-
-        if (btn.dataset.action === "edit") {
-            const row = getRowById(currentLoggerRows, "LoggerID", id);
-            if (!row || !editForenameInput || !editSurnameInput || !editEmailInput) return;
-
-            editingLoggerId = Number(id);
-            editForenameInput.value = row.Forename ?? "";
-            editSurnameInput.value = row.Surname ?? "";
-            editEmailInput.value = row.Email ?? "";
-            openEditModal(`Edit Logger #${id}`, loggerEditSection);
-            return;
-        }
-
-        if (btn.dataset.action === "delete" && confirm(`Delete Logger ID ${id}?`)) {
-            const result = await deleteWithReports("LoggerID", "Logger", "LoggerID", id);
-            if (!result?.success) {
-                alert(result?.error || "Unable to delete Logger.");
-                return;
-            }
-            await renderTables();
-        }
-    });
-}
-
-if (locationTableBody) {
-    locationTableBody.addEventListener("click", async (event) => {
-        const btn = event.target.closest("button[data-action]");
-        if (!btn) return;
-
-        const id = btn.dataset.id;
-        if (!isPositiveInteger(id)) return;
-
-        if (btn.dataset.action === "edit") {
-            const row = getRowById(currentLocationRows, "LocationID", id);
-            if (!row || !editCountryInput || !editLatitudeInput || !editLongitudeInput) return;
-
-            editingLocationId = Number(id);
-            editCountryInput.value = row.Country ?? "";
-            editLatitudeInput.value = row.Latitude ?? "";
-            editLongitudeInput.value = row.Longitude ?? "";
-            openEditModal(`Edit Location #${id}`, locationEditSection);
-            return;
-        }
-
-        if (btn.dataset.action === "delete" && confirm(`Delete Location ID ${id}?`)) {
-            const result = await deleteWithReports("LocationID", "Location", "LocationID", id);
-            if (!result?.success) {
-                alert(result?.error || "Unable to delete Location.");
-                return;
-            }
-            await renderTables();
-        }
-    });
-}
-
-if (evidenceTableBody) {
-    evidenceTableBody.addEventListener("click", async (event) => {
-        const btn = event.target.closest("button[data-action]");
-        if (!btn) return;
-
-        const id = btn.dataset.id;
-        if (!isPositiveInteger(id)) return;
-
-        if (btn.dataset.action === "edit") {
-            const row = getRowById(currentEvidenceRows, "EvidenceID", id);
-            if (!row || !editEvidenceTypeInput || !editEvidenceDescInput) return;
-
-            editingEvidenceId = Number(id);
-            editEvidenceTypeInput.value = row.EvidenceType ?? "";
-            editEvidenceDescInput.value = row.Description ?? "";
-            openEditModal(`Edit Evidence #${id}`, evidenceEditSection);
-            return;
-        }
-
-        if (btn.dataset.action === "delete" && confirm(`Delete Evidence ID ${id}?`)) {
-            const result = await deleteWithReports("EvidenceID", "Evidence", "EvidenceID", id);
-            if (!result?.success) {
-                alert(result?.error || "Unable to delete Evidence.");
-                return;
-            }
-            await renderTables();
-        }
-    });
-}
-
-if (speciesTableBody) {
-    speciesTableBody.addEventListener("click", async (event) => {
-        const btn = event.target.closest("button[data-action]");
-        if (!btn) return;
-
-        const id = btn.dataset.id;
-        if (!isPositiveInteger(id)) return;
-
-        if (btn.dataset.action === "edit") {
-            const row = getRowById(currentSpeciesRows, "SpeciesID", id);
-            if (!row || !editSpeciesNameInput || !editSpeciesStatusInput) return;
-
-            editingSpeciesId = Number(id);
-            editSpeciesNameInput.value = row.Name ?? "";
-            editSpeciesStatusInput.value = row.Status ?? "Low";
-            openEditModal(`Edit Species #${id}`, speciesEditSection);
-            return;
-        }
-
-        if (btn.dataset.action === "delete" && confirm(`Delete Species ID ${id}?`)) {
-            const result = await deleteWithReports("SpeciesID", "Species", "SpeciesID", id);
-            if (!result?.success) {
-                alert(result?.error || "Unable to delete Species.");
-                return;
-            }
-            await renderTables();
-        }
-    });
-}
-
-if (reportsTableBody) {
-    reportsTableBody.addEventListener("click", async (event) => {
-        const btn = event.target.closest("button[data-action]");
-        if (!btn) return;
-
-        const id = btn.dataset.id;
-        if (!isPositiveInteger(id)) return;
-
-        if (btn.dataset.action === "edit") {
-            const row = getRowById(currentReportRows, "ReportID", id);
-            if (!row || !reportEditSection || !editReportLoggerIdInput || !editReportLocationIdInput || !editReportEvidenceIdInput || !editReportDateInput || !editReportSpeciesIdInput || !editReportTypeInput || !editReportDescriptionInput) return;
-
-            editingReportId = Number(id);
-            editReportLoggerIdInput.value = row.LoggerID ?? "";
-            editReportLocationIdInput.value = row.LocationID ?? "";
-            editReportEvidenceIdInput.value = row.EvidenceID ?? "";
-            editReportDateInput.value = toDateInputValue(row.ReportDate);
-            editReportSpeciesIdInput.value = row.SpeciesID ?? "";
-            editReportTypeInput.value = row.ReportType ?? "";
-            editReportDescriptionInput.value = row.ReportDescription ?? "";
-            openEditModal(`Edit Report #${id}`, reportEditSection);
-            return;
-        }
-
-        if (btn.dataset.action === "delete" && confirm(`Delete Report ID ${id}?`)) {
-            const result = await runQuery(`DELETE FROM Report WHERE ReportID = ${id}`);
-            if (!result?.success) {
-                alert(result?.error || "Unable to delete Report.");
-                return;
-            }
-            await renderTables();
-        }
-    });
-}
-
-if (loggerEditForm) {
-    loggerEditForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        if (!editingLoggerId || !editForenameInput || !editSurnameInput || !editEmailInput) return;
-
-        const forename = editForenameInput.value.trim();
-        const surname = editSurnameInput.value.trim();
-        const email = editEmailInput.value.trim();
-
-        if (!forename || !surname || !email) {
-            alert("Please fill all Logger fields.");
-            return;
-        }
-
-        const query = `UPDATE Logger SET Forename = '${escapeSql(forename)}', Surname = '${escapeSql(surname)}', Email = '${escapeSql(email)}' WHERE LoggerID = ${editingLoggerId}`;
-        const result = await runQuery(query);
-        if (!result?.success) {
-            alert(result?.error || "Unable to update Logger.");
-            return;
-        }
-
-        closeEditModal();
-        await renderTables();
-    });
-}
-
-if (locationEditForm) {
-    locationEditForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        if (!editingLocationId || !editCountryInput || !editLatitudeInput || !editLongitudeInput) return;
-
-        const country = editCountryInput.value.trim();
-        const latitude = Number(editLatitudeInput.value);
-        const longitude = Number(editLongitudeInput.value);
-
-        if (!country || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-            alert("Please provide valid Location values.");
-            return;
-        }
-
-        const query = `UPDATE Location SET Country = '${escapeSql(country)}', Latitude = ${latitude}, Longitude = ${longitude} WHERE LocationID = ${editingLocationId}`;
-        const result = await runQuery(query);
-        if (!result?.success) {
-            alert(result?.error || "Unable to update Location.");
-            return;
-        }
-
-        closeEditModal();
-        await renderTables();
-    });
-}
-
-if (evidenceEditForm) {
-    evidenceEditForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        if (!editingEvidenceId || !editEvidenceTypeInput || !editEvidenceDescInput) return;
-
-        const evidenceType = editEvidenceTypeInput.value.trim();
-        const description = editEvidenceDescInput.value.trim();
-
-        if (!evidenceType || !description) {
-            alert("Please fill all Evidence fields.");
-            return;
-        }
-
-        const query = `UPDATE Evidence SET EvidenceType = '${escapeSql(evidenceType)}', Description = '${escapeSql(description)}' WHERE EvidenceID = ${editingEvidenceId}`;
-        const result = await runQuery(query);
-        if (!result?.success) {
-            alert(result?.error || "Unable to update Evidence.");
-            return;
-        }
-
-        closeEditModal();
-        await renderTables();
-    });
-}
-
-if (speciesEditForm) {
-    speciesEditForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        if (!editingSpeciesId || !editSpeciesNameInput || !editSpeciesStatusInput) return;
-
-        const name = editSpeciesNameInput.value.trim();
-        const status = editSpeciesStatusInput.value;
-
-        if (!name || !status) {
-            alert("Please fill all Species fields.");
-            return;
-        }
-
-        const query = `UPDATE Species SET Name = '${escapeSql(name)}', Status = '${escapeSql(status)}' WHERE SpeciesID = ${editingSpeciesId}`;
-        const result = await runQuery(query);
-        if (!result?.success) {
-            alert(result?.error || "Unable to update Species.");
-            return;
-        }
-
-        closeEditModal();
-        await renderTables();
-    });
-}
-
-if (reportEditForm) {
-    reportEditForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        if (!editingReportId || !editReportLoggerIdInput || !editReportLocationIdInput || !editReportEvidenceIdInput || !editReportDateInput || !editReportSpeciesIdInput || !editReportTypeInput || !editReportDescriptionInput) return;
-
-        const loggerId = Number(editReportLoggerIdInput.value);
-        const locationId = Number(editReportLocationIdInput.value);
-        const evidenceId = Number(editReportEvidenceIdInput.value);
-        const reportDate = editReportDateInput.value;
-        const speciesId = Number(editReportSpeciesIdInput.value);
-        const reportType = editReportTypeInput.value.trim();
-        const reportDescription = editReportDescriptionInput.value.trim();
-
-        if (![loggerId, locationId, evidenceId, speciesId].every((value) => Number.isInteger(value) && value > 0) || !reportDate || !reportType || !reportDescription) {
-            alert("Please provide valid Report values.");
-            return;
-        }
-
-        const query = `UPDATE Report SET LoggerID = ${loggerId}, LocationID = ${locationId}, EvidenceID = ${evidenceId}, ReportDate = '${escapeSql(reportDate)}', SpeciesID = ${speciesId}, ReportType = '${escapeSql(reportType)}', ReportDescription = '${escapeSql(reportDescription)}' WHERE ReportID = ${editingReportId}`;
-        const result = await runQuery(query);
-        if (!result?.success) {
-            alert(result?.error || "Unable to update Report.");
-            return;
-        }
-
-        closeEditModal();
-        await renderTables();
-    });
+    tableTabButtons.forEach((button) => button.addEventListener("click", () => setActiveTableTab(button.dataset.tableTab)));
 }
 
 if (hasEditModal) {
-    editModalCloseButton.addEventListener("click", closeEditModal);
-
-    editModal.addEventListener("click", (event) => {
-        if (event.target === editModal) closeEditModal();
+    modal.close.addEventListener("click", closeEditModal);
+    modal.root.addEventListener("click", (event) => {
+        if (event.target === modal.root) closeEditModal();
     });
-
     document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && editModal.classList.contains("is-open")) closeEditModal();
+        if (event.key === "Escape" && modal.root.classList.contains("is-open")) closeEditModal();
     });
-
-    [loggerEditCancelButton, locationEditCancelButton, evidenceEditCancelButton, speciesEditCancelButton, reportEditCancelButton]
-        .filter(Boolean)
-        .forEach((button) => button.addEventListener("click", closeEditModal));
+    cancelButtons.forEach((button) => button.addEventListener("click", closeEditModal));
 }
 
 document.addEventListener("DOMContentLoaded", () => {

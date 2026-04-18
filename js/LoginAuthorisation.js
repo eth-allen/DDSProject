@@ -4,7 +4,7 @@
     if (!sessionStorage.getItem("loggedInUser")) { 
         window.location.href = "index.html";
     }
-})
+})();
 
 // If log out button is pressed 
 const logoutButton = document.getElementById('logout-button');

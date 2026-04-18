@@ -95,8 +95,18 @@ reportForm.addEventListener("submit", async (event) => {
     const lastGivenLocation = mostRecentLocationResults.data[0]["MAX(LocationID)"];
 
     const currentDate = new Date();
+    
+    const loggerUsername = sessionStorage.getItem("loggedInUser"); // Retrieves username from session storage
 
-    const loggerID = sessionStorage.getItem("loggedInUser"); // Retrieves username from session storage
+    const loggerIDQueryResult = await runQuery(`SELECT LoggerID, Username FROM Logger WHERE Username = '${loggerUsername}'`);
+    if (loggerIDQueryResult?.error) {
+        console.error("failed to get user id when submitting", { loggerIDQueryResult });
+        return;
+    }
+
+    console.log(loggerIDQueryResult[0]);
+
+    const loggerID = loggerIDQueryResult[0].LoggerID;
     const locationID = lastGivenLocation;
     const evidenceID = document.getElementById("evidence-selection").value;
     const reportDate = currentDate.toISOString().substring(0, 10);

@@ -11,6 +11,7 @@ function handle_error($error_message) {
     exit;
 }
 
+// Set up an exception handler to catch any uncaught exceptions
 set_exception_handler(function($exception) {
     handle_error("Error: " . $exception->getMessage());
 });
@@ -24,7 +25,7 @@ if (!isset($_POST['query'])) {
 
 /* *******************************************************************************
 ATTENTION ALL STUDENTS - YOU MUST UPDATE THE FOLLOWING VARIABLES WITH YOUR DETAILS
-******************************************************************************* */ 
+******************************************************************************* */
 $hostname = "eallen14.webhosting1.eeecs.qub.ac.uk"; // Update with your hostname, normally "localhost"
 $username = "eallen14"; // update with your mySQL username
 $password = "7kHshfG7SprdtMv4"; // update with your mySQL password
@@ -46,6 +47,7 @@ if ($conn->connect_error) {
     handle_error("Connection failed: " . $conn->connect_error);
 }
 
+// Execute query
 if ($result = $conn->query($query)) {
     // Check if the result is a SELECT query
     if (strpos(strtoupper($query), 'SELECT') === 0) {
@@ -58,14 +60,8 @@ if ($result = $conn->query($query)) {
         echo json_encode($response, JSON_PRETTY_PRINT);
         $result->free();
     } else {
-        // For non-SELECT queries, return the affected rows and any insert ID
-        $response = [
-            "success" => true,
-            "affected_rows" => $conn->affected_rows
-        ];
-        if (preg_match('/^\s*INSERT\s+/i', $query)) {
-            $response["insert_id"] = $conn->insert_id;
-        }
+        // For non-SELECT queries, return the affected rows
+        $response = ["success" => true, "affected_rows" => $conn->affected_rows];
         echo json_encode($response, JSON_PRETTY_PRINT);
     }
 } else {

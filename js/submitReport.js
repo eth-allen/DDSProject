@@ -4,58 +4,24 @@ function escapeSql(value) {
     return String(value).replace(/'/g, "''");
 }
 
-function renderLoggerSelection(rows) {
-    const loggerSelection = document.getElementById("logger-selection");
-    loggerSelection.innerHTML = "";
-
-    for (let row of rows) {
-        loggerSelection.innerHTML += `<option value="${row.LoggerID}">${row.Forename} ${row.Surname} (ID: ${row.LoggerID})</option>`;
-    }
-}
-
-function renderLocationSelection(rows) {
-    const locationSelection = document.getElementById("location-selection");
-    locationSelection.innerHTML = "";
-
-    for (let row of rows) {
-        locationSelection.innerHTML += `<option value="${row.LocationID}">${row.Latitude}, ${row.Longitude} (Country: ${row.Country})</option>`;
-    }
-}
-
-function renderEvidenceSelection(rows) {
-    const evidenceSelection = document.getElementById("evidence-selection");
-    evidenceSelection.innerHTML = "";
-
-    for (let row of rows) {
-        evidenceSelection.innerHTML += `<option value="${row.EvidenceID}">${row.Description} (ID: ${row.EvidenceID})</option>`;
-    }
-};
-
 function renderSpeciesSelection(rows) {
     const speciesSelection = document.getElementById("species-selection");
     speciesSelection.innerHTML = "";
 
     for (let row of rows) {
-        speciesSelection.innerHTML += `<option value="${row.SpeciesID}">${row.Name}</option>`;
+        speciesSelection.innerHTML += `<option value="${row.SpeciesID}">${row.CommonName}</option>`;
     }
 };
 
 const renderSelections = async () => {
-    const [evidenceResult, speciesResult] = await Promise.all([
-        runQuery("SELECT * FROM Evidence"),
-        runQuery("SELECT * FROM Species")
-    ]);
-
-    if (evidenceResult?.success && Array.isArray(evidenceResult.data)) {
-        renderEvidenceSelection(evidenceResult.data);
-    }
+    const speciesResult = await runQuery("SELECT * FROM Species");
 
     if (speciesResult?.success && Array.isArray(speciesResult.data)) {
         renderSpeciesSelection(speciesResult.data);
     }
 
-    if (evidenceResult?.error || speciesResult?.error) {
-        console.error("Data load error", {evidenceResult, speciesResult});
+    if (speciesResult?.error) {
+        console.error("Data load error", {speciesResult});
     }
 }
 
@@ -100,17 +66,62 @@ reportForm.addEventListener("submit", async (event) => {
 
     const lastGivenLocation = mostRecentLocationResults.data[0]["MAX(LocationID)"];
 
+    const evidenceFileInput = document.getElementById("evidence-file-input");
+
+    const fileName = evidenceFileInput.value;
+    
+    const fileExtention = fileName.substring(fileName.lastIndexOf('.')+1, fileName.length);
+
+    let evidenceType = "Sighting";
+    switch(fileExtention) {
+        case "png" :
+        case "jpeg":
+        case "jpg":
+            evidenceType = "Photographic";
+            break;
+
+        case "mp3":
+            evidenceType = "Audio";
+            break;
+        
+        case "mp4":
+            evidenceType = "Video";
+            break;
+
+        case "doc":
+        case "docx":
+        case "txt":
+            evidenceType = "Sighting";
+            break;
+    }
+
+    const evidenceDescription = document.getElementById("evidence-description-input").value.trim();
+
+    
+    const evidenceSaveResult = await runQuery(`INSERT INTO Evidence (Filename, EvidenceType, Description) VALUES ('${fileName}', '${evidenceType}', '${evidenceDescription}');`);
+    if (evidenceSaveResult?.error) {
+        console.error("Location save failed", { evidenceSaveResult });
+        alert("Unable to save evidence.");
+        return;
+    }
+
+    const mostRecentEvidenceResults = await runQuery(`SELECT MAX(EvidenceID) FROM Evidence;`);
+    if (mostRecentEvidenceResults?.error) {
+        console.error("Failed to get evidence when submitting", { mostRecentEvidenceResults });
+        alert("Unable to complete report submission.");
+        return;
+    }
+
+    console.log(mostRecentEvidenceResults);
+
+    const lastGivenEvidence = mostRecentEvidenceResults.data[0]["MAX(EvidenceID)"];
+    
+
     const currentDate = new Date();
 
-<<<<<<< HEAD
-    const loggerIDQueryResult = await runQuery(`SELECT LoggerID, Username FROM Logger WHERE Username='${loggerUsername}';`);
-    if (loggerIDQueryResult?.error) {
-        console.error("failed to get user id when submitting", { loggerIDQueryResult });
-=======
     const loggerUsername = sessionStorage.getItem("loggedInUser");
     if (!loggerUsername) {
         alert("You must be logged in to submit a report.");
->>>>>>> fd0441ea182724d72be77e9b47e8f45fb2ba00b9
         return;
     }
 
@@ -124,19 +135,18 @@ reportForm.addEventListener("submit", async (event) => {
 
     const loggerID = loggerIDQueryResult.data[0].LoggerID;
     const locationID = lastGivenLocation;
-    const evidenceID = document.getElementById("evidence-selection").value;
+    const evidenceID = lastGivenEvidence;
     const reportDate = currentDate.toISOString().substring(0, 10);
     const speciesID = document.getElementById("species-selection").value;
+    const reportType = document.querySelector('input[name="report-type-input"]:checked').value;
     const description = document.getElementById("description-input").value;
 
-<<<<<<< HEAD
-    const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${description}');`);
-    
-=======
-    const escapedDescription = escapeSql(description);
-    const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${escapedDescription}')`);
+    console.log(`loggerID: ${loggerID}, locationID: ${locationID}, evidenceID: ${evidenceID}, reportDate: ${reportDate}, speciesID: ${speciesID}, reportType: ${reportType}, description: ${description}`);
 
->>>>>>> fd0441ea182724d72be77e9b47e8f45fb2ba00b9
+
+    const escapedDescription = escapeSql(description);
+    const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${reportType}', '${escapedDescription}')`);
+
     if (insertResult?.error) {
         console.error("Report save failed", { insertResult });
         alert("Unable to save report.");

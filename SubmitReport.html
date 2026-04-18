@@ -139,51 +139,13 @@
             </div>
 
             <div class="form-group">
-                <label for="evidence-selection">Evidence</label>
-                <select id="evidence-selection" required>
-                    <option value="evidence1">1st Evidence</option>
-                    <option value="evidence2">2st Evidence</option>
-                </select> 
-            </div>
-
-            <div class="form-group">
-                <label for="evidence-type-selection">Evidence</label>
-                <select id="evidence-type-selection">
-                    <option value="evidencetype1">1st Evidence Type</option>
-                    <option value="evidencetype2">2st Evidence Type</option>
-                </select> 
-            </div>
-
-            <div class="form-group-radio">
-                <div>
-                <label for="poaching-radio">Photographic Evidence</label> 
-                <input type="radio" id="photograph-radio" name="evidence-type-input" value="photographic-evidence">
-                </div>
-                
-                <div>
-                <label for="video-radio">Video Evidence</label>
-                <input type="radio" id="video-radio" name="evidence-type-input" value="video-evidence">
-                </div>
-
-                <div>
-                <label for="audio-radio">Audio Evidence</label>
-                <input type="radio" id="audio-radio" name="evidence-type-input" value="audio-evidence">
-                </div>
-
-                <div>
-                <label for="physical-radio">Physical Evidence</label>
-                <input type="radio" id="physical-radio" name="evidence-type-input" value="physical-evidence">
-                </div>
-
-                <div>
-                <label for="sighting-radio">Reliable Sighting</label>
-                <input type="radio" id="sighting-radio" name="evidence-type-input" value="sighting">
-                </div>
+                <label for="evidence-file-input">Choose Evidence File</label>
+                <input type="file" id="evidence-file-input" required accept=".png, .jpeg, .jpeg, .mp3, .mp4, .doc, .docx, .txt">
             </div>
 
             <div class="form-group">
                 <label for="evidence-description-input">Evidence Description</label>
-                <input type="text" id="evidence-description-input" placeholder="Enter evidence description here"> 
+                <input type="text" id="evidence-description-input" placeholder="Enter evidence description here" required> 
             </div>
 
             <div class="form-group">
@@ -202,12 +164,12 @@
             <div class="form-group-radio">
                 <div>
                 <label for="poaching-radio">Poaching</label> 
-                <input type="radio" id="poaching-radio" name="report-type-input" value="poaching">
+                <input type="radio" id="poaching-radio" name="report-type-input" value="Poaching" required>
                 </div>
                 
                 <div>
                 <label for="animal-spotting">Animal Spotting</label>
-                <input type="radio" id="spotting-radio" name="report-type-input" value="animal-spotting">
+                <input type="radio" id="spotting-radio" name="report-type-input" value="Animal Spotting" required>
                 </div>
             </div>
 

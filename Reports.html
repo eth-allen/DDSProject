@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Endangered Species Tracker</title>
+    <title>Endangered Species Tracker - Reports</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/LoginAuthorisation.js"></script>
 </head>
@@ -17,75 +17,50 @@
                 <li><a href="SubmitReport.html">Submit a report</a></li>
                 <li><a href="ViewTables.html">View user reports</a></li>
                 <li><a href="ModifyAccount.html">Modify your account</a></li>
-                <li><a href="charts.html">Charts</a></li>
+                <li><a href="Reports.html">Charts</a></li>
                 <li><a href="AboutUs.html">About us</a></li>
                 <li><a href="index.html" class="logout-btn">Logout</a></li>
             </ul>
         </div>
     </nav>
 
-
-        <div class="chart-container">
-            <canvas id="myChart">
-                <p>alt fallback text?</p>
-            </canvas>
+    <header class="hero-section">
+        <div class="hero-content">
+            <h2>View our reports and findings powered by user submitted data.</h2>
+            <p>See reports made by some of our experts</p>
         </div>
-        
-    </div>
+    </header>
+
+    <main class="container">
+        <!-- Navigation options -->
+        <section class="info-section">
+            <a href="ConallReports.html" class="info-card" style="text-decoration: none;">
+            <h3>Conalls reports</h3>
+            <p>summary of your reports here</p>
+            </a>
+            <a href="" class="info-card" style="text-decoration: none;">
+            <h3>Connors reports</h3>
+            <p>summary of your reports here</p>
+            </a>
+            <a href="EoghansReports.html" class="info-card" style="text-decoration: none;">
+            <h3>Eoghans reports</h3>
+            <p>summary of your reports here</p>
+            </a>
+            <a href="EthanReports.html" class="info-card" style="text-decoration: none;">
+            <h3>Ethans reports</h3>
+            <p>summary of your reports here</p>
+            </a>
+            <a href="LouisReports.html" class="info-card" style="text-decoration: none;">
+            <h3>Louis reports</h3>
+            <p>summary of your reports here</p>
+            </a>
+        </section>
+
+    </main>
+
 
     <footer class="footer">
-    <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
+        <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
     </footer>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/runQuery.js"></script>
-    <script>
-    
-    const ctx = document.getElementById('myChart');
-    
-    function createChart(animalNames, sightingNumbers) {
-
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-            labels: animalNames,
-            datasets: [{
-                label: 'Top 10 Reported Evidence/Sightings',
-                data: sightingNumbers,
-                backgroundColor:"green"
-            }]
-            },
-            options: {
-                
-            }
-        });
-    }
-
-    document.addEventListener("DOMContentLoaded", async () => {
-        const queryResult = await runQuery(
-            `SELECT Species.Name, COUNT(Report.SpeciesID)
-            FROM Report
-            JOIN Species ON Report.SpeciesID=Species.SpeciesID
-            GROUP BY Report.SpeciesID
-            LIMIT 10;`
-        );
-
-        if (queryResult.success && Array.isArray(queryResult.data)) {
-            let animalNames = [];
-            let sightingNumbers = [];
-
-            for (let i = 0; i < queryResult.data.length; i++) {
-                animalNames[i] = queryResult.data[i].Name;
-                sightingNumbers[i] = queryResult.data[i]["COUNT(Report.SpeciesID)"];
-            }
-
-            console.log(animalNames);
-            console.log(sightingNumbers);
-
-            createChart(animalNames, sightingNumbers);
-        }
-    });
-
-    </script>
 </body>
 </html>

@@ -86,7 +86,7 @@ reportForm.addEventListener("submit", async (event) => {
         return;
     }
 
-    const mostRecentLocationResults = await runQuery(`SELECT MAX(LocationID) FROM Location`);
+    const mostRecentLocationResults = await runQuery(`SELECT MAX(LocationID) FROM Location;`);
     if (mostRecentLocationResults?.error) {
         console.error("failed to get location when submitting", { saveResult });
         return;
@@ -98,7 +98,7 @@ reportForm.addEventListener("submit", async (event) => {
     
     const loggerUsername = sessionStorage.getItem("loggedInUser"); // Retrieves username from session storage
 
-    const loggerIDQueryResult = await runQuery(`SELECT LoggerID, Username FROM Logger WHERE Username = '${loggerUsername}'`);
+    const loggerIDQueryResult = await runQuery(`SELECT LoggerID, Username FROM Logger WHERE Username='${loggerUsername}';`);
     if (loggerIDQueryResult?.error) {
         console.error("failed to get user id when submitting", { loggerIDQueryResult });
         return;
@@ -113,7 +113,7 @@ reportForm.addEventListener("submit", async (event) => {
     const speciesID = document.getElementById("species-selection").value;
     const description = document.getElementById("description-input").value;
 
-    const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${description}')`);
+    const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${description}');`);
     
     if (insertResult?.error) {
         console.error("Data load error", {insertResult});

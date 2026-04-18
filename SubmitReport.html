@@ -73,7 +73,7 @@
             font-weight: 500;
             font-size: 14px;
         }
-        
+
         .form-group-radio input {
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -144,6 +144,46 @@
                     <option value="evidence1">1st Evidence</option>
                     <option value="evidence2">2st Evidence</option>
                 </select> 
+            </div>
+
+            <div class="form-group">
+                <label for="evidence-type-selection">Evidence</label>
+                <select id="evidence-type-selection">
+                    <option value="evidencetype1">1st Evidence Type</option>
+                    <option value="evidencetype2">2st Evidence Type</option>
+                </select> 
+            </div>
+
+            <div class="form-group-radio">
+                <div>
+                <label for="poaching-radio">Photographic Evidence</label> 
+                <input type="radio" id="photograph-radio" name="evidence-type-input" value="photographic-evidence">
+                </div>
+                
+                <div>
+                <label for="video-radio">Video Evidence</label>
+                <input type="radio" id="video-radio" name="evidence-type-input" value="video-evidence">
+                </div>
+
+                <div>
+                <label for="audio-radio">Audio Evidence</label>
+                <input type="radio" id="audio-radio" name="evidence-type-input" value="audio-evidence">
+                </div>
+
+                <div>
+                <label for="physical-radio">Physical Evidence</label>
+                <input type="radio" id="physical-radio" name="evidence-type-input" value="physical-evidence">
+                </div>
+
+                <div>
+                <label for="sighting-radio">Reliable Sighting</label>
+                <input type="radio" id="sighting-radio" name="evidence-type-input" value="sighting">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="evidence-description-input">Evidence Description</label>
+                <input type="text" id="evidence-description-input" placeholder="Enter evidence description here"> 
             </div>
 
             <div class="form-group">

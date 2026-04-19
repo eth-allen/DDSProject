@@ -62,6 +62,9 @@ sidebarTabs.forEach(function(sidebarTab) {
 
 // ------- VIEW ACCOUNT PANEL LOGIC --------
 
+(function() {
+    
+})
 
 
 

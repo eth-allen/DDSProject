@@ -1,9 +1,8 @@
-// 1: add renderSelections function for trackedAnimalSelection
-// 2: add code that changes trackedAnimalStatusRadioGroup to hidden/visible and required/disabled based on trackedAnimalSelection
-// 3: add code to insert a new report that has an associated trackedAnimal
-// 4: add code that changes the status of the previously mentioned trackedAnimal when the report is submitted
-// 5: add page to submit/create new trackedAnimal
-// 6: add table to view/edit trackedAnimals
+// 1: add code to get trackedAnimal and species rows
+// 3: add renderSelections function for trackedAnimalSelection and run it
+// 4: add code that changes trackedAnimalStatusRadioGroup to hidden/visible and required/disabled based on trackedAnimalSelection
+// 5: add code to insert a new report that has an associated trackedAnimal
+// 6: add code that changes the status of the previously mentioned trackedAnimal when the report is submitted
 
 const reportForm = document.getElementById("report-form");
 
@@ -20,15 +19,30 @@ function renderSpeciesSelection(rows) {
     }
 };
 
+function renderTrackedAnimalSelection(rows) {
+    const trackedAnimalSelection = document.getElementById("tracked-animal-selection");
+
+    for (let row of rows) {
+        trackedAnimalSelection.innerHTML += `<option value="${row["Tracked_Animal.AnimalID"]}">${row["Tracked_Animal.Name"]}, ${row["Species.CommonName"]}</option>`;
+    }
+};
+
 const renderSelections = async () => {
     const speciesResult = await runQuery("SELECT * FROM Species");
+    const trackedAnimalResult = await runQuery("SELECT Tracked_Animal.AnimalID, Tracked_Animal.Name, Species.CommonName FROM Tracked_Animal INNER JOIN Species ON Tracked_Animal.SpeciesID=Species.SpeciesID;");
+    
 
     if (speciesResult?.success && Array.isArray(speciesResult.data)) {
         renderSpeciesSelection(speciesResult.data);
     }
 
-    if (speciesResult?.error) {
-        console.error("Data load error", {speciesResult});
+    if (trackedAnimalResult?.success && Array.isArray(trackedAnimalResult.data)) {
+        console.log(trackedAnimalResult.data);
+        renderTrackedAnimalSelection(trackedAnimalResult.data);
+    }
+
+    if (speciesResult?.error || trackedAnimalResult?.error) {
+        console.error("Data load error", {speciesResult, trackedAnimalResult});
     }
 }
 

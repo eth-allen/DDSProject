@@ -89,7 +89,7 @@ function escapeSql(value) {
         viewSurname.textContent = userData.Surname;
         viewEmail.textContent = userData.Email;
 
-        sessionStorage.setItem("loggedInUser", userData.Username);
+        
     } else { // If its not successful but doesn't throw an error
         alert("An unknown error occured pulling account data.");
         console.log(loggerQueryResult);
@@ -105,7 +105,7 @@ modifyAccountForm.addEventListener("submit", async function(event) {
 
     // Finds user logged in
     const currentUser = sessionStorage.getItem("loggedInUser");
-
+    console.log("Logged in user: " + currentUser);
     // Gets form data
     const formData = new FormData(modifyAccountForm);
 
@@ -159,6 +159,14 @@ modifyAccountForm.addEventListener("submit", async function(event) {
         }
         else if(updateResult?.success) {
             alert("Account details successfully updated");
+            
+            sessionStorage.setItem("loggedInUser", username); // Sets current session to new username
+            
+            // Updates viewed details so they aren't broken + no page refresh required
+            viewUsername.textContent = username;
+            viewForename.textContent = forename;
+            viewSurname.textContent = surname;
+            viewEmail.textContent = email;
         } else {
             alert("Unknown error occured updating account details");
             console.log(updateResult);
@@ -173,8 +181,8 @@ modifyAccountForm.addEventListener("submit", async function(event) {
 
 // Delete account checkbox logic
 deleteAccountCheckbox.addEventListener('change', function(e) {
-    if(e.target.checked) { deleteButton.disabled = false; }  // If the confirmation buttons checked the delete button is enabled
-    else { deleteButton.disabled = true; }  // Otherwise its disabled
+    if(e.target.checked) { deleteAccountButton.disabled = false; }  // If the confirmation buttons checked the delete button is enabled
+    else { deleteAccountButton.disabled = true; }  // Otherwise its disabled
 });
 
 // Delete account button logic 

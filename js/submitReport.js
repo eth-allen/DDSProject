@@ -1,3 +1,10 @@
+// 1: add renderSelections function for trackedAnimalSelection
+// 2: add code that changes trackedAnimalStatusRadioGroup to hidden/visible and required/disabled based on trackedAnimalSelection
+// 3: add code to insert a new report that has an associated trackedAnimal
+// 4: add code that changes the status of the previously mentioned trackedAnimal when the report is submitted
+// 5: add page to submit/create new trackedAnimal
+// 6: add table to view/edit trackedAnimals
+
 const reportForm = document.getElementById("report-form");
 
 function escapeSql(value) {

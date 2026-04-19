@@ -8,21 +8,21 @@
     
     // --- USERNAME VALIDATION: (Check lengths not < 1 and > 32, no spaces and no special characters &lt;, &gt;, &amp;, &quot;, &#39;)
     // Tests if username fails any validation criteria
-    export function isValidUsername(username) {
+    function isValidUsername(username) {
         if ((username.length > 32 || username.length < 1) || !(usernameRegex.test(username)))  {
             return false;
         } else { return true; }
     }
 
     // --- NAME VALIDATION (Check lengths not < 1 and > 32, no spaces and no special characters whatsoever)
-    export function isValidName(name) {
+    function isValidName(name) {
         if ( (name.length > 32 || name.length < 1) || !(namesRegex.test(name)) ) {
             return false;
         } else { return true; }
     }   
 
     // --- EMAIL VALIDATION (checks regex list + length as emails cant be longer than 254 or less than 2 characters and could cause db issues if entered)
-    export function isValidEmail(email) {
+    function isValidEmail(email) {
         if (!emailRegex.test(email) || email.length > 254 || email.length < 3) {
             return false;
         } else { return true; }

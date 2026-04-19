@@ -5,7 +5,8 @@ const tableBodies = {
     location: el("location-table-body"),
     evidence: el("evidence-table-body"),
     species: el("species-table-body"),
-    report: el("reports-table-body")
+    report: el("reports-table-body"),
+    trackedAnimal: el("tracked-animals-table-body")
 };
 
 const tablePanels = {
@@ -13,7 +14,8 @@ const tablePanels = {
     locations: document.querySelector('[data-table-panel="locations"]'),
     evidence: document.querySelector('[data-table-panel="evidence"]'),
     species: document.querySelector('[data-table-panel="species"]'),
-    reports: document.querySelector('[data-table-panel="reports"]')
+    reports: document.querySelector('[data-table-panel="reports"]'),
+    "tracked-animals": document.querySelector('[data-table-panel="tracked-animals"]')
 };
 
 const tableTabButtons = [...document.querySelectorAll("[data-table-tab]")];
@@ -27,7 +29,8 @@ const modal = {
         location: el("location-edit-section"),
         evidence: el("evidence-edit-section"),
         species: el("species-edit-section"),
-        report: el("report-edit-section")
+        report: el("report-edit-section"),
+        trackedAnimal: el("tracked-animals-edit-section")
     }
 };
 
@@ -36,7 +39,8 @@ const forms = {
     location: el("location-edit-form"),
     evidence: el("evidence-edit-form"),
     species: el("species-edit-form"),
-    report: el("report-edit-form")
+    report: el("report-edit-form"),
+    trackedAnimal: el("tracked-animals-edit-form")
 };
 
 const cancelButtons = [
@@ -44,7 +48,8 @@ const cancelButtons = [
     el("location-edit-cancel"),
     el("evidence-edit-cancel"),
     el("species-edit-cancel"),
-    el("report-edit-cancel")
+    el("report-edit-cancel"),
+    el("tracked-animals-edit-cancel")
 ].filter(Boolean);
 
 const fields = {
@@ -60,10 +65,16 @@ const fields = {
         speciesId: el("edit-report-species-id-input"),
         type: el("edit-report-type-input"),
         description: el("edit-report-description-input")
+    },
+    trackedAnimal: {
+        name: el("edit-tracked-animals-name-input"),
+        speciesId: el("edit-tracked-animals-species-id-input"),
+        birthDate: el("edit-tracked-animals-birth-date-input"),
+        status: el("edit-tracked-animals-status-input")
     }
 };
 
-const rowsCache = { logger: [], location: [], evidence: [], species: [], report: [] };
+const rowsCache = { logger: [], location: [], evidence: [], species: [], report: [], trackedAnimal: [] };
 const editingState = { key: null, id: null };
 
 const hasTableView = Object.values(tableBodies).some(Boolean);
@@ -202,6 +213,12 @@ const tableConfigs = {
         listQuery: "SELECT * FROM Report ORDER BY ReportID",
         cells: (row) => [row.ReportID, row.LoggerID, row.LocationID, row.EvidenceID, row.ReportDate, row.SpeciesID, row.ReportType, row.ReportDescription],
         onDelete: (id) => deleteReportAndResequence(id)
+    },
+    trackedAnimal: {
+        idKey: "AnimalID", body: tableBodies.trackedAnimal, emptyColspan: 6, label: "Tracked Animal",
+        listQuery: "SELECT AnimalID, Name, SpeciesID, BirthDate, Status FROM Tracked_Animal ORDER BY AnimalID",
+        cells: (row) => [row.AnimalID, row.Name, row.SpeciesID, row.BirthDate, row.Status],
+        onDelete: (id) => deleteParentAndResequence("Tracked_Animal", "AnimalID", "AnimalID", id)
     }
 };
 
@@ -325,6 +342,35 @@ const editHandlers = {
                 ok: true,
                 query: `UPDATE Report SET LoggerID = ${loggerId}, LocationID = ${locationId}, EvidenceID = ${evidenceId}, ReportDate = '${escapeSql(reportDate)}', SpeciesID = ${speciesId}, ReportType = '${escapeSql(reportType)}', ReportDescription = '${escapeSql(reportDescription)}' WHERE ReportID = ${editingState.id}`,
                 err: "Unable to update Report."
+            };
+        }
+    },
+    trackedAnimal: {
+        open: (id, row) => {
+            const f = fields.trackedAnimal;
+            editingState.key = "trackedAnimal";
+            editingState.id = Number(id);
+            f.name.value = row.Name ?? "";
+            f.speciesId.value = row.SpeciesID ?? "";
+            f.birthDate.value = toDateInputValue(row.BirthDate);
+            f.status.value = row.Status ?? "Alive";
+            openEditModal(`Edit Tracked Animal #${id}`, "trackedAnimal");
+        },
+        submit: () => {
+            const f = fields.trackedAnimal;
+            const name = f.name.value.trim();
+            const speciesId = Number(f.speciesId.value);
+            const birthDate = f.birthDate.value;
+            const status = f.status.value;
+
+            if (!birthDate || !speciesId || speciesId < 1 || !status) {
+                return { ok: false, msg: "Please provide valid Tracked Animal values." };
+            }
+
+            return {
+                ok: true,
+                query: `UPDATE Tracked_Animal SET Name = ${name ? `'${escapeSql(name)}'` : 'NULL'}, SpeciesID = ${speciesId}, BirthDate = '${escapeSql(birthDate)}', Status = '${escapeSql(status)}' WHERE AnimalID = ${editingState.id}`,
+                err: "Unable to update Tracked Animal."
             };
         }
     }

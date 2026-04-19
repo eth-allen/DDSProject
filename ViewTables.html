@@ -38,6 +38,7 @@
     <button id="evidence-tab" type="button" class="table-tab-button" data-table-tab="evidence" role="tab" aria-selected="false" aria-controls="evidence">Evidence</button>
     <button id="species-tab" type="button" class="table-tab-button" data-table-tab="species" role="tab" aria-selected="false" aria-controls="species">Species</button>
     <button id="reports-tab" type="button" class="table-tab-button" data-table-tab="reports" role="tab" aria-selected="false" aria-controls="reports">Reports</button>
+    <button id="tracked-animals-tab" type="button" class="table-tab-button" data-table-tab="tracked-animals" role="tab" aria-selected="false" aria-controls="tracked-animals">Tracked Animals</button>
 </div>
 
 <div class="container">
@@ -121,6 +122,23 @@
             </tr>
             </thead>
             <tbody id="reports-table-body"></tbody>
+        </table>
+    </div>
+
+    <div id="tracked-animals" class="form-table-container table-tab-panel" data-table-panel="tracked-animals" role="tabpanel" aria-labelledby="tracked-animals-tab">
+        <h2>View Tracked Animals</h2>
+        <table id="tracked-animals-table">
+            <thead>
+            <tr>
+                <th>Animal ID</th>
+                <th>Name</th>
+                <th>Species ID</th>
+                <th>Birth Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="tracked-animals-table-body"></tbody>
         </table>
     </div>
 
@@ -230,6 +248,30 @@
                     <div class="edit-modal-actions">
                         <button type="submit">Save Report</button>
                         <button type="button" id="report-edit-cancel">Cancel</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="tracked-animals-edit-section" class="edit-modal-section">
+                <form id="tracked-animals-edit-form">
+                    <label for="edit-tracked-animals-name-input">Name</label>
+                    <input type="text" id="edit-tracked-animals-name-input"><br>
+
+                    <label for="edit-tracked-animals-species-id-input">Species ID</label>
+                    <input type="number" id="edit-tracked-animals-species-id-input" min="1" required><br>
+
+                    <label for="edit-tracked-animals-birth-date-input">Birth Date</label>
+                    <input type="date" id="edit-tracked-animals-birth-date-input" required><br>
+
+                    <label for="edit-tracked-animals-status-input">Status</label>
+                    <select id="edit-tracked-animals-status-input" required>
+                        <option value="Alive">Alive</option>
+                        <option value="Dead">Dead</option>
+                    </select><br>
+
+                    <div class="edit-modal-actions">
+                        <button type="submit">Save Tracked Animal</button>
+                        <button type="button" id="tracked-animals-edit-cancel">Cancel</button>
                     </div>
                 </form>
             </section>

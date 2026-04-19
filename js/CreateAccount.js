@@ -1,6 +1,3 @@
-//import { runQuery } from './runQuery.js';
-import {isValidName, isValidUsername, isValidEmail} from './validationUtilities.js';
-
 // Gets all HTML elements required
 const loginForm = document.getElementById("loginForm");
 
@@ -15,6 +12,11 @@ const surnameConditions = document.getElementById("surnameConditions")
 
 const emailBox = document.getElementById("email");
 const emailConditions = document.getElementById("emailConditions")
+
+
+function escapeSql(value) {
+    return String(value).replace(/'/g, "''");
+}
 
 // Event listener, when submit button in login form is pressed, stuff in event listener occurs
 loginForm.addEventListener("submit", async function(event) {
@@ -78,8 +80,13 @@ loginForm.addEventListener("submit", async function(event) {
 
     // --- FORM SUBMISSION
     if (isValid) {
-        // Inserts form data into database (sql injection heaven)  
-        const insertResult = await runQuery(`INSERT INTO Logger (username, forename, surname, email) VALUES ('${username}', '${forename}', '${surname}', '${email}')`);
+
+        const escapedUsername = escapeSql(username);
+        const escapedForename = escapeSql(forename);
+        const escapedSurname = escapeSql(surname);
+        const escapedEmail = escapeSql(email);
+        // Inserts form data into database
+        const insertResult = await runQuery(`INSERT INTO Logger (username, forename, surname, email) VALUES ('${escapedUsername}', '${escapedForename}', '${escapedSurname}', '${escapedEmail}')`);
 
         //If theres an error with sql query
         if (insertResult?.error) {
@@ -89,7 +96,7 @@ loginForm.addEventListener("submit", async function(event) {
         // Else direct user to homepage logged in (or login page if thats too hard)
         else { 
             alert("Account created successfully, directing you to login page"); // probably better less intrusvie way of doing this like through html editing     
-            console.log("Account created with username: " + username + "forename: " + forename + "surname: " + surname + "email: " + email)
+            console.log("Account created with username: " + escapedUsername + "forename: " + escapedForename + "surname: " + escapedSurname + "email: " + escapedEmail)
             window.location.href = "index.html"; 
         }
     }

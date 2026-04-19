@@ -146,16 +146,13 @@
                 </select> 
             </div>
 
-            <!--Add in select input with the first option being none and the rest being tracked animals who are not 
-            dead or hospitalised-->
-
             <div class="form-group">
                 <label for="tracked-animal-selection">Associate this report with a tracked animal (Optional)</label>
                 <select id="tracked-animal-selection" required>
                     <option value="none">None</option>
                 </select> 
             </div>
-
+            
             <!--Add in radio buttons that are hidden/disabled when the previous select's value is none but required 
             when otherwise that change the status of the selected tracked animal when the report is submitted-->
 
@@ -175,11 +172,6 @@
                     <div>
                     <label for="hospitalised-radio">Hospitalised</label>
                     <input type="radio" id="hospitalised-radio" name="tracked-animal-status" value="Hospitalised" disabled>
-                    </div>
-
-                    <div>
-                    <label for="unknown-radio">Unknown</label>
-                    <input type="radio" id="unknown-radio" name="tracked-animal-status" value="Unknown" disabled>
                     </div>
                 </fieldset>
             </div>

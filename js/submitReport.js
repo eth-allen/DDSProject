@@ -1,7 +1,6 @@
-// 1: add renderSelections function for trackedAnimalSelection and get it actually working
-// 2: add code that changes trackedAnimalStatusRadioGroup to hidden/visible and required/disabled based on trackedAnimalSelection
-// 3: add code to insert a new report that has an associated trackedAnimal
-// 4: add code that changes the status of the previously mentioned trackedAnimal when the report is submitted
+// 1: add code that changes trackedAnimalStatusRadioGroup to hidden/visible and required/disabled based on trackedAnimalSelection
+// 2: add code that changes the status of the previously mentioned trackedAnimal when the report is submitted
+// 3: make sure dead animals don't show up in the seleciton -probably done?
 
 const reportForm = document.getElementById("report-form");
 
@@ -22,14 +21,13 @@ function renderTrackedAnimalSelection(rows) {
     const trackedAnimalSelection = document.getElementById("tracked-animal-selection");
 
     for (let row of rows) {
-        //console.log(row.Name);
-        trackedAnimalSelection.innerHTML += `<option value="${row.AnimalID}">${row.Name}, ${row.CommonName}</option>`;
+        trackedAnimalSelection.innerHTML += `<option value="${row.AnimalID}">${row.Name}, ${row.CommonName} (ID: ${row.AnimalID})</option>`;
     }
 };
 
 const renderSelections = async () => {
     const speciesResult = await runQuery("SELECT * FROM Species");
-    const trackedAnimalResult = await runQuery("SELECT Tracked_Animal.AnimalID, Tracked_Animal.Name, Species.CommonName FROM Tracked_Animal INNER JOIN Species ON Tracked_Animal.SpeciesID=Species.SpeciesID;");
+    const trackedAnimalResult = await runQuery("SELECT Tracked_Animal.AnimalID, Tracked_Animal.Name, Species.CommonName FROM Tracked_Animal INNER JOIN Species ON Tracked_Animal.SpeciesID=Species.SpeciesID WHERE NOT Tracked_Animal.Status='Dead';");
 
     if (speciesResult?.success && Array.isArray(speciesResult.data)) {
         renderSpeciesSelection(speciesResult.data);
@@ -160,22 +158,43 @@ reportForm.addEventListener("submit", async (event) => {
     const speciesID = document.getElementById("species-selection").value;
     const reportType = document.querySelector('input[name="report-type-input"]:checked').value;
     const description = document.getElementById("description-input").value;
+    const animalID = document.getElementById("tracked-animal-selection").value;
 
     console.log(`loggerID: ${loggerID}, locationID: ${locationID}, evidenceID: ${evidenceID}, reportDate: ${reportDate}, speciesID: ${speciesID}, reportType: ${reportType}, description: ${description}`);
 
-
     const escapedDescription = escapeSql(description);
-    const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${reportType}', '${escapedDescription}')`);
 
-    if (insertResult?.error) {
-        console.error("Report save failed", { insertResult });
-        alert("Unable to save report.");
-        return;
-    } else if (insertResult?.success) {
-        alert("Report submitted successfully");
-    } else {
-        console.log(insertResult);
-        alert("Something went wrong submitting the report");
+    if (animalID == "none") {
+        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${reportType}', '${escapedDescription}')`);
+
+        if (insertResult?.error) {
+            console.error("Report save failed", { insertResult });
+            alert("Unable to save report.");
+            return;
+        } 
+        else if (insertResult?.success) {
+            alert("Report submitted successfully");
+        } 
+        else {
+            console.log(insertResult);
+            alert("Something went wrong submitting the report");
+        }
+    }
+    else {
+        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, AnimalID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${animalID}', '${reportType}', '${escapedDescription}')`);
+
+        if (insertResult?.error) {
+            console.error("Report save failed", { insertResult });
+            alert("Unable to save report.");
+            return;
+        } 
+        else if (insertResult?.success) {
+            alert("Report submitted successfully");
+        } 
+        else {
+            console.log(insertResult);
+            alert("Something went wrong submitting the report");
+        }
     }
 
     reportForm.reset();

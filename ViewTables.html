@@ -94,8 +94,9 @@
             <thead>
             <tr>
                 <th>Species ID</th>
-                <th>Name</th>
-                <th>Status</th>
+                <th>Scientific Name</th>
+                <th>Common Name</th>
+                <th>Conservation Status</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -181,14 +182,19 @@
 
             <section id="species-edit-section" class="edit-modal-section">
                 <form id="species-edit-form">
-                    <label for="edit-species-name-input">Name</label>
+                    <label for="edit-species-scientific-name-input">Scientific Name</label>
+                    <input type="text" id="edit-species-scientific-name-input" required><br>
+
+                    <label for="edit-species-name-input">Common Name</label>
                     <input type="text" id="edit-species-name-input" required><br>
 
-                    <label for="edit-species-status-input">Status (Low/Medium/High)</label>
+                    <label for="edit-species-status-input">Conservation Status (Low/Medium/High)</label>
                     <select id="edit-species-status-input" required>
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
+                        <option value="Least Concern">Least Concern</option>
+                        <option value="Near Threatened">Near Threatened</option>
+                        <option value="Vulnerable">Vulnerable</option>
+                        <option value="Endangered">Endangered</option>
+                        <option value="Critically Endangered">Critically Endangered</option>
                     </select><br>
 
                     <div class="edit-modal-actions">

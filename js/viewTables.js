@@ -51,7 +51,7 @@ const fields = {
     logger: { forename: el("edit-forename-input"), surname: el("edit-surname-input"), email: el("edit-email-input") },
     location: { country: el("edit-country-input"), latitude: el("edit-latitude-input"), longitude: el("edit-longitude-input") },
     evidence: { type: el("edit-evidence-type-input"), description: el("edit-evidence-desc-input") },
-    species: { name: el("edit-species-name-input"), status: el("edit-species-status-input") },
+    species: { scientificName: el("edit-species-scientific-name-input"), commonName: el("edit-species-name-input"), conservationStatus: el("edit-species-status-input") },
     report: {
         loggerId: el("edit-report-logger-id-input"),
         locationId: el("edit-report-location-id-input"),
@@ -192,9 +192,9 @@ const tableConfigs = {
         onDelete: (id) => deleteParentAndResequence("Evidence", "EvidenceID", "EvidenceID", id)
     },
     species: {
-        idKey: "SpeciesID", body: tableBodies.species, emptyColspan: 4, label: "Species",
+        idKey: "SpeciesID", body: tableBodies.species, emptyColspan: 5, label: "Species",
         listQuery: "SELECT * FROM Species ORDER BY SpeciesID",
-        cells: (row) => [row.SpeciesID, row.Name, row.Status],
+        cells: (row) => [row.SpeciesID, row.ScientificName, row.CommonName, row.ConservationStatus],
         onDelete: (id) => deleteParentAndResequence("Species", "SpeciesID", "SpeciesID", id)
     },
     report: {
@@ -280,15 +280,17 @@ const editHandlers = {
         open: (id, row) => {
             editingState.key = "species";
             editingState.id = Number(id);
-            fields.species.name.value = row.Name ?? "";
-            fields.species.status.value = row.Status ?? "Low";
+            fields.species.scientificName.value = row.ScientificName ?? "";
+            fields.species.commonName.value = row.CommonName ?? "";
+            fields.species.conservationStatus.value = row.ConservationStatus ?? "Unknown";
             openEditModal(`Edit Species #${id}`, "species");
         },
         submit: () => {
-            const name = fields.species.name.value.trim();
-            const status = fields.species.status.value;
-            if (!name || !status) return { ok: false, msg: "Please fill all Species fields." };
-            return { ok: true, query: `UPDATE Species SET Name = '${escapeSql(name)}', Status = '${escapeSql(status)}' WHERE SpeciesID = ${editingState.id}`, err: "Unable to update Species." };
+            const scientificName = fields.species.ScientificName.value.trim();
+            const commonName = fields.species.CommonName.value.trim();
+            const conservationStatus = fields.species.ConservationStatus.value;
+            if (!commonName || !conservationStatus) return { ok: false, msg: "Please fill all Species fields." };
+            return { ok: true, query: `UPDATE Species SET ScientificName = '${escapeSql(scientificName)}', '${escapeSql(commonName)}', ConservationStatus = '${escapeSql(conservationStatus)}' WHERE SpeciesID = ${editingState.id}`, err: "Unable to update Species." };
         }
     },
     report: {

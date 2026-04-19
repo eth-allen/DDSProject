@@ -41,9 +41,8 @@
     <script src="js/runQuery.js"></script>
     <script>
     
-    const ctx = document.getElementById('myChart');
-    
     function createChart(animalNames, sightingNumbers) {
+        const ctx = document.getElementById('myChart');
 
         new Chart(ctx, {
             type: 'bar',
@@ -66,7 +65,9 @@
             `SELECT Species.CommonName, COUNT(Report.SpeciesID)
             FROM Report
             JOIN Species ON Report.SpeciesID=Species.SpeciesID
+            WHERE Report.ReportType='Animal Spotting'
             GROUP BY Report.SpeciesID
+            ORDER BY COUNT(Report.SpeciesID) DESC
             LIMIT 10;`
         );
 

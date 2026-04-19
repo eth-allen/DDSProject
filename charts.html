@@ -63,7 +63,7 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
         const queryResult = await runQuery(
-            `SELECT Species.Name, COUNT(Report.SpeciesID)
+            `SELECT Species.CommonName, COUNT(Report.SpeciesID)
             FROM Report
             JOIN Species ON Report.SpeciesID=Species.SpeciesID
             GROUP BY Report.SpeciesID

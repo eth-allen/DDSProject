@@ -27,8 +27,13 @@ const emailConditions = document.getElementById("email-conditions");
 
 // --- DELETE ACCOUNT ELEMENTS ---
 const deletePanel = document.getElementById("delete-panel");
+const deleteAccountCheckbox = document.getElementById("confirm-delete"); 
+const deleteAccountButton = document.getElementById("delete-account-button");
 
-// --- SELECT ALL PANEL TABS/ELEMENTS
+
+
+
+// --- SELECT ALL PANEL TABS/ELEMENTS --- 
 // Selects all panels and panel tabs
 const sidebarTabs = document.querySelectorAll('.sidebar-button');
 const panels = document.querySelectorAll('.panel');
@@ -63,7 +68,6 @@ sidebarTabs.forEach(function(sidebarTab) {
 function escapeSql(value) {
     return String(value).replace(/'/g, "''");
 }
-
 
 // ------- VIEW ACCOUNT PANEL LOGIC --------
 
@@ -166,3 +170,31 @@ modifyAccountForm.addEventListener("submit", async function(event) {
 
 
 // ------- DELETE ACCOUNT PANEL LOGIC -------
+
+// Delete account checkbox logic
+deleteAccountCheckbox.addEventListener('change', function(e) {
+    if(e.target.checked) { deleteButton.disabled = false; }  // If the confirmation buttons checked the delete button is enabled
+    else { deleteButton.disabled = true; }  // Otherwise its disabled
+});
+
+// Delete account button logic 
+deleteAccountButton.addEventListener('click', async function() { // On click of delete account button
+    const currentUser = escapeSql(sessionStorage.getItem("loggedInUser"));
+
+    const deletionResult = await runQuery(`DELETE FROM Logger WHERE Username ='${currentUser}'`); // SQL to delete users account
+
+    // Handles SQL potential errors/success/unknowbn
+    if(deletionResult.error) { // If known error
+        alert("An error occured deleting your account.");
+        console.log(deletionResult.error);
+
+    } else if(deletionResult.success) { // If success users login status is reset + sends them to login page
+        alert("Account deletion success");
+        sessionStorage.clear();
+        window.location.href = "index.html";
+
+    } else { // If unknown error
+        alert("An unknown error occured"); 
+        console.log(deletionResult)
+    }
+});

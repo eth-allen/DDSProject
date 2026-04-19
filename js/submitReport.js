@@ -122,6 +122,7 @@ reportForm.addEventListener("submit", async (event) => {
     const loggerUsername = sessionStorage.getItem("loggedInUser");
     if (!loggerUsername) {
         alert("You must be logged in to submit a report.");
+        console.log("Logged in user value: ", sessionStorage.getItem("loggedInUser"))
         return;
     }
 
@@ -151,6 +152,11 @@ reportForm.addEventListener("submit", async (event) => {
         console.error("Report save failed", { insertResult });
         alert("Unable to save report.");
         return;
+    } else if (insertResult?.success) {
+        alert("Report submitted successfully");
+    } else {
+        console.log(insertResult);
+        alert("Something went wrong submitting the report");
     }
 
     reportForm.reset();

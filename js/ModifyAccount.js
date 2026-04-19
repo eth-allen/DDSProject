@@ -17,13 +17,13 @@ const enteredUsernameBox = document.getElementById("entered-username");
 const usernameConditions = document.getElementById("username-conditions");
 
 const enteredForenameBox = document.getElementById("entered-forename");
-const forenameConditions = document.getElementById("username-conditions");
+const forenameConditions = document.getElementById("forename-conditions");
 
 const enteredSurnameBox = document.getElementById("entered-surname");
-const surnameConditions = document.getElementById("username-conditions");
+const surnameConditions = document.getElementById("surname-conditions");
 
 const enteredEmailBox = document.getElementById("entered-email");
-const emailConditions = document.getElementById("username-conditions");
+const emailConditions = document.getElementById("email-conditions");
 
 // --- DELETE ACCOUNT ELEMENTS ---
 const deletePanel = document.getElementById("delete-panel");
@@ -59,16 +59,38 @@ sidebarTabs.forEach(function(sidebarTab) {
     });
 });
 
+// Escape SQL function 
+function escapeSql(value) {
+    return String(value).replace(/'/g, "''");
+}
+
 
 // ------- VIEW ACCOUNT PANEL LOGIC --------
 
-(function() {
+(async function() {
+    const currentUser = escapeSql(sessionStorage.getItem("loggedInUser"));
     
-})
+    const loggerQueryResult = await runQuery(`SELECT Username, Forename, Surname, Email FROM Logger WHERE Username = '${currentUser}'`); // Gets kogger details from username
 
+    if(loggerQueryResult?.error) { // If it throws an error
+        alert("An error occured. Account data could not be pulled");
+        console.error("Error occured pulling user ID from username. Username: " + currentUser + "Error: " + loggerQueryResult.error);
 
+    } else if(loggerQueryResult?.success && loggerQueryResult?.data.length > 0) { // If userID is successfully pulled from database
+        const userData = loggerQueryResult.data[0];
 
+        // Assigns all displayed values to queryed database values:
+        viewUsername.textContent = userData.Username;
+        viewForename.textContent = userData.Forename;
+        viewSurname.textContent = userData.Surname;
+        viewEmail.textContent = userData.Email;
 
+        sessionStorage.setItem("loggedInUser", userData.Username);
+    } else { // If its not successful but doesn't throw an error
+        alert("An unknown error occured pulling account data.");
+        console.log(loggerQueryResult);
+    }
+})();
 
 
 // ------- MODIFY ACCOUNT PANEL LOGIC -------
@@ -119,10 +141,28 @@ modifyAccountForm.addEventListener("submit", async function(event) {
     }
 
     if(isValid) { // If validation passes, users new details are updated in database
-        //const updateRes = await runQuery(`UPDATE Logger SET username='${username}', forename='${forename}', surname='${surname}', email='${email}' WHERE username='${currentUser}'`); // TODO: FIGURE OUT SQL UPDATE COMMAND
+        // EscapeSQLs all data:
+        const escapedUsername = escapeSql(username);
+        const escapedForename = escapeSql(forename);
+        const escapedSurname = escapeSql(surname);
+        const escapedEmail = escapeSql(email);
+
+        const updateResult = await runQuery(`UPDATE Logger SET Username='${escapedUsername}', Forename='${escapedForename}', Surname='${escapedSurname}', Email='${email}' WHERE Username='${currentUser}'`); // TODO: FIGURE OUT SQL UPDATE COMMAND
+
+        if(updateResult?.error) {
+            alert("An error occured updating account details.");
+            console.log(updateResult.error);
+        }
+        else if(updateResult?.success) {
+            alert("Account details successfully updated");
+        } else {
+            alert("Unknown error occured updating account details");
+            console.log(updateResult);
+        }
     } else {
-        alert("Invalid inputed entered."); // Gives user feedback
+        alert("Invalid inputed entered."); // Tells user their inputs invalid
     }
-
-
 });
+
+
+// ------- DELETE ACCOUNT PANEL LOGIC -------

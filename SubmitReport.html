@@ -139,6 +139,52 @@
             </div>
 
             <div class="form-group">
+                <label for="species-selection">Species</label>
+                <select id="species-selection" required>
+                    <option value="species1">1st Species</option>
+                    <option value="species2">2st Species</option>
+                </select> 
+            </div>
+
+            <!--Add in select input with the first option being none and the rest being tracked animals who are not 
+            dead or hospitalised-->
+
+            <div class="form-group">
+                <label for="tracked-animal-selection">Associate this report with a tracked animal (Optional)</label>
+                <select id="tracked-animal-selection" required>
+                    <option value="none">None</option>
+                </select> 
+            </div>
+
+            <!--Add in radio buttons that are hidden/disabled when the previous select's value is none but required 
+            when otherwise that change the status of the selected tracked animal when the report is submitted-->
+
+            <div class="form-group-radio" id="tracked-animal-status-radio-group">
+                <fieldset>
+                    <legend>What is the status of the selected tracked animal?</legend>
+                    <div>
+                    <label for="alive-radio">Alive</label> 
+                    <input type="radio" id="alive-radio" name="tracked-animal-status" value="Alive" disabled>
+                    </div>
+                    
+                    <div>
+                    <label for="dead-radio">Dead</label>
+                    <input type="radio" id="dead-radio" name="tracked-animal-status" value="Dead" disabled>
+                    </div>
+                    
+                    <div>
+                    <label for="hospitalised-radio">Hospitalised</label>
+                    <input type="radio" id="hospitalised-radio" name="tracked-animal-status" value="Hospitalised" disabled>
+                    </div>
+
+                    <div>
+                    <label for="unknown-radio">Unknown</label>
+                    <input type="radio" id="unknown-radio" name="tracked-animal-status" value="Unknown" disabled>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="form-group">
                 <label for="evidence-file-input">Choose Evidence File</label>
                 <input type="file" id="evidence-file-input" required accept=".png, .jpeg, .jpeg, .mp3, .mp4, .doc, .docx, .txt">
             </div>
@@ -148,29 +194,25 @@
                 <input type="text" id="evidence-description-input" placeholder="Enter evidence description here" required> 
             </div>
 
-            <div class="form-group">
-                <label for="species-selection">Species</label>
-                <select id="species-selection" required>
-                    <option value="species1">1st Species</option>
-                    <option value="species2">2st Species</option>
-                </select> 
+            <div class="form-group-radio">
+                <fielset>
+                    <legend>Choose the report type</legend>
+
+                    <div>
+                    <label for="poaching-radio">Poaching</label> 
+                    <input type="radio" id="poaching-radio" name="report-type-input" value="Poaching" required>
+                    </div>
+                    
+                    <div>
+                    <label for="animal-spotting">Animal Spotting</label>
+                    <input type="radio" id="spotting-radio" name="report-type-input" value="Animal Spotting" required>
+                    </div>
+                </fielset>
             </div>
 
             <div class="form-group">
                 <label for="description-input">Description</label>
-                <input type="text" id="description-input" placeholder="Enter description here" required> 
-            </div>
-
-            <div class="form-group-radio">
-                <div>
-                <label for="poaching-radio">Poaching</label> 
-                <input type="radio" id="poaching-radio" name="report-type-input" value="Poaching" required>
-                </div>
-                
-                <div>
-                <label for="animal-spotting">Animal Spotting</label>
-                <input type="radio" id="spotting-radio" name="report-type-input" value="Animal Spotting" required>
-                </div>
+                <input type="text" id="description-input" placeholder="Enter report description here" required> 
             </div>
 
             <button id="report-submit-button">Submit Report</button>

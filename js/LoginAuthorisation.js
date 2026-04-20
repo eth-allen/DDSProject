@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function(){ // Waits for page to h
     // Gets logout button(s) elements, using their class(s)
     const logoutButtons = document.querySelectorAll('.logout-button');
 
-    // For login button(s)
+    // For logout button(s)
     logoutButtons.forEach(function(button) {
         // Adds on click function 
         button.addEventListener('click', function(e) { 

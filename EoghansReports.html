@@ -82,15 +82,10 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
         const queryResult = await runQuery(
-            `
-            SELECT Species.CommonName, COUNT(Report.SpeciesID)
-            FROM Report
-            JOIN Species ON Report.SpeciesID=Species.SpeciesID
-            WHERE Report.ReportType='Animal Spotting'
-            GROUP BY Report.SpeciesID
-            ORDER BY COUNT(Report.SpeciesID) DESC
-            LIMIT 10;
-            `
+            `SELECT vrq.CommonName, vrq.ReportQuantity, vrq.SpeciesID
+            FROM v_SpeciesAliveReportQuantity vrq
+            ORDER BY vrq.ReportQuantity DESC
+            LIMIT 10;`
         );
 
         if (queryResult.success && Array.isArray(queryResult.data)) {

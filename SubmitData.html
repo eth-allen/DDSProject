@@ -12,6 +12,38 @@
             padding:5px;
         }
 
+        .submit-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto 1.5rem;
+            padding: 0 20px;
+        }
+
+        .submit-tab-button {
+            border: 1px solid #ccc;
+            border-radius: 999px;
+            background: #f5f5f5;
+            padding: 0.6rem 1rem;
+            cursor: pointer;
+        }
+
+        .submit-tab-button.is-active {
+            background: #2c6fbb;
+            color: #fff;
+            border-color: #2c6fbb;
+        }
+
+        .submit-tab-panel {
+            display: none;
+        }
+
+        .submit-tab-panel.is-active {
+            display: block;
+        }
+
         .edit-modal {
             display: none;
             position: fixed;
@@ -112,8 +144,14 @@
         </div>
     </div>
 
+<div class="submit-tabs" role="tablist" aria-label="Submit data tabs">
+    <button id="report-tab" type="button" class="submit-tab-button is-active" data-submit-tab="report" role="tab" aria-selected="true" aria-controls="report">Submit Report</button>
+    <button id="species-tab" type="button" class="submit-tab-button" data-submit-tab="species" role="tab" aria-selected="false" aria-controls="species">Add Species</button>
+</div>
+
 <div class="container">
-    <div id="reports">
+    <div id="report" class="submit-tab-panel is-active" data-submit-panel="report" role="tabpanel" aria-labelledby="report-tab">
+        <div id="reports">
 
         
 
@@ -127,16 +165,6 @@
             <datalist id="country-names">
 
             </datalist>
-
-            <div class="form-group">
-                <label for="latitude-input">Latitude</label> 
-                <input type="number" step="any" id="latitude-input" placeholder="Enter latitude" required> 
-            </div>
-
-            <div class="form-group">
-                <label for="longitude-input">Longitude</label> 
-                <input type="number" step="any" id="longitude-input" placeholder="Enter longitude" required> 
-            </div>
 
             <div class="form-group">
                 <label for="species-selection">Species</label>
@@ -203,11 +231,43 @@
             </div>
 
             <div class="form-group">
-                <label for="description-input">Data Description</label>
-                <input type="text" id="description-input" placeholder="Enter data description here" required> 
+                <label for="description-input">Report Description</label>
+                <input type="text" id="description-input" placeholder="Enter report description here" required> 
             </div>
 
-            <button id="report-submit-button">Submit Data</button>
+            <button id="report-submit-button">Submit Report</button>
+        </form>
+        </div>
+    </div>
+
+    <div id="species" class="submit-tab-panel" data-submit-panel="species" role="tabpanel" aria-labelledby="species-tab">
+        <form id="species-form">
+            <div class="form-group">
+                <label for="species-scientific-name-input">Scientific Name</label>
+                <input type="text" id="species-scientific-name-input" placeholder="Enter scientific name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="species-common-name-input">Common Name</label>
+                <input type="text" id="species-common-name-input" placeholder="Enter common name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="species-conservation-status-input">Conservation Status</label>
+                <select id="species-conservation-status-input" required>
+                    <option value="">Select a status</option>
+                    <option value="Extinct">Extinct</option>
+                    <option value="Extinct in the Wild">Extinct in the Wild</option>
+                    <option value="Critically Endangered">Critically Endangered</option>
+                    <option value="Endangered">Endangered</option>
+                    <option value="Vulnerable">Vulnerable</option>
+                    <option value="Near Threatened">Near Threatened</option>
+                    <option value="Least Concern">Least Concern</option>
+                    <option value="Data Deficient">Data Deficient</option>
+                </select>
+            </div>
+
+            <button id="species-submit-button" type="submit">Add Species</button>
         </form>
     </div>
 
@@ -217,6 +277,27 @@
 
 <script src="js/runQuery.js"></script>
 <script src="js/submitData.js"></script>
+<script>
+    const submitTabButtons = [...document.querySelectorAll("[data-submit-tab]")];
+    const submitTabPanels = {
+        report: document.querySelector('[data-submit-panel="report"]'),
+        species: document.querySelector('[data-submit-panel="species"]')
+    };
+
+    function setActiveSubmitTab(tabName) {
+        Object.entries(submitTabPanels).forEach(([name, panel]) => panel?.classList.toggle("is-active", name === tabName));
+        submitTabButtons.forEach((button) => {
+            const isActive = button.dataset.submitTab === tabName;
+            button.classList.toggle("is-active", isActive);
+            button.setAttribute("aria-selected", String(isActive));
+            button.tabIndex = isActive ? 0 : -1;
+        });
+    }
+
+    if (submitTabButtons.length) {
+        submitTabButtons.forEach((button) => button.addEventListener("click", () => setActiveSubmitTab(button.dataset.submitTab)));
+    }
+</script>
 
 
 <footer class="footer">

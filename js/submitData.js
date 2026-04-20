@@ -63,11 +63,9 @@ reportForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const country = document.getElementById("country-input").value.trim();
-    const latitude = Number(document.getElementById("latitude-input").value);
-    const longitude = Number(document.getElementById("longitude-input").value);
 
     const escapedCountry = escapeSql(country);
-    const saveResult = await runQuery(`INSERT INTO Location (Country, Latitude, Longitude) VALUES ('${escapedCountry}', ${latitude}, ${longitude});`);
+    const saveResult = await runQuery(`INSERT INTO Location (Country) VALUES ('${escapedCountry}');`);
     if (saveResult?.error) {
         console.error("Location save failed", { saveResult });
         alert("Unable to save location.");
@@ -200,4 +198,35 @@ reportForm.addEventListener("submit", async (event) => {
     reportForm.reset();
 
     renderSelections();
+});
+
+const speciesForm = document.getElementById("species-form");
+
+speciesForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const scientificName = document.getElementById("species-scientific-name-input").value.trim();
+    const commonName = document.getElementById("species-common-name-input").value.trim();
+    const conservationStatus = document.getElementById("species-conservation-status-input").value;
+
+    const escapedScientificName = escapeSql(scientificName);
+    const escapedCommonName = escapeSql(commonName);
+    const escapedConservationStatus = escapeSql(conservationStatus);
+
+    const insertResult = await runQuery(`INSERT INTO Species (ScientificName, CommonName, ConservationStatus) VALUES ('${escapedScientificName}', '${escapedCommonName}', '${escapedConservationStatus}')`);
+
+    if (insertResult?.error) {
+        console.error("Species save failed", { insertResult });
+        alert("Unable to save species.");
+        return;
+    } 
+    else if (insertResult?.success) {
+        alert("Species added successfully");
+        speciesForm.reset();
+        renderSelections();
+    } 
+    else {
+        console.log(insertResult);
+        alert("Something went wrong adding the species");
+    }
 });

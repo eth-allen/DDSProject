@@ -54,7 +54,7 @@ const cancelButtons = [
 
 const fields = {
     logger: { forename: el("edit-forename-input"), surname: el("edit-surname-input"), email: el("edit-email-input") },
-    location: { country: el("edit-country-input"), latitude: el("edit-latitude-input"), longitude: el("edit-longitude-input") },
+    location: { country: el("edit-country-input") },
     evidence: { type: el("edit-evidence-type-input"), description: el("edit-evidence-desc-input") },
     species: { scientificName: el("edit-species-scientific-name-input"), commonName: el("edit-species-name-input"), conservationStatus: el("edit-species-status-input") },
     report: {
@@ -159,6 +159,35 @@ async function deleteParentAndResequence(tableName, idColumn, reportFkColumn, id
     if (!Number.isInteger(numericId) || numericId < 1) return { success: false, error: "Invalid ID." };
 
     try {
+        // Check for all foreign key constraints based on table being deleted
+        const fkConstraints = {
+            "Logger": [{ table: "Report", column: "LoggerID" }],
+            "Location": [{ table: "Report", column: "LocationID" }],
+            "Evidence": [{ table: "Report", column: "EvidenceID" }],
+            "Species": [
+                { table: "Report", column: "SpeciesID" },
+                { table: "Tracked_Animal", column: "SpeciesID" }
+            ],
+            "Tracked_Animal": [{ table: "Report", column: "AnimalID" }]
+        };
+
+        // Check for foreign key constraints if applicable
+        if (fkConstraints[tableName]) {
+            for (const constraint of fkConstraints[tableName]) {
+                const checkResult = await runQuery(`SELECT COUNT(*) as count FROM ${constraint.table} WHERE ${constraint.column} = ${numericId}`);
+                if (checkResult?.success && checkResult.data[0].count > 0) {
+                    return { success: false, error: `Cannot delete ${tableName} with ID ${numericId} because ${checkResult.data[0].count} record(s) in ${constraint.table} reference it.` };
+                }
+            }
+            await runQueryChecked(`DELETE FROM ${tableName} WHERE ${idColumn} = ${numericId}`);
+            // Resequence IDs for Logger only (others like Species don't need it)
+            if (tableName === "Logger") {
+                await runQueryChecked(`UPDATE ${tableName} SET ${idColumn} = ${idColumn} - 1 WHERE ${idColumn} > ${numericId}`);
+            }
+            return { success: true };
+        }
+        
+        // For other tables, use the original logic
         await runQueryChecked(`DELETE FROM Report WHERE ${reportFkColumn} = ${numericId}`);
         await resequenceReportIds();
         await runQueryChecked(`DELETE FROM ${tableName} WHERE ${idColumn} = ${numericId}`);
@@ -191,9 +220,9 @@ const tableConfigs = {
         onDelete: (id) => deleteParentAndResequence("Logger", "LoggerID", "LoggerID", id)
     },
     location: {
-        idKey: "LocationID", body: tableBodies.location, emptyColspan: 5, label: "Location",
+        idKey: "LocationID", body: tableBodies.location, emptyColspan: 3, label: "Location",
         listQuery: "SELECT * FROM Location ORDER BY LocationID",
-        cells: (row) => [row.LocationID, row.Country, row.Latitude, row.Longitude],
+        cells: (row) => [row.LocationID, row.Country],
         onDelete: (id) => deleteParentAndResequence("Location", "LocationID", "LocationID", id)
     },
     evidence: {
@@ -272,10 +301,8 @@ const editHandlers = {
         },
         submit: () => {
             const country = fields.location.country.value.trim();
-            const latitude = Number(fields.location.latitude.value);
-            const longitude = Number(fields.location.longitude.value);
-            if (!country || !Number.isFinite(latitude) || !Number.isFinite(longitude)) return { ok: false, msg: "Please provide valid Location values." };
-            return { ok: true, query: `UPDATE Location SET Country = '${escapeSql(country)}', Latitude = ${latitude}, Longitude = ${longitude} WHERE LocationID = ${editingState.id}`, err: "Unable to update Location." };
+            if (!country) return { ok: false, msg: "Please provide a valid Location country." };
+            return { ok: true, query: `UPDATE Location SET Country = '${escapeSql(country)}' WHERE LocationID = ${editingState.id}`, err: "Unable to update Location." };
         }
     },
     evidence: {

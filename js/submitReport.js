@@ -43,8 +43,6 @@ const renderSelections = async () => {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    console.log("js file has been changed");
-
     const countryNamesResult = await runQuery("SELECT Country FROM Location GROUP BY Country");
 
     if (countryNamesResult?.success && Array.isArray(countryNamesResult.data)) {
@@ -166,50 +164,40 @@ reportForm.addEventListener("submit", async (event) => {
 
     const escapedDescription = escapeSql(description);
 
-    let queryText = "";
-
     if (animalID == "none") {
-        queryText = `INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${reportType}', '${escapedDescription}')`;
+        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${reportType}', '${escapedDescription}')`);
+
+        if (insertResult?.error) {
+            console.error("Report save failed", { insertResult });
+            alert("Unable to save report.");
+            return;
+        } 
+        else if (insertResult?.success) {
+            alert("Report submitted successfully");
+        } 
+        else {
+            console.log(insertResult);
+            alert("Something went wrong submitting the report");
+        }
     }
     else {
-        queryText = `INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, AnimalID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${animalID}', '${reportType}', '${escapedDescription}')`;
-    }
+        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, AnimalID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${animalID}', '${reportType}', '${escapedDescription}')`);
 
-    const insertResult = await runQuery(queryText);
-
-    if (insertResult?.error) {
-        console.error("Report save failed", { insertResult });
-        alert("Unable to save report.");
-        return;
-    } 
-    else if (insertResult?.success) {
-        alert("Report submitted successfully");
-    } 
-    else {
-        console.log(insertResult);
-        alert("Something went wrong submitting the report");
+        if (insertResult?.error) {
+            console.error("Report save failed", { insertResult });
+            alert("Unable to save report.");
+            return;
+        } 
+        else if (insertResult?.success) {
+            alert("Report submitted successfully");
+        } 
+        else {
+            console.log(insertResult);
+            alert("Something went wrong submitting the report");
+        }
     }
 
     reportForm.reset();
 
     renderSelections();
 });
-
-const trackedAnimalSelection = document.getElementById("tracked-animal-selection");
-
-trackedAnimalSelection.addEventListener("change", toggleTrackedAnimalRadios);
-
-function toggleTrackedAnimalRadios() {
-    console.log("tracked animal selection value has changed");
-
-    const radios = document.querySelector("#tracked-animal-status-radio-group input");
-
-    for (radio of radios) {
-        if (trackedAnimalSelection.value == "none") {
-            radio.disabled = true;
-        }
-        else {
-            radio.disabled = false;
-        }
-    }
-}

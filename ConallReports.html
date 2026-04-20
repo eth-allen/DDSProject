@@ -4,7 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Endangered Species Tracker - Conall Reports</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="stylesheet" href="css/styles.css">
+    <script src="js/runQuery.js?v=20260420-2"></script>
+    <script>
+        console.log("ConallReports version:", "2026-04-20");
+    </script>
 </head>
 <body>
 
@@ -54,8 +61,19 @@
         </table>
         </div>
 
-        <script src="js/runQuery.js"></script>
         <script>
+            function renderTableMessage(tbodyId, colSpan, message) {
+                const tbody = document.getElementById(tbodyId);
+                if (!tbody) return;
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="${colSpan}" style="text-align:center; padding: 12px;">
+                            ${message}
+                        </td>
+                    </tr>
+                `;
+            }
+
             function jsonGrabberOne (rows) {
                 const tbody = document.getElementById("conall-reports1-body");
                 tbody.innerHTML = rows.map((row) => `
@@ -72,16 +90,23 @@
             }
 
             document.addEventListener("DOMContentLoaded", async () => {
+                const sqlReport1 = "SELECT s.SpeciesID, s.CommonName AS SpeciesName, s.ConservationStatus AS ConservationStatus, COUNT(r.ReportID) AS TotalReports, COUNT(DISTINCT r.LoggerID) AS ActiveContributors, COUNT(DISTINCT loc.Country) AS CountriesDiversity, CONCAT(DATE_FORMAT(MIN(r.ReportDate), '%d %b %Y'), ' - ', DATE_FORMAT(MAX(r.ReportDate), '%d %b %Y')) AS ReportingPeriod, GROUP_CONCAT(DISTINCT e.EvidenceType ORDER BY e.EvidenceType SEPARATOR ', ') AS EvidenceTypesUsed FROM Species s INNER JOIN Report r ON s.SpeciesID = r.SpeciesID LEFT JOIN Location loc ON r.LocationID = loc.LocationID LEFT JOIN Evidence e ON r.EvidenceID = e.EvidenceID WHERE s.ConservationStatus IN ('Endangered', 'Critically Endangered') GROUP BY s.SpeciesID, s.CommonName, s.ConservationStatus HAVING COUNT(r.ReportID) > 0 ORDER BY TotalReports DESC, s.CommonName ASC LIMIT 15;";
+                console.log("Conall Report 1 SQL:", sqlReport1);
                 const [ConallResultOne] = await Promise.all([
-                    runQuery("SELECT s.SpeciesID, s.Name AS SpeciesName, s.Status AS ConservationStatus, COUNT(r.ReportID) AS TotalReports, COUNT(DISTINCT r.LoggerID) AS ActiveContributors, COUNT(DISTINCT loc.Country) AS CountriesDiversity, CONCAT(DATE_FORMAT(MIN(r.ReportDate), '%d %b %Y'), ' - ', DATE_FORMAT(MAX(r.ReportDate), '%d %b %Y')) AS ReportingPeriod, GROUP_CONCAT(DISTINCT e.EvidenceType ORDER BY e.EvidenceType SEPARATOR ', ') AS EvidenceTypesUsed FROM Species s INNER JOIN Report r ON s.SpeciesID = r.SpeciesID LEFT JOIN Location loc ON r.LocationID = loc.LocationID LEFT JOIN Evidence e ON r.EvidenceID = e.EvidenceID WHERE s.Status = 'High' GROUP BY s.SpeciesID, s.Name, s.Status HAVING COUNT(r.ReportID) > 0 ORDER BY TotalReports DESC, s.Name ASC LIMIT 15;"),
+                    runQuery(sqlReport1),
                 ]);
 
                 if (ConallResultOne?.success && Array.isArray(ConallResultOne.data)) {
-                    jsonGrabberOne(ConallResultOne.data);
-                }
-
-                if (ConallResultOne?.error) {
+                    if (ConallResultOne.data.length > 0) {
+                        jsonGrabberOne(ConallResultOne.data);
+                    } else {
+                        renderTableMessage("conall-reports1-body", 7, "No results returned for this report.");
+                    }
+                } else if (ConallResultOne?.error) {
                     console.error("Data load error", {ConallResultOne});
+                    renderTableMessage("conall-reports1-body", 7, `Query error: ${ConallResultOne.error}`);
+                } else {
+                    renderTableMessage("conall-reports1-body", 7, "Unexpected response from server.");
                 }
             });
         </script>
@@ -127,16 +152,23 @@
                 }
 
                 document.addEventListener("DOMContentLoaded", async () => {
+                    const sqlReport2 = "SELECT CONCAT(UPPER(l.Surname), ', ', l.Forename) AS LoggerName, l.Email AS ContactEmail, COUNT(r.ReportID) AS TotalReports, COUNT(DISTINCT r.SpeciesID) AS UniqueSpeciesReported, COUNT(DISTINCT CASE WHEN s.ConservationStatus IN ('Endangered', 'Critically Endangered') THEN r.ReportID END) AS HighPriorityReports, COUNT(DISTINCT loc.Country) AS CountriesCovered FROM Logger l INNER JOIN Report r ON l.LoggerID = r.LoggerID INNER JOIN Species s ON r.SpeciesID = s.SpeciesID LEFT JOIN Location loc ON r.LocationID = loc.LocationID WHERE YEAR(r.ReportDate) = 2024 GROUP BY l.LoggerID, l.Surname, l.Forename, l.Email HAVING COUNT(r.ReportID) >= 1 ORDER BY TotalReports DESC, HighPriorityReports DESC, LoggerName ASC LIMIT 20;";
+                    console.log("Conall Report 2 SQL:", sqlReport2);
                     const [ConallResultTwo] = await Promise.all([
-                        runQuery("SELECT CONCAT(UPPER(l.Surname), ', ', l.Forename) AS LoggerName, l.Email AS ContactEmail, COUNT(r.ReportID) AS TotalReports, COUNT(DISTINCT r.SpeciesID) AS UniqueSpeciesReported, COUNT(DISTINCT CASE WHEN s.Status = 'High' THEN r.ReportID END) AS HighPriorityReports, COUNT(DISTINCT loc.Country) AS CountriesCovered FROM Logger l INNER JOIN Report r ON l.LoggerID = r.LoggerID INNER JOIN Species s ON r.SpeciesID = s.SpeciesID LEFT JOIN Location loc ON r.LocationID = loc.LocationID WHERE YEAR(r.ReportDate) = 2024 GROUP BY l.LoggerID, l.Surname, l.Forename, l.Email HAVING COUNT(r.ReportID) >= 5 ORDER BY TotalReports DESC, HighPriorityReports DESC, LoggerName ASC LIMIT 20;"),
+                        runQuery(sqlReport2),
                     ]);
 
                     if (ConallResultTwo?.success && Array.isArray(ConallResultTwo.data)) {
-                        jsonGrabberTwo(ConallResultTwo.data);
-                    }
-
-                    if (ConallResultTwo?.error) {
+                        if (ConallResultTwo.data.length > 0) {
+                            jsonGrabberTwo(ConallResultTwo.data);
+                        } else {
+                            renderTableMessage("conall-reports2-body", 6, "No results returned for this report.");
+                        }
+                    } else if (ConallResultTwo?.error) {
                         console.error("Data load error", {ConallResultTwo});
+                        renderTableMessage("conall-reports2-body", 6, `Query error: ${ConallResultTwo.error}`);
+                    } else {
+                        renderTableMessage("conall-reports2-body", 6, "Unexpected response from server.");
                     }
                 });
             </script>
@@ -183,16 +215,23 @@
                     }
 
                     document.addEventListener("DOMContentLoaded", async () => {
+                        const sqlReport3 = "SELECT loc.Country, COUNT(DISTINCT r.SpeciesID) AS TotalSpeciesDiversity, COUNT(DISTINCT r.ReportID) AS TotalObservations, COUNT(DISTINCT r.LoggerID) AS TotalContributingLoggers, COUNT(DISTINCT CASE WHEN s.ConservationStatus IN ('Endangered', 'Critically Endangered') THEN r.SpeciesID END) AS HighPrioritySpeciesCount, DATE_FORMAT(MAX(r.ReportDate), '%d %b %Y') AS LastObservationDate FROM Location loc INNER JOIN Report r ON loc.LocationID = r.LocationID INNER JOIN Species s ON r.SpeciesID = s.SpeciesID GROUP BY loc.Country HAVING HighPrioritySpeciesCount > 0 ORDER BY HighPrioritySpeciesCount DESC, TotalSpeciesDiversity DESC, TotalObservations DESC LIMIT 25;";
+                        console.log("Conall Report 3 SQL:", sqlReport3);
                         const [ConallResultThree] = await Promise.all([
-                            runQuery("SELECT loc.Country, COUNT(DISTINCT r.SpeciesID) AS TotalSpeciesDiversity, COUNT(DISTINCT r.ReportID) AS TotalObservations, COUNT(DISTINCT r.LoggerID) AS TotalContributingLoggers, COUNT(DISTINCT CASE WHEN s.Status = 'High' THEN r.SpeciesID END) AS HighPrioritySpeciesCount, DATE_FORMAT(MAX(r.ReportDate), '%d %b %Y') AS LastObservationDate FROM Location loc INNER JOIN Report r ON loc.LocationID = r.LocationID INNER JOIN Species s ON r.SpeciesID = s.SpeciesID GROUP BY loc.Country HAVING HighPrioritySpeciesCount > 0 ORDER BY HighPrioritySpeciesCount DESC, TotalSpeciesDiversity DESC, TotalObservations DESC LIMIT 25;"),
+                            runQuery(sqlReport3),
                         ]);
 
                         if (ConallResultThree?.success && Array.isArray(ConallResultThree.data)) {
-                            jsonGrabberThree(ConallResultThree.data);
-                        }
-
-                        if (ConallResultThree?.error) {
+                            if (ConallResultThree.data.length > 0) {
+                                jsonGrabberThree(ConallResultThree.data);
+                            } else {
+                                renderTableMessage("conall-reports3-body", 6, "No results returned for this report.");
+                            }
+                        } else if (ConallResultThree?.error) {
                             console.error("Data load error", {ConallResultThree});
+                            renderTableMessage("conall-reports3-body", 6, `Query error: ${ConallResultThree.error}`);
+                        } else {
+                            renderTableMessage("conall-reports3-body", 6, "Unexpected response from server.");
                         }
                     });
                 </script>

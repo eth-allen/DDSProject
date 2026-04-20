@@ -23,14 +23,34 @@
             </ul>
         </div>
     </nav>
+    <div>
 
+        <div>
+            <h2>Report/Chart 1</h2>
+            <p>This chart answers the business question of which species to give attention to while at the same time being a helpful graphic to inform people.</p>
+            <div class="chart-container">
+                <canvas id="chart1">
+                    <p>alt fallback text?</p>
+                </canvas>
+            </div>
+        </div>
 
-        <div class="chart-container">
-            <canvas id="myChart">
+        <div>
+        
+            <h2>Report 2</h2>
+            <p>The business question this report answers is what is the month that the most reports were made in.</p>
+            <canvas id="chart2">
                 <p>alt fallback text?</p>
             </canvas>
+
         </div>
-        
+
+        <h2>Report 3</h2>
+        <p>The business question this report answers is how does the distrubution of evidence types change based on the report type. Examining this data could be used to create new methods of finding and prosecuting poachers in the future.</p>
+            <canvas id="chart3">
+                <p>alt fallback text?</p>
+            </canvas>
+
     </div>
 
     <footer class="footer">
@@ -42,14 +62,14 @@
     <script>
     
     function createChart(animalNames, sightingNumbers) {
-        const ctx = document.getElementById('myChart');
+        const ctx = document.getElementById('chart1');
 
         new Chart(ctx, {
             type: 'bar',
             data: {
             labels: animalNames,
             datasets: [{
-                label: 'Top 10 Reported Evidence/Sightings',
+                label: 'Top 10 Reported Evidence/Sightings Of Animals',
                 data: sightingNumbers,
                 backgroundColor:"green"
             }]
@@ -62,13 +82,15 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
         const queryResult = await runQuery(
-            `SELECT Species.CommonName, COUNT(Report.SpeciesID)
+            `
+            SELECT Species.CommonName, COUNT(Report.SpeciesID)
             FROM Report
             JOIN Species ON Report.SpeciesID=Species.SpeciesID
             WHERE Report.ReportType='Animal Spotting'
             GROUP BY Report.SpeciesID
             ORDER BY COUNT(Report.SpeciesID) DESC
-            LIMIT 10;`
+            LIMIT 10;
+            `
         );
 
         if (queryResult.success && Array.isArray(queryResult.data)) {

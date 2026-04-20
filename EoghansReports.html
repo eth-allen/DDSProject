@@ -6,6 +6,12 @@
     <title>Endangered Species Tracker</title>
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/LoginAuthorisation.js"></script>
+    <link rel="stylesheet" href="css/viewTables.css">
+    <style>
+        .chart-container {
+            margin:15px;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -23,11 +29,18 @@
             </ul>
         </div>
     </nav>
-    <div>
+
+    <div class="hero-section">
+        <div class="hero-content">
+            <h2>Eoghan's Reports</h2>
+        </div>
+    </div>
+
+    <div class="container">
 
         <div>
-            <h2>Report/Chart 1</h2>
-            <p>This chart answers the business question of which species to give attention to while at the same time being a helpful graphic to inform people.</p>
+            <h2>Report 1</h2>
+            <p>This chart answers the business question of which species to give attention to while at the same time being a helpful graphic to inform people. This report is presented in the form of a bar chart.</p>
             <div class="chart-container">
                 <canvas id="chart1">
                     <p>alt fallback text?</p>
@@ -35,22 +48,36 @@
             </div>
         </div>
 
-        <div>
         
+        
+        <div>
             <h2>Report 2</h2>
-            <p>The business question this report answers is what is the month that the most reports were made in.</p>
+            <p>The business question this report answers is how does the distrubution of evidence types change based on the report type. Examining this data could be used to create new methods of finding and prosecuting poachers in the future. This doughnut chart specifically shows the distribution for reports of poaching.</p>
+            <div class="chart-container">
             <canvas id="chart2">
                 <p>alt fallback text?</p>
             </canvas>
-
+            </div>
         </div>
 
-        <h2>Report 3</h2>
-        <p>The business question this report answers is how does the distrubution of evidence types change based on the report type. Examining this data could be used to create new methods of finding and prosecuting poachers in the future.</p>
-            <canvas id="chart3">
-                <p>alt fallback text?</p>
-            </canvas>
+        <div>
+        
+            <h2>Report 3</h2>
+            <p>The business question this report answers is how much the amount of reports changed over the past few years. This is important as it helps track how much the site is being used and might give hints on how to get more people to give reports.</p>
+            <table id="table3">
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Month</th>
+                        <th>Reports Per Month</th>
+                        <th>Unique Species Reports</th>
+                    </tr>
+                </thead>
+                <tbody>
 
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <footer class="footer">
@@ -61,7 +88,7 @@
     <script src="js/runQuery.js"></script>
     <script>
     
-    function createChart(animalNames, sightingNumbers) {
+    function createBarChart(animalNames, sightingNumbers) {
         const ctx = document.getElementById('chart1');
 
         new Chart(ctx, {
@@ -69,7 +96,7 @@
             data: {
             labels: animalNames,
             datasets: [{
-                label: 'Top 10 Reported Evidence/Sightings Of Animals',
+                label: 'Top 10 Animals with Least Reported Evidence/Sightings',
                 data: sightingNumbers,
                 backgroundColor:"green"
             }]
@@ -80,27 +107,89 @@
         });
     }
 
+    function createDoughnutChart(evidenceTypes, evidenceTypeAmounts) {
+        const ctx = document.getElementById('chart2');
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+            labels: evidenceTypes, //EvidenceType
+            datasets: [{
+                label: "Number of poaching reports with this type of evidence", 
+                data: evidenceTypeAmounts//EvidenceTypeAmount
+            }]
+            },
+            options: {
+                
+            }
+        });
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
-        const queryResult = await runQuery(
+        //report 1:
+        const report1QueryResult = await runQuery(
             `SELECT vrq.CommonName, vrq.ReportQuantity, vrq.SpeciesID
             FROM v_SpeciesAliveReportQuantity vrq
-            ORDER BY vrq.ReportQuantity DESC
+            ORDER BY vrq.ReportQuantity ASC
             LIMIT 10;`
         );
 
-        if (queryResult.success && Array.isArray(queryResult.data)) {
+        if (report1QueryResult.success && Array.isArray(report1QueryResult.data)) {
             let animalNames = [];
             let sightingNumbers = [];
 
-            for (let i = 0; i < queryResult.data.length; i++) {
-                animalNames[i] = queryResult.data[i].CommonName;
-                sightingNumbers[i] = queryResult.data[i]["COUNT(Report.SpeciesID)"];
+            for (let i = 0; i < report1QueryResult.data.length; i++) {
+                animalNames[i] = report1QueryResult.data[i].CommonName;
+                sightingNumbers[i] = report1QueryResult.data[i].ReportQuantity;
             }
 
             console.log(animalNames);
             console.log(sightingNumbers);
 
-            createChart(animalNames, sightingNumbers);
+            createBarChart(animalNames, sightingNumbers);
+        }
+
+        //report 2:
+
+        const report2QueryResult = await runQuery(
+            `SELECT vera.ReportType, vera.EvidenceType, vera.EvidenceTypeCount
+            FROM v_EvidenceReportTypeAmounts vera
+            WHERE vera.ReportType='Poaching';`
+        );
+
+        if (report2QueryResult.success && Array.isArray(report2QueryResult.data)) {
+            let evidenceTypes = [];
+            let evidenceTypeAmounts = [];
+
+            for (let i = 0; i < report2QueryResult.data.length; i++) {
+                evidenceTypes[i] = report2QueryResult.data[i].EvidenceType;
+                evidenceTypeAmounts[i] = report2QueryResult.data[i].EvidenceTypeCount;
+            }
+
+            createDoughnutChart(evidenceTypes, evidenceTypeAmounts);
+        }
+
+        const report3QueryResult = await runQuery(
+            `SELECT YEAR(r.ReportDate) AS Year, MONTH(r.ReportDate) AS Month, COUNT(MONTH(r.ReportDate)) AS ReportsPerMonth, COUNT(DISTINCT s.SpeciesID) AS UniqueSpeciesReports
+            FROM Report r
+            JOIN Species s
+            ON r.SpeciesID=s.SpeciesID
+            GROUP BY YEAR(r.ReportDate), MONTH(r.ReportDate);`
+        );
+
+        if (report3QueryResult.success && Array.isArray(report3QueryResult.data)) {
+            const tableBody = document.querySelector("#table3 tbody");
+
+            for (row of report3QueryResult.data) {
+                tableBody.innerHTML += `
+                <tr>
+                    <td>${row.Year}</td>
+                    <td>${row.Month}</td>
+                    <td>${row.ReportsPerMonth}</td>
+                    <td>${row.UniqueSpeciesReports}</td>
+                </tr>
+                `;
+            }
         }
     });
 

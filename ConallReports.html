@@ -9,9 +9,6 @@
     <meta http-equiv="Expires" content="0">
     <link rel="stylesheet" href="css/styles.css">
     <script src="js/runQuery.js?v=20260420-2"></script>
-    <script>
-        console.log("ConallReports version:", "2026-04-20");
-    </script>
 </head>
 <body>
 
@@ -36,6 +33,13 @@
         </div>
     </div>
 
+    <div>
+        <div class="report-section">
+        <h3>Report 1: High Priority Species Report</h3>
+        <p>Report Title: High Priority Species Report</p><br>
+        <p>Business Question: Which high-priority species are being actively reported, where are they being spotted, and how many loggers are contributing to their documentation?</p><br>
+        <p>Why this report is useful: Identifies which critically endangered species are receiving the most attention and geographic coverage, helping prioritize conservation efforts.</p><br>
+        <p>Tables Used: Species, Report, Location, Evidence</p>
 
         <div class="report-data">
         <table id="conall-reports1" class="data-table">
@@ -145,7 +149,7 @@
                 }
 
                 document.addEventListener("DOMContentLoaded", async () => {
-                    const sqlReport2 = "SELECT CONCAT(UPPER(l.Surname), ', ', l.Forename) AS LoggerName, l.Email AS ContactEmail, COUNT(r.ReportID) AS TotalReports, COUNT(DISTINCT r.SpeciesID) AS UniqueSpeciesReported, COUNT(DISTINCT CASE WHEN s.ConservationStatus IN ('Endangered', 'Critically Endangered') THEN r.ReportID END) AS HighPriorityReports, COUNT(DISTINCT loc.Country) AS CountriesCovered FROM Logger l INNER JOIN Report r ON l.LoggerID = r.LoggerID INNER JOIN Species s ON r.SpeciesID = s.SpeciesID LEFT JOIN Location loc ON r.LocationID = loc.LocationID WHERE YEAR(r.ReportDate) = 2024 GROUP BY l.LoggerID, l.Surname, l.Forename, l.Email HAVING COUNT(r.ReportID) >= 1 ORDER BY TotalReports DESC, HighPriorityReports DESC, LoggerName ASC LIMIT 20;";
+                    const sqlReport2 = "SELECT CONCAT(UPPER(l.Surname), ', ', l.Forename) AS LoggerName, l.Email AS ContactEmail, COUNT(r.ReportID) AS TotalReports, COUNT(DISTINCT r.SpeciesID) AS UniqueSpeciesReported, COUNT(DISTINCT CASE WHEN s.ConservationStatus IN ('Endangered', 'Critically Endangered') THEN r.ReportID END) AS HighPriorityReports, COUNT(DISTINCT loc.Country) AS CountriesCovered FROM Logger l INNER JOIN Report r ON l.LoggerID = r.LoggerID INNER JOIN Species s ON r.SpeciesID = s.SpeciesID LEFT JOIN Location loc ON r.LocationID = loc.LocationID GROUP BY l.LoggerID, l.Surname, l.Forename, l.Email HAVING COUNT(r.ReportID) >= 1 ORDER BY TotalReports DESC, HighPriorityReports DESC, LoggerName ASC LIMIT 20;";
                     console.log("Conall Report 2 SQL:", sqlReport2);
                     const [ConallResultTwo] = await Promise.all([
                         runQuery(sqlReport2),

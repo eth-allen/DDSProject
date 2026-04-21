@@ -562,3 +562,23 @@ body.login-page {
         padding: 20px;
     }
 }
+
+/* ==== Alert box to replace alert() ====== */
+#customAlertBox {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+}
+
+.success-alert {
+    background-color: green;
+}
+
+.error-alert {
+    background-color: red;
+}

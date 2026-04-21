@@ -28,6 +28,19 @@ function isValidEmail(email) {
     } else { return true; }
 }
 
+// --- ANIMAL NAME VALIDATION
+const animalNameRegex = /^[a-zA-Z\-' ]+$/;
+
+// Tests if the species or animal name fails length or regex
+function isValidAnimalOrSpeciesName(name) {
+    if ( (name.length > 100 || name.length < 2) || !(animalNameRegex.test(name)) ) { // If fails regex/too long
+        return false; // Returns false
+    } else { 
+        return true; // Otherwise returns true
+    }
+}
+
+
 // ----------- VISUAL ALERT BOX ----------------
 function showAlert(alertText, isError) {
 

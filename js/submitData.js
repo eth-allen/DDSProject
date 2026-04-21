@@ -134,8 +134,8 @@ reportForm.addEventListener("submit", async (event) => {
     
     if (isTrackedAnimal) {
         const animalName = document.getElementById("tracked-animal-name").value.trim();
-        if (!animalName) {
-            showAlert("Please enter an animal name.", true);
+        if (!animalName || !isValidAnimalOrSpeciesName(animalName)) {
+            showAlert("Please enter a valid animal name.", true);
             return;
         }
         
@@ -202,6 +202,7 @@ reportForm.addEventListener("submit", async (event) => {
     renderSelections();
 });
 
+// Add a species form
 const speciesForm = document.getElementById("species-form");
 
 speciesForm.addEventListener("submit", async (event) => {
@@ -215,20 +216,35 @@ speciesForm.addEventListener("submit", async (event) => {
     const escapedCommonName = escapeSql(commonName);
     const escapedConservationStatus = escapeSql(conservationStatus);
 
-    const insertResult = await runQuery(`INSERT INTO Species (ScientificName, CommonName, ConservationStatus) VALUES ('${escapedScientificName}', '${escapedCommonName}', '${escapedConservationStatus}')`);
+    // Actually validates the users input 
+    var isValid = true;
 
-    if (insertResult?.error) {
-        console.error("Species save failed", { insertResult });
-        showAlert("Unable to save species.", true);
-        return;
-    } 
-    else if (insertResult?.success) {
-        showAlert("Species added successfully", false);
-        speciesForm.reset();
-        renderSelections();
-    } 
-    else {
-        console.log(insertResult);
-        showAlert("Something went wrong adding the species", true);
+    if(!isValidAnimalOrSpeciesName(escapedScientificName)) {
+        isValid = false;
+        console.log("escapedScientificName is invalid. escapedScientificName: " + escapedScientificName);
+    } else if(!isValidAnimalOrSpeciesName(escapedCommonName)) {
+        isValid = false;
+        console.log("escapedCommonName is invalid. escapedCommonName: " + escapedCommonName);
+    }
+
+    if(isValid) {
+        const insertResult = await runQuery(`INSERT INTO Species (ScientificName, CommonName, ConservationStatus) VALUES ('${escapedScientificName}', '${escapedCommonName}', '${escapedConservationStatus}')`);
+
+        if (insertResult?.error) {
+            console.error("Species save failed", { insertResult });
+            showAlert("Unable to save species.", true);
+            return;
+        } 
+        else if (insertResult?.success) {
+            showAlert("Species added successfully", false);
+            speciesForm.reset();
+            renderSelections();
+        } 
+        else {
+            console.log(insertResult);
+            showAlert("Something went wrong adding the species", true);
+        }
+    } else {
+        showAlert("Unable to save species. One or more of submitted names is invalid", true);
     }
 });

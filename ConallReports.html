@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Endangered Species Tracker - Conall Reports</title>
     <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/runQuery.js"></script>
 </head>
 <body>
@@ -95,42 +96,56 @@
         <p>Tables Used: Logger, Report, Species, Location</p>
 
         <div class="report-data">
-            <table id="conall-reports2" class="data-table">
-                <thead>
-                <tr>
-                    <th>Logger Name</th>
-                    <th>Contact Email</th>
-                    <th>Total Reports</th>
-                    <th>Unique Species Reported</th>
-                    <th>High Priority Reports</th>
-                    <th>Countries Covered</th>
-                </tr>
-                </thead>
-                <tbody id="conall-reports2-body"></tbody>
-            </table>
+            <canvas id="conall-reports2-chart" style="max-width: 800px; height: 500px; margin: 0 auto;"></canvas>
 
             <script>
-                function jsonGrabberTwo (rows) {
-                    const tbody = document.getElementById("conall-reports2-body");
-                    tbody.innerHTML = rows.map((row) => `
-                        <tr>
-                            <td>${row.LoggerName ?? ""}</td>
-                            <td>${row.ContactEmail ?? ""}</td>
-                            <td>${row.TotalReports ?? ""}</td>
-                            <td>${row.UniqueSpeciesReported ?? ""}</td>
-                            <td>${row.HighPriorityReports ?? ""}</td>
-                            <td>${row.CountriesCovered ?? ""}</td>
-                        </tr>
-                    `).join("");
+                let chart2Instance = null;
+
+                function renderPieChart(rows) {
+                    const ctx = document.getElementById("conall-reports2-chart").getContext("2d");
+                    
+                    const loggerNames = rows.map(row => row.LoggerName);
+                    const reportCounts = rows.map(row => row.TotalReports);
+                    
+                    chart2Instance = new Chart(ctx, {
+                        type: "pie",
+                        data: {
+                            labels: loggerNames,
+                            datasets: [{
+                                data: reportCounts,
+                                backgroundColor: [
+                                    "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF",
+                                ],
+                                borderColor: "#fff",
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: "right"
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return context.label + ": " + context.parsed + " reports";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
                 }
 
                 document.addEventListener("DOMContentLoaded", async () => {
                     const [ConallResultTwo] = await Promise.all([
-                        runQuery("SELECT CONCAT(UPPER(l.Surname), ', ', l.Forename) AS LoggerName, l.Email AS ContactEmail, COUNT(r.ReportID) AS TotalReports, COUNT(DISTINCT r.SpeciesID) AS UniqueSpeciesReported, COUNT(DISTINCT CASE WHEN s.ConservationStatus IN ('Endangered', 'Critically Endangered') THEN r.ReportID END) AS HighPriorityReports, COUNT(DISTINCT loc.Country) AS CountriesCovered FROM Logger l INNER JOIN Report r ON l.LoggerID = r.LoggerID INNER JOIN Species s ON r.SpeciesID = s.SpeciesID LEFT JOIN Location loc ON r.LocationID = loc.LocationID GROUP BY l.LoggerID, l.Surname, l.Forename, l.Email HAVING COUNT(r.ReportID) >= 1 ORDER BY TotalReports DESC, HighPriorityReports DESC, LoggerName ASC LIMIT 20;"),
+                        runQuery("SELECT CONCAT(UPPER(l.Surname), ', ', l.Forename) AS LoggerName, COUNT(r.ReportID) AS TotalReports FROM Logger l INNER JOIN Report r ON l.LoggerID = r.LoggerID GROUP BY l.LoggerID, l.Surname, l.Forename ORDER BY TotalReports DESC LIMIT 5;"),
                     ]);
 
                     if (ConallResultTwo?.success && Array.isArray(ConallResultTwo.data)) {
-                        jsonGrabberTwo(ConallResultTwo.data);
+                        renderPieChart(ConallResultTwo.data);
                     }
 
                     if (ConallResultTwo?.error) {

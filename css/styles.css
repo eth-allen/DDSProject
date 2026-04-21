@@ -85,6 +85,9 @@ body.login-page {
 
 .container {
     width: 100%;
+    max-width: 1200px; /* Standardizes the maximum width */
+    margin: 40px auto; /* Centers the container and gives top/bottom breathing room */
+    padding: 0 20px;   /* Applies uniform horizontal padding */
     flex: 1;
 }
 

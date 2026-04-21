@@ -118,6 +118,22 @@
             border-color: #2d5016;
             background-color: #f9fdf6;
         }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #2d5016;
+            background-color: #f9fdf6;
+        }
     </style>
 
 </head>
@@ -174,39 +190,42 @@
                 </select> 
             </div>
 
-            <div class="form-group">
-                <label for="tracked-animal-selection">Associate this report with a tracked animal (Optional)</label>
-                <select id="tracked-animal-selection" required>
-                    <option value="none">None</option>
-                </select> 
-            </div>
-            
-            <!--Add in radio buttons that are hidden/disabled when the previous select's value is none but required 
-            when otherwise that change the status of the selected tracked animal when the report is submitted-->
-
-            <div class="form-group-radio" id="tracked-animal-status-radio-group">
+            <div class="form-group-radio">
                 <fieldset>
-                    <legend>What is the status of the selected tracked animal?</legend>
+                    <legend>Associate this report with a tracked animal?</legend>
                     <div>
-                    <label for="alive-radio">Alive</label> 
-                    <input type="radio" id="alive-radio" name="tracked-animal-status" value="Alive" disabled>
+                    <label for="tracked-animal-yes">Yes</label>
+                    <input type="radio" id="tracked-animal-yes" name="tracked-animal-question" value="yes">
                     </div>
                     
                     <div>
-                    <label for="dead-radio">Dead</label>
-                    <input type="radio" id="dead-radio" name="tracked-animal-status" value="Dead" disabled>
-                    </div>
-                    
-                    <div>
-                    <label for="hospitalised-radio">Hospitalised</label>
-                    <input type="radio" id="hospitalised-radio" name="tracked-animal-status" value="Hospitalised" disabled>
+                    <label for="tracked-animal-no">No</label>
+                    <input type="radio" id="tracked-animal-no" name="tracked-animal-question" value="no" checked>
                     </div>
                 </fieldset>
             </div>
 
+            <div id="tracked-animal-details" style="display: none;">
+                <div class="form-group">
+                    <label for="tracked-animal-name">Animal Name</label>
+                    <input type="text" id="tracked-animal-name" placeholder="Enter animal name">
+                </div>
+
+                <div class="form-group">
+                    <label for="tracked-animal-birthday">Birthday (Optional)</label>
+                    <input type="date" id="tracked-animal-birthday">
+                </div>
+            </div>
+
             <div class="form-group">
-                <label for="evidence-file-input">Choose Evidence File</label>
-                <input type="file" id="evidence-file-input" required accept=".png, .jpeg, .jpeg, .mp3, .mp4, .doc, .docx, .txt">
+                <label for="evidence-type-selection">Choose Evidence Type</label>
+                <select id="evidence-type-selection" required>
+                    <option value="">-- Select an evidence type --</option>
+                    <option value="Photographic">Photographic</option>
+                    <option value="Audio">Audio</option>
+                    <option value="Video">Video</option>
+                    <option value="Sighting">Sighting</option>
+                </select>
             </div>
 
             <div class="form-group">
@@ -256,14 +275,11 @@
                 <label for="species-conservation-status-input">Conservation Status</label>
                 <select id="species-conservation-status-input" required>
                     <option value="">Select a status</option>
-                    <option value="Extinct">Extinct</option>
-                    <option value="Extinct in the Wild">Extinct in the Wild</option>
                     <option value="Critically Endangered">Critically Endangered</option>
                     <option value="Endangered">Endangered</option>
                     <option value="Vulnerable">Vulnerable</option>
                     <option value="Near Threatened">Near Threatened</option>
                     <option value="Least Concern">Least Concern</option>
-                    <option value="Data Deficient">Data Deficient</option>
                 </select>
             </div>
 
@@ -297,6 +313,21 @@
     if (submitTabButtons.length) {
         submitTabButtons.forEach((button) => button.addEventListener("click", () => setActiveSubmitTab(button.dataset.submitTab)));
     }
+
+    // Handle tracked animal yes/no toggle
+    const trackedAnimalRadios = document.querySelectorAll('input[name="tracked-animal-question"]');
+    const trackedAnimalDetails = document.getElementById("tracked-animal-details");
+
+    trackedAnimalRadios.forEach((radio) => {
+        radio.addEventListener("change", () => {
+            const isYes = document.querySelector('input[name="tracked-animal-question"]:checked').value === "yes";
+            trackedAnimalDetails.style.display = isYes ? "block" : "none";
+            
+            // Update the name input requirement
+            const nameInput = document.getElementById("tracked-animal-name");
+            nameInput.required = isYes;
+        });
+    });
 </script>
 
 

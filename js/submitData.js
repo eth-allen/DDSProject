@@ -81,39 +81,11 @@ reportForm.addEventListener("submit", async (event) => {
 
     const lastGivenLocation = mostRecentLocationResults.data[0]["MAX(LocationID)"];
 
-    const evidenceFileInput = document.getElementById("evidence-file-input");
-
-    const fileName = evidenceFileInput.value;
-    
-    const fileExtention = fileName.substring(fileName.lastIndexOf('.')+1, fileName.length);
-
-    let evidenceType = "Sighting";
-    switch(fileExtention) {
-        case "png" :
-        case "jpeg":
-        case "jpg":
-            evidenceType = "Photographic";
-            break;
-
-        case "mp3":
-            evidenceType = "Audio";
-            break;
-        
-        case "mp4":
-            evidenceType = "Video";
-            break;
-
-        case "doc":
-        case "docx":
-        case "txt":
-            evidenceType = "Sighting";
-            break;
-    }
-
+    const evidenceType = document.getElementById("evidence-type-selection").value;
     const evidenceDescription = document.getElementById("evidence-description-input").value.trim();
-
+    const escapedEvidenceDescription = escapeSql(evidenceDescription);
     
-    const evidenceSaveResult = await runQuery(`INSERT INTO Evidence (Filename, EvidenceType, Description) VALUES ('${fileName}', '${evidenceType}', '${evidenceDescription}');`);
+    const evidenceSaveResult = await runQuery(`INSERT INTO Evidence (EvidenceType, Description) VALUES ('${evidenceType}', '${escapedEvidenceDescription}');`);
     if (evidenceSaveResult?.error) {
         console.error("Location save failed", { evidenceSaveResult });
         alert("Unable to save evidence.");
@@ -156,15 +128,45 @@ reportForm.addEventListener("submit", async (event) => {
     const speciesID = document.getElementById("species-selection").value;
     const reportType = document.querySelector('input[name="report-type-input"]:checked').value;
     const description = document.getElementById("description-input").value;
-    const animalID = document.getElementById("tracked-animal-selection").value;
+    const isTrackedAnimal = document.querySelector('input[name="tracked-animal-question"]:checked').value === "yes";
+    
+    let animalID = null;
+    
+    if (isTrackedAnimal) {
+        const animalName = document.getElementById("tracked-animal-name").value.trim();
+        if (!animalName) {
+            alert("Please enter an animal name.");
+            return;
+        }
+        
+        const animalBirthday = document.getElementById("tracked-animal-birthday").value;
+        
+        const escapedAnimalName = escapeSql(animalName);
+        
+        const insertAnimalResult = await runQuery(`INSERT INTO Tracked_Animal (SpeciesID, Name, BirthDate, Status) VALUES (${speciesID}, '${escapedAnimalName}', ${animalBirthday ? `'${animalBirthday}'` : 'NULL'}, 'Alive')`);
+        
+        if (insertAnimalResult?.error) {
+            console.error("Animal save failed", { insertAnimalResult });
+            alert("Unable to save animal.");
+            return;
+        }
+        
+        const mostRecentAnimalResults = await runQuery(`SELECT MAX(AnimalID) FROM Tracked_Animal;`);
+        if (mostRecentAnimalResults?.error) {
+            console.error("Failed to get animal when submitting", { mostRecentAnimalResults });
+            alert("Unable to complete report submission.");
+            return;
+        }
+        
+        animalID = mostRecentAnimalResults.data[0]["MAX(AnimalID)"];
+    }
 
     console.log(`loggerID: ${loggerID}, locationID: ${locationID}, evidenceID: ${evidenceID}, reportDate: ${reportDate}, speciesID: ${speciesID}, reportType: ${reportType}, description: ${description}`);
 
-    const escapedDescription = escapeSql(description);
+    const escapedReportDescription = escapeSql(description);
 
-    if (animalID == "none") {
-        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${reportType}', '${escapedDescription}')`);
-
+    if (!animalID) {
+        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${reportType}', '${escapedReportDescription}')`);
         if (insertResult?.error) {
             console.error("Report save failed", { insertResult });
             alert("Unable to save report.");
@@ -179,7 +181,7 @@ reportForm.addEventListener("submit", async (event) => {
         }
     }
     else {
-        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, AnimalID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${animalID}', '${reportType}', '${escapedDescription}')`);
+        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, AnimalID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, ${animalID}, '${reportType}', '${escapedReportDescription}')`);
 
         if (insertResult?.error) {
             console.error("Report save failed", { insertResult });

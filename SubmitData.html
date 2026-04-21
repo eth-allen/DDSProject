@@ -206,7 +206,31 @@
                 </fieldset>
             </div>
 
-            <div id="tracked-animal-details" style="display: none;">
+            <div class="form-group-radio" style="display: none;" id="tracked-animal-details">
+                <fieldset>
+                    <legend>Is this a new tracked animal or a previously existing one?</legend>
+                    <div>
+                    <label for="tracked-animal-new">New</label>
+                    <input type="radio" id="tracked-animal-new" name="new-tracked-animal-question" value="new">
+                    </div>
+                    
+                    <div>
+                    <label for="tracked-animal-existing">Previously Existing</label>
+                    <input type="radio" id="tracked-animal-existing" name="new-tracked-animal-question" value="existing">
+                    </div>
+                </fieldset>
+            </div>
+
+            <div id="existing-tracked-animal-details" style="display: none;">
+                <div class="form-group">
+                    <label for="tracked-animal-selection">Choose a tracked animal</label>
+                    <select id="tracked-animal-selection">
+
+                    </select>
+                </div>
+            </div>
+
+            <div id="new-tracked-animal-details" style="display: none;">
                 <div class="form-group">
                     <label for="tracked-animal-name">Animal Name</label>
                     <input type="text" id="tracked-animal-name" placeholder="Enter animal name">
@@ -324,11 +348,40 @@
     trackedAnimalRadios.forEach((radio) => {
         radio.addEventListener("change", () => {
             const isYes = document.querySelector('input[name="tracked-animal-question"]:checked').value === "yes";
-            trackedAnimalDetails.style.display = isYes ? "block" : "none";
+            if (isYes) {
+                trackedAnimalDetails.style.display = "block";
+            }
+            else {
+                trackedAnimalDetails.style.display = "none";
+                newTrackedAnimalDetails.style.display = "none";
+                existingTrackedAnimalDetails.style.display = "none";
+            }
+        });
+    });
+
+    const newTrackedAnimalRadios = document.querySelectorAll('input[name="new-tracked-animal-question"]');
+
+    const newTrackedAnimalDetails = document.getElementById("new-tracked-animal-details");
+    const existingTrackedAnimalDetails = document.getElementById("existing-tracked-animal-details");
+    newTrackedAnimalRadios.forEach((radio) => {
+        radio.addEventListener("change", () => {
+            const isNew = document.querySelector('input[name="new-tracked-animal-question"]:checked').value === "new";
             
-            // Update the name input requirement
-            const nameInput = document.getElementById("tracked-animal-name");
-            nameInput.required = isYes;
+            
+            if (isNew) {
+                newTrackedAnimalDetails.style.display = "block";
+                existingTrackedAnimalDetails.style.display = "none";
+
+                const nameInput = document.getElementById("tracked-animal-name");
+                nameInput.required = isYes;
+                // Update the name input requirement
+            }
+            else {
+                newTrackedAnimalDetails.style.display = "none";
+                existingTrackedAnimalDetails.style.display = "block";
+            }
+            
+            
         });
     });
 </script>

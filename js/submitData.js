@@ -1,7 +1,3 @@
-// 1: add code that changes trackedAnimalStatusRadioGroup to hidden/visible and required/disabled based on trackedAnimalSelection
-// 2: add code that changes the status of the previously mentioned trackedAnimal when the report is submitted
-// 3: make sure dead animals don't show up in the seleciton -probably done?
-
 const reportForm = document.getElementById("report-form");
 
 function escapeSql(value) {
@@ -129,7 +125,7 @@ reportForm.addEventListener("submit", async (event) => {
     const reportType = document.querySelector('input[name="report-type-input"]:checked').value;
     const description = document.getElementById("description-input").value;
     const isTrackedAnimal = document.querySelector('input[name="tracked-animal-question"]:checked').value === "yes";
-    const isNewTrackedAnimal = document.querySelector('input[name="new-tracked-animal-question"]:checked').value === "yes";
+    const isNewTrackedAnimal = document.querySelector('input[name="new-tracked-animal-question"]:checked').value === "new";
 
     let animalID = null;
     
@@ -240,12 +236,12 @@ speciesForm.addEventListener("submit", async (event) => {
             console.error("Species save failed", { insertResult });
             showAlert("Unable to save species.", true);
             return;
-        } 
+        }
         else if (insertResult?.success) {
             showAlert("Species added successfully", false);
             speciesForm.reset();
             renderSelections();
-        } 
+        }
         else {
             console.log(insertResult);
             showAlert("Something went wrong adding the species", true);

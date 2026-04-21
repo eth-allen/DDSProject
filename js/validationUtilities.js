@@ -42,8 +42,4 @@
     
     alertBox.style.display = "block";
 
-    // Alert times out after 2 seconds
-    setTimeout(function() {
-        window.location.href = "index.html"; 
-    }, 2000);
 }

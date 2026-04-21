@@ -154,11 +154,11 @@ modifyAccountForm.addEventListener("submit", async function(event) {
         const updateResult = await runQuery(`UPDATE Logger SET Username='${escapedUsername}', Forename='${escapedForename}', Surname='${escapedSurname}', Email='${email}' WHERE Username='${currentUser}'`); // TODO: FIGURE OUT SQL UPDATE COMMAND
 
         if(updateResult?.error) {
-            alert("An error occured updating account details.");
+            showAlert("An error occured updating account details.", true);
             console.log(updateResult.error);
         }
         else if(updateResult?.success) {
-            alert("Account details successfully updated");
+            showAlert("Account details successfully updated", false);
             
             sessionStorage.setItem("loggedInUser", username); // Sets current session to new username
             
@@ -168,11 +168,11 @@ modifyAccountForm.addEventListener("submit", async function(event) {
             viewSurname.textContent = surname;
             viewEmail.textContent = email;
         } else {
-            alert("Unknown error occured updating account details");
+            showAlert("Unknown error occured updating account details", true);
             console.log(updateResult);
         }
     } else {
-        alert("Invalid inputed entered."); // Tells user their inputs invalid
+        showAlert("Invalid inputed entered.", true); // Tells user their inputs invalid
     }
 });
 
@@ -193,16 +193,19 @@ deleteAccountButton.addEventListener('click', async function() { // On click of 
 
     // Handles SQL potential errors/success/unknowbn
     if(deletionResult.error) { // If known error
-        alert("An error occured deleting your account.");
+        showAlert("An error occured deleting your account.", true);
         console.log(deletionResult.error);
 
     } else if(deletionResult.success) { // If success users login status is reset + sends them to login page
-        alert("Account deletion success");
+        showAlert("Account deletion success", false);
         sessionStorage.clear();
-        window.location.href = "index.html";
+
+        setTimeout(function() {
+            window.location.href = "index.html"; 
+        }, 1050);
 
     } else { // If unknown error
-        alert("An unknown error occured"); 
+        showAlert("An unknown error occured", true); 
         console.log(deletionResult)
     }
 });

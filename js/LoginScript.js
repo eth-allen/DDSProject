@@ -31,8 +31,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     // figure out how to reset page or something probably
                     
                 } else if (retrievedUsername.success) { 
-                    showAlert("Successful login. Directing you to the home page", false);
+                    showAlert("Successful login. Directing you to the home page...", false);
                     sessionStorage.setItem("loggedInUser", username); // Saves current logged in user to session
+
+                    // Delays before redirecting so user can see success alert
+                    setTimeout(function() {
+                        window.location.href = "HomePage.html"; 
+                    }, 1050);
+
                     window.location.href = "HomePage.html"; // Sends user to homepage
                 } else {
                     showAlert("Unknown failiure", true);

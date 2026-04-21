@@ -68,14 +68,14 @@ reportForm.addEventListener("submit", async (event) => {
     const saveResult = await runQuery(`INSERT INTO Location (Country) VALUES ('${escapedCountry}');`);
     if (saveResult?.error) {
         console.error("Location save failed", { saveResult });
-        alert("Unable to save location.");
+        showAlert("Unable to save location.", true);
         return;
     }
 
     const mostRecentLocationResults = await runQuery(`SELECT MAX(LocationID) FROM Location;`);
     if (mostRecentLocationResults?.error) {
         console.error("Failed to get location when submitting", { mostRecentLocationResults });
-        alert("Unable to complete report submission.");
+        showAlert("Unable to complete report submission.", true);
         return;
     }
 
@@ -88,14 +88,14 @@ reportForm.addEventListener("submit", async (event) => {
     const evidenceSaveResult = await runQuery(`INSERT INTO Evidence (EvidenceType, Description) VALUES ('${evidenceType}', '${escapedEvidenceDescription}');`);
     if (evidenceSaveResult?.error) {
         console.error("Location save failed", { evidenceSaveResult });
-        alert("Unable to save evidence.");
+        showAlert("Unable to save evidence.", true);
         return;
     }
 
     const mostRecentEvidenceResults = await runQuery(`SELECT MAX(EvidenceID) FROM Evidence;`);
     if (mostRecentEvidenceResults?.error) {
         console.error("Failed to get evidence when submitting", { mostRecentEvidenceResults });
-        alert("Unable to complete report submission.");
+        showAlert("Unable to complete report submission.", true);
         return;
     }
 
@@ -108,7 +108,7 @@ reportForm.addEventListener("submit", async (event) => {
 
     const loggerUsername = sessionStorage.getItem("loggedInUser");
     if (!loggerUsername) {
-        alert("You must be logged in to submit a report.");
+        showAlert("You must be logged in to submit a report.", true);
         console.log("Logged in user value: ", sessionStorage.getItem("loggedInUser"))
         return;
     }
@@ -117,7 +117,7 @@ reportForm.addEventListener("submit", async (event) => {
     const loggerIDQueryResult = await runQuery(`SELECT LoggerID, Username FROM Logger WHERE Username = '${escapedUsername}'`);
     if (loggerIDQueryResult?.error || !loggerIDQueryResult?.success || !Array.isArray(loggerIDQueryResult.data) || loggerIDQueryResult.data.length === 0) {
         console.error("Failed to get user id when submitting", { loggerIDQueryResult });
-        alert("Unable to find your account details.");
+        showAlert("Unable to find your account details.", true);
         return;
     }
 
@@ -135,7 +135,7 @@ reportForm.addEventListener("submit", async (event) => {
     if (isTrackedAnimal) {
         const animalName = document.getElementById("tracked-animal-name").value.trim();
         if (!animalName) {
-            alert("Please enter an animal name.");
+            showAlert("Please enter an animal name.", true);
             return;
         }
         
@@ -147,14 +147,14 @@ reportForm.addEventListener("submit", async (event) => {
         
         if (insertAnimalResult?.error) {
             console.error("Animal save failed", { insertAnimalResult });
-            alert("Unable to save animal.");
+            showAlert("Unable to save animal.", true);
             return;
         }
         
         const mostRecentAnimalResults = await runQuery(`SELECT MAX(AnimalID) FROM Tracked_Animal;`);
         if (mostRecentAnimalResults?.error) {
             console.error("Failed to get animal when submitting", { mostRecentAnimalResults });
-            alert("Unable to complete report submission.");
+            showAlert("Unable to complete report submission.", true);
             return;
         }
         
@@ -169,15 +169,15 @@ reportForm.addEventListener("submit", async (event) => {
         const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${reportType}', '${escapedReportDescription}')`);
         if (insertResult?.error) {
             console.error("Report save failed", { insertResult });
-            alert("Unable to save report.");
+            showAlert("Unable to save report.", true);
             return;
         } 
         else if (insertResult?.success) {
-            alert("Report submitted successfully");
+            showAlert("Report submitted successfully", false);
         } 
         else {
             console.log(insertResult);
-            alert("Something went wrong submitting the report");
+            showAlert("Something went wrong submitting the report", true);
         }
     }
     else {
@@ -185,15 +185,15 @@ reportForm.addEventListener("submit", async (event) => {
 
         if (insertResult?.error) {
             console.error("Report save failed", { insertResult });
-            alert("Unable to save report.");
+            showAlert("Unable to save report.", true);
             return;
         } 
         else if (insertResult?.success) {
-            alert("Report submitted successfully");
+            showAlert("Report submitted successfully", false);
         } 
         else {
             console.log(insertResult);
-            alert("Something went wrong submitting the report");
+            showAlert("Something went wrong submitting the report", true);
         }
     }
 
@@ -219,16 +219,16 @@ speciesForm.addEventListener("submit", async (event) => {
 
     if (insertResult?.error) {
         console.error("Species save failed", { insertResult });
-        alert("Unable to save species.");
+        showAlert("Unable to save species.", true);
         return;
     } 
     else if (insertResult?.success) {
-        alert("Species added successfully");
+        showAlert("Species added successfully", false);
         speciesForm.reset();
         renderSelections();
     } 
     else {
         console.log(insertResult);
-        alert("Something went wrong adding the species");
+        showAlert("Something went wrong adding the species", true);
     }
 });

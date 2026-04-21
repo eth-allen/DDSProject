@@ -423,7 +423,7 @@ function bindTableActions(key) {
         if (btn.dataset.action === "delete" && confirm(`Delete ${cfg.label} ID ${id}?`)) {
             const result = await cfg.onDelete(id);
             if (!result?.success) {
-                alert(result?.error || `Unable to delete ${cfg.label}.`);
+                showAlert(result?.error || `Unable to delete ${cfg.label}.`, true);
                 return;
             }
             await renderTables();
@@ -441,13 +441,13 @@ function bindEditForm(key) {
 
         const outcome = editHandlers[key].submit();
         if (!outcome.ok) {
-            alert(outcome.msg);
+            showAlert(outcome.msg, true);
             return;
         }
 
         const result = await runQuery(outcome.query);
         if (!result?.success) {
-            alert(result?.error || outcome.err);
+            showAlert(result?.error || outcome.err, true);
             return;
         }
 

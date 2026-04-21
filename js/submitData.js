@@ -129,36 +129,42 @@ reportForm.addEventListener("submit", async (event) => {
     const reportType = document.querySelector('input[name="report-type-input"]:checked').value;
     const description = document.getElementById("description-input").value;
     const isTrackedAnimal = document.querySelector('input[name="tracked-animal-question"]:checked').value === "yes";
-    
+    const isNewTrackedAnimal = document.querySelector('input[name="new-tracked-animal-question"]:checked').value === "yes";
+
     let animalID = null;
     
     if (isTrackedAnimal) {
-        const animalName = document.getElementById("tracked-animal-name").value.trim();
-        if (!animalName || !isValidAnimalOrSpeciesName(animalName)) {
-            showAlert("Please enter a valid animal name.", true);
-            return;
+        if (isNewTrackedAnimal) {
+            const animalName = document.getElementById("tracked-animal-name").value.trim();
+            if (!animalName || !isValidAnimalOrSpeciesName(animalName)) {
+                showAlert("Please enter a valid animal name.", true);
+                return;
+            }
+            
+            const animalBirthday = document.getElementById("tracked-animal-birthday").value;
+            
+            const escapedAnimalName = escapeSql(animalName);
+            
+            const insertAnimalResult = await runQuery(`INSERT INTO Tracked_Animal (SpeciesID, Name, BirthDate, Status) VALUES (${speciesID}, '${escapedAnimalName}', ${animalBirthday ? `'${animalBirthday}'` : 'NULL'}, 'Alive')`);
+            
+            if (insertAnimalResult?.error) {
+                console.error("Animal save failed", { insertAnimalResult });
+                showAlert("Unable to save animal.", true);
+                return;
+            }
+            
+            const mostRecentAnimalResults = await runQuery(`SELECT MAX(AnimalID) FROM Tracked_Animal;`);
+            if (mostRecentAnimalResults?.error) {
+                console.error("Failed to get animal when submitting", { mostRecentAnimalResults });
+                showAlert("Unable to complete report submission.", true);
+                return;
+            }
+            
+            animalID = mostRecentAnimalResults.data[0]["MAX(AnimalID)"];
         }
-        
-        const animalBirthday = document.getElementById("tracked-animal-birthday").value;
-        
-        const escapedAnimalName = escapeSql(animalName);
-        
-        const insertAnimalResult = await runQuery(`INSERT INTO Tracked_Animal (SpeciesID, Name, BirthDate, Status) VALUES (${speciesID}, '${escapedAnimalName}', ${animalBirthday ? `'${animalBirthday}'` : 'NULL'}, 'Alive')`);
-        
-        if (insertAnimalResult?.error) {
-            console.error("Animal save failed", { insertAnimalResult });
-            showAlert("Unable to save animal.", true);
-            return;
+        else {
+            animalID = document.getElementById("tracked-animal-selection").value;
         }
-        
-        const mostRecentAnimalResults = await runQuery(`SELECT MAX(AnimalID) FROM Tracked_Animal;`);
-        if (mostRecentAnimalResults?.error) {
-            console.error("Failed to get animal when submitting", { mostRecentAnimalResults });
-            showAlert("Unable to complete report submission.", true);
-            return;
-        }
-        
-        animalID = mostRecentAnimalResults.data[0]["MAX(AnimalID)"];
     }
 
     console.log(`loggerID: ${loggerID}, locationID: ${locationID}, evidenceID: ${evidenceID}, reportDate: ${reportDate}, speciesID: ${speciesID}, reportType: ${reportType}, description: ${description}`);

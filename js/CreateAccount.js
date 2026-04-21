@@ -91,11 +91,11 @@ loginForm.addEventListener("submit", async function(event) {
         //If theres an error with sql query
         if (insertResult?.error) {
             console.error("Data load error", {insertResult});
-            alert("An error occured. Account creation unsuccessful")
+            showAlert("An error occured. Account creation unsuccessful", true)
         }
         // Else direct user to homepage logged in (or login page if thats too hard)
         else { 
-            alert("Account created successfully, directing you to login page"); // probably better less intrusvie way of doing this like through html editing     
+            showAlert("Account created successfully, directing you to login page", false); // probably better less intrusvie way of doing this like through html editing     
             console.log("Account created with username: " + escapedUsername + "forename: " + escapedForename + "surname: " + escapedSurname + "email: " + escapedEmail)
             window.location.href = "index.html"; 
         }
@@ -103,6 +103,6 @@ loginForm.addEventListener("submit", async function(event) {
     else {
         // If anything in form was invalid (isValid is false)
         console.log("Form validation failed (isValid is false)");
-        alert("Invalid form data entered."); // Probably better less intrusvie way of doing this like through html editing 
+        showAlert("Invalid form data entered.", true); // Probably better less intrusvie way of doing this like through html editing 
     }
 }); // } + ) is normal because of how event listener works 

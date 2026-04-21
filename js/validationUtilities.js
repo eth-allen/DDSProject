@@ -28,4 +28,22 @@
         } else { return true; }
     }
 
-    // ----------- 
+    // ----------- VISUAL ALERT BOX ----------------
+    function showAlert(alertText, isError) {
+
+    var alertBox = document.getElementById("alertBox");
+    alertBox.textContent = alertText;
+    
+    if (isError == true) { // If error the class is set to CSS error alert to change its colour
+        alertBox.className = "error-alert";
+    } else { // Otherwsie success alert
+        alertBox.className = "success-alert";
+    }
+    
+    alertBox.style.display = "block";
+
+    // Alert times out after 2 seconds
+    setTimeout(function() {
+        window.location.href = "index.html"; 
+    }, 2000);
+}

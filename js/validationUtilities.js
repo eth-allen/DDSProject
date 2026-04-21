@@ -54,6 +54,7 @@ function showAlert(alertText, isError) {
     }
     
     alertBox.style.display = "block";
+    alertBox.style.zIndex = "9999"; // makes it sit at very front of page, so isnt broken for viewTables
 
     setTimeout(function() {
         alertBox.style.display = "none"; // hides box

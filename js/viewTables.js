@@ -275,6 +275,11 @@ const renderTables = async () => {
 const editHandlers = {
     logger: {
         open: (id, row) => {
+            // Resets error/invalid ui on open
+            fields.logger.forename.style.border = "";
+            fields.logger.surname.style.border = "";
+            fields.logger.email.style.border = "";
+
             editingState.key = "logger";
             editingState.id = Number(id);
             fields.logger.forename.value = row.Forename ?? "";
@@ -283,10 +288,34 @@ const editHandlers = {
             openEditModal(`Edit Logger #${id}`, "logger");
         },
         submit: () => {
+            // Resets error/invalid ui on submit
+            fields.logger.forename.style.border = "";
+            fields.logger.surname.style.border = "";
+            fields.logger.email.style.border = "";
+
             const forename = fields.logger.forename.value.trim();
             const surname = fields.logger.surname.value.trim();
             const email = fields.logger.email.value.trim();
             if (!forename || !surname || !email) return { ok: false, msg: "Please fill all Logger fields." };
+
+            // Fully validates all entered login details to same validation as create account + returns visual feedback
+            let isValid = true;
+
+            if (!isValidName(forename)) {
+                isValid = false;
+                fields.logger.forename.style.border = "2px solid red";
+            }
+            if (!isValidName(surname)) {
+                isValid = false;
+                fields.logger.surname.style.border = "2px solid red";
+            }
+            if (!isValidEmail(email)) {
+                isValid = false;
+                fields.logger.email.style.border = "2px solid red";
+            }
+
+            if(!isValid) return { ok: false, msg: "One or more inputs entered are invalid" }
+            
             return { ok: true, query: `UPDATE Logger SET Forename = '${escapeSql(forename)}', Surname = '${escapeSql(surname)}', Email = '${escapeSql(email)}' WHERE LoggerID = ${editingState.id}`, err: "Unable to update Logger." };
         }
     },

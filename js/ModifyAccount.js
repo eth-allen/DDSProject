@@ -115,6 +115,18 @@ modifyAccountForm.addEventListener("submit", async function(event) {
     const surname = formData.get("entered-surname")
     const email = formData.get("entered-email")
 
+    enteredUsernameBox.style.border = "";
+    usernameConditions.style.color = "";
+
+    enteredForenameBox.style.border = "";
+    forenameConditions.style.color = "";
+
+    enteredSurnameBox.style.border = "";
+    surnameConditions.style.color = "";
+
+    enteredEmailBox.style.border = "";
+    emailConditions.style.color = "";
+
     // ---------- VALIDATION OF USER INPUT ------------ //
 
     let isValid = true;
@@ -171,6 +183,18 @@ modifyAccountForm.addEventListener("submit", async function(event) {
             showAlert("Unknown error occured updating account details", true);
             console.log(updateResult);
         }
+        enteredUsernameBox.style.border = "";
+        usernameConditions.style.color = "";
+
+        enteredForenameBox.style.border = "";
+        forenameConditions.style.color = "";
+
+        enteredSurnameBox.style.border = "";
+        surnameConditions.style.color = "";
+
+        enteredEmailBox.style.border = "";
+        emailConditions.style.color = "";
+
     } else {
         showAlert("Invalid inputed entered.", true); // Tells user their inputs invalid
     }

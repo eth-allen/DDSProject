@@ -258,7 +258,7 @@ function renderRows(key, rows) {
     renderTableBody(cfg.body, rows, (row) => {
         const cellsHtml = cfg.cells(row).map((value) => `<td>${escapeHtml(value)}</td>`).join("");
         const id = escapeHtml(row[cfg.idKey]);
-        return `<tr>${cellsHtml}<td><button type="button" data-action="edit" data-id="${id}">Edit</button><button type="button" data-action="delete" data-id="${id}">Delete</button></td></tr>`;
+        return `<tr>${cellsHtml}<td><button class="table-button" type="button" data-action="edit" data-id="${id}">Edit</button><button class="table-button" type="button" data-action="delete" data-id="${id}">Delete</button></td></tr>`;
     }, cfg.emptyColspan);
 }
 

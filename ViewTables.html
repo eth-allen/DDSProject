@@ -181,7 +181,13 @@
             <section id="evidence-edit-section" class="edit-modal-section">
                 <form id="evidence-edit-form">
                     <label for="edit-evidence-type-input">Type</label>
-                    <input type="text" id="edit-evidence-type-input" required><br>
+                    <select id="edit-evidence-type-input" required>
+                        <option value="" disabled selected>Select evidence type</option>
+                        <option value="Photographic">Photographic</option>
+                        <option value="Audio">Audio</option>
+                        <option value="Video">Video</option>
+                        <option value="Sighting">Sighting</option>
+                    </select><br>
 
                     <label for="edit-evidence-desc-input">Description</label>
                     <input type="text" id="edit-evidence-desc-input" required><br>
@@ -276,8 +282,8 @@
     <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
 </footer>
 
+<script src="js/validationUtilities.js"></script>
 <script src="js/runQuery.js"></script>
 <script src="js/viewTables.js"></script>
-<script src="js/validationUtilities.js"></script>
 </body>
 </html>

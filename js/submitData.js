@@ -125,11 +125,12 @@ reportForm.addEventListener("submit", async (event) => {
     const reportType = document.querySelector('input[name="report-type-input"]:checked').value;
     const description = document.getElementById("description-input").value;
     const isTrackedAnimal = document.querySelector('input[name="tracked-animal-question"]:checked').value === "yes";
-    const isNewTrackedAnimal = document.querySelector('input[name="new-tracked-animal-question"]:checked').value === "new";
-
+    
     let animalID = null;
     
     if (isTrackedAnimal) {
+        const isNewTrackedAnimal = document.querySelector('input[name="new-tracked-animal-question"]:checked').value === "new";
+
         if (isNewTrackedAnimal) {
             const animalName = document.getElementById("tracked-animal-name").value.trim();
             if (!animalName || !isValidAnimalOrSpeciesName(animalName)) {

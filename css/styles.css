@@ -179,9 +179,11 @@ body.login-page {
 /* ===== INFO CARDS ===== */
 .info-section {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
     gap: 25px;
-    margin-bottom: 50px;
+    padding: 0 20px; 
+    max-width: 1050px; 
+    margin: 0 auto 50px auto; 
 }
 
 .info-card {

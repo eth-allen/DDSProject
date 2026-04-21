@@ -211,25 +211,40 @@ const speciesForm = document.getElementById("species-form");
 speciesForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    const scientificName = document.getElementById("species-scientific-name-input").value.trim();
-    const commonName = document.getElementById("species-common-name-input").value.trim();
-    const conservationStatus = document.getElementById("species-conservation-status-input").value;
+    const scientificNameInput = document.getElementById("species-scientific-name-input"); 
+    const commonNameInput = document.getElementById("species-common-name-input"); 
+    const scientificNameConstraints = document.getElementById("scientificNameConstraints"); 
+    const commonNameConstraints = document.getElementById("commonNameConstraints"); 
 
+    const scientificName = scientificNameInput.value.trim();
+    const commonName = commonNameInput.value.trim();
+    const conservationStatus = document.getElementById("species-conservation-status-input").value;
+    
     const escapedScientificName = escapeSql(scientificName);
     const escapedCommonName = escapeSql(commonName);
     const escapedConservationStatus = escapeSql(conservationStatus);
-
+    
+    commonNameInput.style.border = "";
+    scientificNameInput.style.border = "";
+    scientificNameConstraints.style.color = ""; 
+    commonNameConstraints.style.color = "";     
+    
     // Actually validates the users input 
     var isValid = true;
 
     if(!isValidAnimalOrSpeciesName(escapedScientificName)) {
         isValid = false;
         console.log("escapedScientificName is invalid. escapedScientificName: " + escapedScientificName);
-    } else if(!isValidAnimalOrSpeciesName(escapedCommonName)) {
+        scientificNameInput.style.border = "2px solid red";
+        scientificNameConstraints.style.color = "red";
+    }
+    
+    if(!isValidAnimalOrSpeciesName(escapedCommonName)) {
         isValid = false;
         console.log("escapedCommonName is invalid. escapedCommonName: " + escapedCommonName);
+        commonNameInput.style.border = "2px solid red"; 
+        commonNameConstraints.style.color = "red";
     }
-
     if(isValid) {
         const insertResult = await runQuery(`INSERT INTO Species (ScientificName, CommonName, ConservationStatus) VALUES ('${escapedScientificName}', '${escapedCommonName}', '${escapedConservationStatus}')`);
 

@@ -5,6 +5,7 @@
 const usernameRegex = /^[^<>&"'\s]+$/ // banned special character list (<, >, &, ", ' and whitespace))
 const namesRegex = /^[a-zA-Z\-']+$/; // allowed char list for forename/surname (a to z and A to Z + hypons and '), +$ makes it check entire word/input
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // looked up email regex list which should do fairly simple validation on emails 
+const animalNameRegex = /^[a-zA-Z\-' ]+$/;
 
 // --- USERNAME VALIDATION: (Check lengths not < 1 and > 32, no spaces and no special characters &lt;, &gt;, &amp;, &quot;, &#39;)
 // Tests if username fails any validation criteria
@@ -29,7 +30,6 @@ function isValidEmail(email) {
 }
 
 // --- ANIMAL NAME VALIDATION
-const animalNameRegex = /^[a-zA-Z\-' ]+$/;
 
 // Tests if the species or animal name fails length or regex
 function isValidAnimalOrSpeciesName(name) {
@@ -53,11 +53,11 @@ function showAlert(alertText, isError) {
         alertBox.className = "success-alert";
     }
     
-    alertBox.style.display = "block";
+    alertBox.style.display = "block"; // makes box visible and take up its whole div element
     alertBox.style.zIndex = "9999"; // makes it sit at very front of page, so isnt broken for viewTables
 
     setTimeout(function() {
-        alertBox.style.display = "none"; // hides box
+        alertBox.style.display = "none"; // hides alert completely
         alertBox.textContent = ""; 
     }, 3500);
 }

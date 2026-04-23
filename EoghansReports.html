@@ -13,7 +13,12 @@
             margin:15px;
         }
         #doughnut-chart-div {
-            width: 50%;
+            width:50%;
+        }
+        #doughnut-chart-div-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
@@ -54,13 +59,16 @@
 
         
         
-        <div>
+        <div id="report2-container">
             <h2>Report 2</h2>
             <p>The business question this report answers is how does the distrubution of evidence types change based on the report type. Examining this data could be used to create new methods of finding and prosecuting poachers in the future. This doughnut chart specifically shows the distribution for reports of poaching.</p>
-            <div class="chart-container" id="doughnut-chart-div">
-            <canvas id="chart2">
-                <p>alt fallback text?</p>
-            </canvas>
+            
+            <div id="doughnut-chart-div-container"> <!--these divs are for centering and resizing the chart-->
+                <div class="chart-container" id="doughnut-chart-div">
+                <canvas id="chart2">
+                    <p>alt fallback text?</p>
+                </canvas>
+                </div>
             </div>
         </div>
 
@@ -114,7 +122,7 @@
     function createDoughnutChart(evidenceTypes, evidenceTypeAmounts) {
         const ctx = document.getElementById('chart2');
 
-        new Chart(ctx, {
+        const chart = new Chart(ctx, {
             type: 'doughnut',
             data: {
             labels: evidenceTypes, 
@@ -124,7 +132,6 @@
             }]
             },
             options: {
-                
             }
         });
     }

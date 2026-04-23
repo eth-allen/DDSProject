@@ -1,756 +1,256 @@
-// Cache all DOM references once so tab switching, table rendering, and edit dialogs do not repeatedly query the page.
 const byId = (id) => document.getElementById(id);
 
-const tableBodyByKey = {
-    logger: byId("logger-table-body"),
-    location: byId("location-table-body"),
-    evidence: byId("evidence-table-body"),
-    species: byId("species-table-body"),
-    report: byId("reports-table-body"),
-    trackedAnimal: byId("tracked-animals-table-body")
+// Global state for tracking active edits
+let activeEditTable = null;
+let activeEditId = null;
+
+// Local cache for database records
+const tableCache = {
+    logger: [], location: [], evidence: [],
+    species: [], report: [], trackedAnimal: []
 };
 
-const tablePanelByTab = {
-    loggers: document.querySelector('[data-table-panel="loggers"]'),
-    locations: document.querySelector('[data-table-panel="locations"]'),
-    evidence: document.querySelector('[data-table-panel="evidence"]'),
-    species: document.querySelector('[data-table-panel="species"]'),
-    reports: document.querySelector('[data-table-panel="reports"]'),
-    "tracked-animals": document.querySelector('[data-table-panel="tracked-animals"]')
+// Table configuration mapping
+const tableConfigs = {
+    logger: { idKey: "LoggerID", bodyId: "logger-table-body", sqlTable: "Logger", columns: 5, getQuery: "SELECT * FROM Logger ORDER BY LoggerID" },
+    location: { idKey: "LocationID", bodyId: "location-table-body", sqlTable: "Location", columns: 3, getQuery: "SELECT * FROM Location ORDER BY LocationID" },
+    evidence: { idKey: "EvidenceID", bodyId: "evidence-table-body", sqlTable: "Evidence", columns: 4, getQuery: "SELECT * FROM Evidence ORDER BY EvidenceID" },
+    species: { idKey: "SpeciesID", bodyId: "species-table-body", sqlTable: "Species", columns: 5, getQuery: "SELECT * FROM Species ORDER BY SpeciesID" },
+    report: { idKey: "ReportID", bodyId: "reports-table-body", sqlTable: "Report", columns: 9, getQuery: "SELECT * FROM Report ORDER BY ReportID" },
+    trackedAnimal: { idKey: "AnimalID", bodyId: "tracked-animals-table-body", sqlTable: "Tracked_Animal", columns: 6, getQuery: "SELECT * FROM Tracked_Animal ORDER BY AnimalID" }
 };
 
-const tableTabButtons = [...document.querySelectorAll("[data-table-tab]")];
+// --- Error Handling & Utilities ---
 
-const editPane = {
-    root: byId("edit-pane"),
-    title: byId("edit-pane-title"),
-    close: byId("edit-pane-close"),
-    sections: {
-        logger: byId("logger-edit-section"),
-        location: byId("location-edit-section"),
-        evidence: byId("evidence-edit-section"),
-        species: byId("species-edit-section"),
-        report: byId("report-edit-section"),
-        trackedAnimal: byId("tracked-animals-edit-section")
+/**
+ * Converts technical MySQL errors into user-friendly messages.
+ */
+function getFriendlyErrorMessage(rawError) {
+    const errorText = String(rawError).toLowerCase();
+
+    if (errorText.includes("cannot be empty")) {
+        return "Update failed: No data was sent to the server. Please try again.";
     }
-};
-
-const editFormByKey = {
-    logger: byId("logger-edit-form"),
-    location: byId("location-edit-form"),
-    evidence: byId("evidence-edit-form"),
-    species: byId("species-edit-form"),
-    report: byId("report-edit-form"),
-    trackedAnimal: byId("tracked-animals-edit-form")
-};
-
-const cancelEditButtons = [
-    byId("logger-edit-cancel"),
-    byId("location-edit-cancel"),
-    byId("evidence-edit-cancel"),
-    byId("species-edit-cancel"),
-    byId("report-edit-cancel"),
-    byId("tracked-animals-edit-cancel")
-].filter(Boolean);
-
-const editFieldByTable = {
-    logger: {
-        forename: byId("edit-forename-input"),
-        surname: byId("edit-surname-input"),
-        email: byId("edit-email-input")
-    },
-    location: { country: byId("edit-country-input") },
-    evidence: {
-        type: byId("edit-evidence-type-input"),
-        description: byId("edit-evidence-desc-input")
-    },
-    species: {
-        scientificName: byId("edit-species-scientific-name-input"),
-        commonName: byId("edit-species-name-input"),
-        conservationStatus: byId("edit-species-status-input")
-    },
-    report: {
-        loggerId: byId("edit-report-logger-id-input"),
-        locationId: byId("edit-report-location-id-input"),
-        evidenceId: byId("edit-report-evidence-id-input"),
-        date: byId("edit-report-date-input"),
-        speciesId: byId("edit-report-species-id-input"),
-        type: byId("edit-report-type-input"),
-        description: byId("edit-report-description-input")
-    },
-    trackedAnimal: {
-        name: byId("edit-tracked-animals-name-input"),
-        speciesId: byId("edit-tracked-animals-species-id-input"),
-        birthDate: byId("edit-tracked-animals-birth-date-input"),
-        status: byId("edit-tracked-animals-status-input")
+    if (errorText.includes("foreign key constraint fails")) {
+        return "Cannot delete or change: This record is linked to other data in the system.";
     }
-};
-
-const cachedRowsByTable = {
-    logger: [],
-    location: [],
-    evidence: [],
-    species: [],
-    report: [],
-    trackedAnimal: []
-};
-
-const activeEdit = { key: null, id: null };
-const hasAnyTableBody = Object.values(tableBodyByKey).some(Boolean);
-const hasEditPane = Boolean(editPane.root && editPane.title && editPane.close);
-
-const escapeHtml = (value) => String(value)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-
-const escapeSql = (value) => String(value).replace(/'/g, "''");
-const isPositiveIntegerText = (value) => /^\d+$/.test(String(value));
-const toDateInputValue = (value) => (value ? String(value).slice(0, 10) : "");
-
-function findRowById(rows, idKey, id) {
-    return rows.find((row) => String(row[idKey]) === String(id));
-}
-
-function setActiveEdit(tableKey, id) {
-    activeEdit.key = tableKey;
-    activeEdit.id = Number(id);
-}
-
-// Shared text validation keeps name-style fields consistent across every edit form.
-function validateNoNumberName(value, label) {
-    if (!value) return `${label} is required`;
-    if (!isValidAnimalOrSpeciesName(value)) {
-        return `${label}: letters, spaces, hyphens, and apostrophes only (no numbers)`;
+    if (errorText.includes("duplicate entry")) {
+        return "Update failed: This information is already registered.";
     }
-    return null;
+
+    return "An unexpected error occurred while saving. Please try again.";
 }
 
-function clearInputBorders(...inputs) {
-    inputs.filter(Boolean).forEach((input) => {
-        input.style.border = "";
-    });
+function showError(msg) {
+    const friendlyMsg = getFriendlyErrorMessage(msg);
+    if (typeof showAlert === "function") {
+        showAlert(friendlyMsg, true);
+    } else {
+        alert(friendlyMsg);
+    }
 }
 
-function addValidationError(input, message, validationErrors) {
-    if (input) input.style.border = "2px solid red";
-    validationErrors.push(message);
+function escapeHtml(text) {
+    if (!text) return "";
+    return String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
-function getValidationFailure(validationErrors) {
-    return validationErrors.length > 0 ? { ok: false, msg: validationErrors.join(" | ") } : null;
+function escapeSql(text) {
+    return String(text).replace(/'/g, "''");
 }
 
-// Tab handling shows one panel at a time and keeps ARIA state in sync for keyboard and screen-reader users.
-function setActiveTableTab(tabName) {
-    Object.entries(tablePanelByTab).forEach(([panelName, panel]) => {
-        panel?.classList.toggle("is-active", panelName === tabName);
-    });
-
-    tableTabButtons.forEach((button) => {
-        const isActive = button.dataset.tableTab === tabName;
-        button.classList.toggle("is-active", isActive);
-        button.setAttribute("aria-selected", String(isActive));
-        button.tabIndex = isActive ? 0 : -1;
-    });
+function clearValidationEffects() {
+    const inputs = document.querySelectorAll('.edit-pane-section input, .edit-pane-section select');
+    inputs.forEach(input => { input.style.border = ""; });
 }
 
-// Pane opening swaps the visible form section, updates the title, and marks the panel as active.
-function openEditPane(title, sectionKey) {
-    if (!hasEditPane || !editPane.sections[sectionKey]) return;
-
-    Object.values(editPane.sections).forEach((section) => {
-        section?.classList.remove("is-active");
-    });
-
-    editPane.sections[sectionKey].classList.add("is-active");
-    editPane.title.textContent = title;
-    editPane.root.classList.add("is-open");
-    editPane.root.setAttribute("aria-hidden", "false");
+function applyHighlight(id, isError) {
+    const el = byId(id);
+    if (el) el.style.border = isError ? "2px solid red" : "";
 }
 
-// Closing the pane also clears the active record so stale edits do not leak into the next update.
+// --- Data Management ---
+
+async function refreshAllTables() {
+    for (const key in tableConfigs) {
+        const config = tableConfigs[key];
+        const result = await runQuery(config.getQuery);
+        if (result && result.success) {
+            tableCache[key] = result.data;
+            renderRows(key, result.data);
+        }
+    }
+}
+
+function renderRows(tableKey, data) {
+    const config = tableConfigs[tableKey];
+    const tbody = byId(config.bodyId);
+    if (!tbody) return;
+
+    if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="${config.columns}">No records found.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = data.map(row => {
+        let cells = "";
+        if (tableKey === 'logger') cells = `<td>${row.LoggerID}</td><td>${escapeHtml(row.Forename)}</td><td>${escapeHtml(row.Surname)}</td><td>${escapeHtml(row.Email)}</td>`;
+        else if (tableKey === 'location') cells = `<td>${row.LocationID}</td><td>${escapeHtml(row.Country)}</td>`;
+        else if (tableKey === 'evidence') cells = `<td>${row.EvidenceID}</td><td>${row.EvidenceType}</td><td>${escapeHtml(row.Description)}</td>`;
+        else if (tableKey === 'species') cells = `<td>${row.SpeciesID}</td><td>${escapeHtml(row.ScientificName)}</td><td>${escapeHtml(row.CommonName)}</td><td>${row.ConservationStatus}</td>`;
+        else if (tableKey === 'report') cells = `<td>${row.ReportID}</td><td>${row.LoggerID}</td><td>${row.LocationID}</td><td>${row.EvidenceID}</td><td>${row.ReportDate}</td><td>${row.SpeciesID}</td><td>${escapeHtml(row.ReportType)}</td><td>${escapeHtml(row.ReportDescription)}</td>`;
+        else if (tableKey === 'trackedAnimal') cells = `<td>${row.AnimalID}</td><td>${escapeHtml(row.Name || "N/A")}</td><td>${row.SpeciesID}</td><td>${row.BirthDate}</td><td>${row.Status}</td>`;
+
+        const id = row[config.idKey];
+        return `<tr>${cells}<td>
+            <button class="table-button" onclick="handleEditClick('${tableKey}', ${id})">Edit</button>
+            <button class="table-button" onclick="handleDeleteClick('${tableKey}', ${id})">Delete</button>
+        </td></tr>`;
+    }).join('');
+}
+
+// --- Interaction Logic ---
+
+function handleEditClick(tableKey, id) {
+    activeEditTable = tableKey;
+    activeEditId = id;
+    const row = tableCache[tableKey].find(r => r[tableConfigs[tableKey].idKey] == id);
+    if (!row) return;
+
+    let sectionId = "";
+    if (tableKey === 'logger') {
+        byId("edit-forename-input").value = row.Forename;
+        byId("edit-surname-input").value = row.Surname;
+        byId("edit-email-input").value = row.Email;
+        sectionId = "logger-edit-section";
+    } else if (tableKey === 'location') {
+        byId("edit-country-input").value = row.Country;
+        sectionId = "location-edit-section";
+    } else if (tableKey === 'evidence') {
+        byId("edit-evidence-type-input").value = row.EvidenceType;
+        byId("edit-evidence-desc-input").value = row.Description;
+        sectionId = "evidence-edit-section";
+    } else if (tableKey === 'species') {
+        byId("edit-species-scientific-name-input").value = row.ScientificName;
+        byId("edit-species-name-input").value = row.CommonName;
+        byId("edit-species-status-input").value = row.ConservationStatus;
+        sectionId = "species-edit-section";
+    } else if (tableKey === 'report') {
+        byId("edit-report-logger-id-input").value = row.LoggerID;
+        byId("edit-report-location-id-input").value = row.LocationID;
+        byId("edit-report-evidence-id-input").value = row.EvidenceID;
+        byId("edit-report-date-input").value = row.ReportDate.split(' ')[0];
+        byId("edit-report-species-id-input").value = row.SpeciesID;
+        byId("edit-report-type-input").value = row.ReportType;
+        byId("edit-report-description-input").value = row.ReportDescription;
+        sectionId = "report-edit-section";
+    } else if (tableKey === 'trackedAnimal') {
+        byId("edit-tracked-animals-name-input").value = row.Name || "";
+        byId("edit-tracked-animals-species-id-input").value = row.SpeciesID;
+        byId("edit-tracked-animals-birth-date-input").value = row.BirthDate.split(' ')[0];
+        byId("edit-tracked-animals-status-input").value = row.Status;
+        sectionId = "tracked-animals-edit-section";
+    }
+
+    if (sectionId) openEditPane("Edit Record", sectionId);
+}
+
+function openEditPane(title, sectionId) {
+    byId("edit-pane-title").textContent = title;
+    clearValidationEffects();
+    document.querySelectorAll(".edit-pane-section").forEach(sec => sec.classList.remove("is-active"));
+    byId(sectionId).classList.add("is-active");
+    byId("edit-pane").classList.add("is-open");
+    byId("edit-pane").setAttribute("aria-hidden", "false");
+}
+
 function closeEditPane() {
-    activeEdit.key = null;
-    activeEdit.id = null;
-    if (!hasEditPane) return;
-
-    editPane.root.classList.remove("is-open");
-    editPane.root.setAttribute("aria-hidden", "true");
-    Object.values(editPane.sections).forEach((section) => {
-        section?.classList.remove("is-active");
-    });
+    byId("edit-pane").classList.remove("is-open");
+    byId("edit-pane").setAttribute("aria-hidden", "true");
 }
 
-function renderTableBody(tableBody, rows, rowRenderer, emptyColspan) {
-    if (!tableBody) return;
-
-    tableBody.innerHTML = Array.isArray(rows) && rows.length
-        ? rows.map(rowRenderer).join("")
-        : `<tr><td colspan="${emptyColspan}">No records found.</td></tr>`;
+async function handleDeleteClick(tableKey, id) {
+    const config = tableConfigs[tableKey];
+    if (!confirm(`Are you sure you want to delete ID ${id}?`)) return;
+    const result = await runQuery(`DELETE FROM ${config.sqlTable} WHERE ${config.idKey} = ${id}`);
+    if (result.success) refreshAllTables();
+    else showError(result.error);
 }
 
-async function runQueryChecked(query) {
+// --- Form Submission Logic for ALL tables ---
+
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    clearValidationEffects();
+    let query = "";
+
+    if (activeEditTable === 'logger') {
+        const fname = byId("edit-forename-input").value.trim();
+        const sname = byId("edit-surname-input").value.trim();
+        const email = byId("edit-email-input").value.trim();
+        if (!isValidName(fname)) { applyHighlight("edit-forename-input", true); return showAlert("Invalid Forename.", true); }
+        if (!isValidName(sname)) { applyHighlight("edit-surname-input", true); return showAlert("Invalid Surname.", true); }
+        if (!isValidEmail(email)) { applyHighlight("edit-email-input", true); return showAlert("Invalid Email.", true); }
+        query = `UPDATE Logger SET Forename='${escapeSql(fname)}', Surname='${escapeSql(sname)}', Email='${escapeSql(email)}' WHERE LoggerID = ${activeEditId}`;
+    }
+    else if (activeEditTable === 'location') {
+        const country = byId("edit-country-input").value.trim();
+        if (country.length < 1) { applyHighlight("edit-country-input", true); return showAlert("Country required.", true); }
+        query = `UPDATE Location SET Country='${escapeSql(country)}' WHERE LocationID = ${activeEditId}`;
+    }
+    else if (activeEditTable === 'evidence') {
+        const type = byId("edit-evidence-type-input").value;
+        const desc = byId("edit-evidence-desc-input").value.trim();
+        if (!type) { applyHighlight("edit-evidence-type-input", true); return showAlert("Type required.", true); }
+        if (desc.length < 1) { applyHighlight("edit-evidence-desc-input", true); return showAlert("Description required.", true); }
+        query = `UPDATE Evidence SET EvidenceType='${type}', Description='${escapeSql(desc)}' WHERE EvidenceID = ${activeEditId}`;
+    }
+    else if (activeEditTable === 'species') {
+        const sName = byId("edit-species-scientific-name-input").value.trim();
+        const cName = byId("edit-species-name-input").value.trim();
+        const status = byId("edit-species-status-input").value;
+        if (!isValidAnimalOrSpeciesName(sName)) { applyHighlight("edit-species-scientific-name-input", true); return showAlert("Invalid Scientific Name.", true); }
+        query = `UPDATE Species SET ScientificName='${escapeSql(sName)}', CommonName='${escapeSql(cName)}', ConservationStatus='${status}' WHERE SpeciesID = ${activeEditId}`;
+    }
+    else if (activeEditTable === 'report') {
+        const type = byId("edit-report-type-input").value.trim();
+        const desc = byId("edit-report-description-input").value.trim();
+        if (type.length < 1) { applyHighlight("edit-report-type-input", true); return showAlert("Type required.", true); }
+        query = `UPDATE Report SET LoggerID=${byId("edit-report-logger-id-input").value}, LocationID=${byId("edit-report-location-id-input").value}, EvidenceID=${byId("edit-report-evidence-id-input").value}, ReportDate='${byId("edit-report-date-input").value}', SpeciesID=${byId("edit-report-species-id-input").value}, ReportType='${escapeSql(type)}', ReportDescription='${escapeSql(desc)}' WHERE ReportID = ${activeEditId}`;
+    }
+    else if (activeEditTable === 'trackedAnimal') {
+        const name = byId("edit-tracked-animals-name-input").value.trim();
+        query = `UPDATE Tracked_Animal SET Name=${name ? `'${escapeSql(name)}'` : "NULL"}, SpeciesID=${byId("edit-tracked-animals-species-id-input").value}, BirthDate='${byId("edit-tracked-animals-birth-date-input").value}', Status='${byId("edit-tracked-animals-status-input").value}' WHERE AnimalID = ${activeEditId}`;
+    }
+
     const result = await runQuery(query);
-    if (!result?.success) throw new Error(result?.error || "Database query failed.");
-    return result;
-}
-
-// Foreign-key checks prevent invalid child updates before the SQL query is sent to the database.
-async function foreignKeyExists(tableName, keyColumn, value) {
-    const numericValue = Number(value);
-    if (!Number.isInteger(numericValue) || numericValue < 1) return false;
-
-    const query = `SELECT 1 AS matchFound FROM ${tableName} WHERE ${keyColumn} = ${numericValue} LIMIT 1`;
-    const result = await runQuery(query);
-    return Boolean(result?.success && Array.isArray(result.data) && result.data.length);
-}
-
-// Database constraint errors are translated into short messages so users never see internal SQL details.
-function toFriendlyConstraintError(rawError) {
-    const message = String(rawError || "");
-    if (!message) return "Unable to update record.";
-
-    if (message.includes("Tracked_Animal_ibfk_1") || (message.includes("Tracked_Animal") && message.includes("SpeciesID"))) {
-        return "Species ID does not exist. Please enter a valid Species ID.";
-    }
-    if (message.includes("Report") && message.includes("LoggerID")) {
-        return "Logger ID does not exist. Please enter a valid Logger ID.";
-    }
-    if (message.includes("Report") && message.includes("LocationID")) {
-        return "Location ID does not exist. Please enter a valid Location ID.";
-    }
-    if (message.includes("Report") && message.includes("EvidenceID")) {
-        return "Evidence ID does not exist. Please enter a valid Evidence ID.";
-    }
-    if (message.includes("Report") && message.includes("SpeciesID")) {
-        return "Species ID does not exist. Please enter a valid Species ID.";
-    }
-    if (/ibfk|foreign key constraint fails|cannot add or update a child row|constraint/i.test(message)) {
-        return "One or more linked IDs are invalid. Please check related IDs and try again.";
-    }
-
-    return message;
-}
-
-const resequenceReportIds = async () => {
-    await runQueryChecked("SET @next_report_id := 0");
-    await runQueryChecked("UPDATE Report SET ReportID = (@next_report_id := @next_report_id + 1) ORDER BY ReportID");
-};
-
-// Deletes protect referenced parent rows and resequence IDs only after the delete is confirmed safe.
-async function deleteParentAndResequence(tableName, idColumn, reportForeignKeyColumn, id) {
-    const numericId = Number(id);
-    if (!Number.isInteger(numericId) || numericId < 1) {
-        return { success: false, error: "Invalid ID." };
-    }
-
-    const foreignKeyConstraints = {
-        Logger: [{ table: "Report", column: "LoggerID" }],
-        Location: [{ table: "Report", column: "LocationID" }],
-        Evidence: [{ table: "Report", column: "EvidenceID" }],
-        Species: [
-            { table: "Report", column: "SpeciesID" },
-            { table: "Tracked_Animal", column: "SpeciesID" }
-        ],
-        Tracked_Animal: [{ table: "Report", column: "AnimalID" }]
-    };
-
-    try {
-        if (foreignKeyConstraints[tableName]) {
-            for (const constraint of foreignKeyConstraints[tableName]) {
-                const countResult = await runQuery(`SELECT COUNT(*) as count FROM ${constraint.table} WHERE ${constraint.column} = ${numericId}`);
-                if (countResult?.success && countResult.data[0].count > 0) {
-                    return {
-                        success: false,
-                        error: `Cannot delete ${tableName} with ID ${numericId} because ${countResult.data[0].count} record(s) in ${constraint.table} reference it.`
-                    };
-                }
-            }
-
-            await runQueryChecked(`DELETE FROM ${tableName} WHERE ${idColumn} = ${numericId}`);
-            if (tableName === "Logger") {
-                await runQueryChecked(`UPDATE ${tableName} SET ${idColumn} = ${idColumn} - 1 WHERE ${idColumn} > ${numericId}`);
-            }
-            return { success: true };
-        }
-
-        await runQueryChecked(`DELETE FROM Report WHERE ${reportForeignKeyColumn} = ${numericId}`);
-        await resequenceReportIds();
-        await runQueryChecked(`DELETE FROM ${tableName} WHERE ${idColumn} = ${numericId}`);
-        await runQueryChecked(`UPDATE ${tableName} SET ${idColumn} = ${idColumn} - 1 WHERE ${idColumn} > ${numericId}`);
-        await runQueryChecked(`UPDATE Report SET ${reportForeignKeyColumn} = ${reportForeignKeyColumn} - 1 WHERE ${reportForeignKeyColumn} > ${numericId}`);
-        return { success: true };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
-}
-
-async function deleteReportAndResequence(id) {
-    const numericId = Number(id);
-    if (!Number.isInteger(numericId) || numericId < 1) {
-        return { success: false, error: "Invalid ID." };
-    }
-
-    try {
-        await runQueryChecked(`DELETE FROM Report WHERE ReportID = ${numericId}`);
-        await runQueryChecked(`UPDATE Report SET ReportID = ReportID - 1 WHERE ReportID > ${numericId}`);
-        return { success: true };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
-}
-
-const tableConfigByKey = {
-    logger: {
-        idKey: "LoggerID",
-        body: tableBodyByKey.logger,
-        emptyColspan: 5,
-        label: "Logger",
-        listQuery: "SELECT * FROM Logger ORDER BY LoggerID",
-        cells: (row) => [row.LoggerID, row.Forename, row.Surname, row.Email],
-        onDelete: (id) => deleteParentAndResequence("Logger", "LoggerID", "LoggerID", id)
-    },
-    location: {
-        idKey: "LocationID",
-        body: tableBodyByKey.location,
-        emptyColspan: 3,
-        label: "Location",
-        listQuery: "SELECT * FROM Location ORDER BY LocationID",
-        cells: (row) => [row.LocationID, row.Country],
-        onDelete: (id) => deleteParentAndResequence("Location", "LocationID", "LocationID", id)
-    },
-    evidence: {
-        idKey: "EvidenceID",
-        body: tableBodyByKey.evidence,
-        emptyColspan: 4,
-        label: "Evidence",
-        listQuery: "SELECT * FROM Evidence ORDER BY EvidenceID",
-        cells: (row) => [row.EvidenceID, row.EvidenceType, row.Description],
-        onDelete: (id) => deleteParentAndResequence("Evidence", "EvidenceID", "EvidenceID", id)
-    },
-    species: {
-        idKey: "SpeciesID",
-        body: tableBodyByKey.species,
-        emptyColspan: 5,
-        label: "Species",
-        listQuery: "SELECT * FROM Species ORDER BY SpeciesID",
-        cells: (row) => [row.SpeciesID, row.ScientificName, row.CommonName, row.ConservationStatus],
-        onDelete: (id) => deleteParentAndResequence("Species", "SpeciesID", "SpeciesID", id)
-    },
-    report: {
-        idKey: "ReportID",
-        body: tableBodyByKey.report,
-        emptyColspan: 9,
-        label: "Report",
-        listQuery: "SELECT * FROM Report ORDER BY ReportID",
-        cells: (row) => [row.ReportID, row.LoggerID, row.LocationID, row.EvidenceID, row.ReportDate, row.SpeciesID, row.ReportType, row.ReportDescription],
-        onDelete: (id) => deleteReportAndResequence(id)
-    },
-    trackedAnimal: {
-        idKey: "AnimalID",
-        body: tableBodyByKey.trackedAnimal,
-        emptyColspan: 6,
-        label: "Tracked Animal",
-        listQuery: "SELECT AnimalID, Name, SpeciesID, BirthDate, Status FROM Tracked_Animal ORDER BY AnimalID",
-        cells: (row) => [row.AnimalID, row.Name, row.SpeciesID, row.BirthDate, row.Status],
-        onDelete: (id) => deleteParentAndResequence("Tracked_Animal", "AnimalID", "AnimalID", id)
-    }
-};
-
-function renderTableRows(tableKey, rows) {
-    const tableConfig = tableConfigByKey[tableKey];
-    cachedRowsByTable[tableKey] = rows;
-
-    renderTableBody(
-        tableConfig.body,
-        rows,
-        (row) => {
-            const cellsHtml = tableConfig.cells(row).map((value) => `<td>${escapeHtml(value)}</td>`).join("");
-            const rowId = escapeHtml(row[tableConfig.idKey]);
-            return `<tr>${cellsHtml}<td><button class="table-button" type="button" data-action="edit" data-id="${rowId}">Edit</button><button class="table-button" type="button" data-action="delete" data-id="${rowId}">Delete</button></td></tr>`;
-        },
-        tableConfig.emptyColspan
-    );
-}
-
-// Table loading fetches each dataset in parallel and renders a friendly empty state when no rows are returned.
-const renderTables = async () => {
-    try {
-        if (!hasAnyTableBody || typeof runQuery !== "function") return;
-
-        const tableKeys = Object.keys(tableConfigByKey);
-        const queryResults = await Promise.all(tableKeys.map((tableKey) => runQuery(tableConfigByKey[tableKey].listQuery)));
-
-        queryResults.forEach((result, index) => {
-            if (result?.success) {
-                renderTableRows(tableKeys[index], result.data);
-            }
-        });
-    } catch (error) {
-        showAlert(`Error loading tables: ${toFriendlyConstraintError(error.message)}`, true);
-        console.error("renderTables error:", error);
-    }
-};
-
-const editHandlerByKey = {
-    logger: {
-        open: (id, row) => {
-            const loggerFields = editFieldByTable.logger;
-            clearInputBorders(loggerFields.forename, loggerFields.surname, loggerFields.email);
-
-            setActiveEdit("logger", id);
-            loggerFields.forename.value = row.Forename ?? "";
-            loggerFields.surname.value = row.Surname ?? "";
-            loggerFields.email.value = row.Email ?? "";
-            openEditPane(`Edit Logger #${id}`, "logger");
-        },
-        submit: () => {
-            const loggerFields = editFieldByTable.logger;
-            clearInputBorders(loggerFields.forename, loggerFields.surname, loggerFields.email);
-
-            const forename = loggerFields.forename.value.trim();
-            const surname = loggerFields.surname.value.trim();
-            const email = loggerFields.email.value.trim();
-            if (!forename || !surname || !email) {
-                return { ok: false, msg: "Please fill all Logger fields." };
-            }
-
-            const validationErrors = [];
-            if (!isValidName(forename)) {
-                addValidationError(loggerFields.forename, "Forename: Letters, hyphens, and apostrophes only", validationErrors);
-            }
-            if (!isValidName(surname)) {
-                addValidationError(loggerFields.surname, "Surname: Letters, hyphens, and apostrophes only", validationErrors);
-            }
-            if (!isValidEmail(email)) {
-                addValidationError(loggerFields.email, "Email: Must be a valid email address (e.g., user@example.com)", validationErrors);
-            }
-
-            const failure = getValidationFailure(validationErrors);
-            if (failure) return failure;
-
-            return {
-                ok: true,
-                query: `UPDATE Logger SET Forename = '${escapeSql(forename)}', Surname = '${escapeSql(surname)}', Email = '${escapeSql(email)}' WHERE LoggerID = ${activeEdit.id}`,
-                err: "Unable to update Logger."
-            };
-        }
-    },
-    location: {
-        open: (id, row) => {
-            const locationFields = editFieldByTable.location;
-            setActiveEdit("location", id);
-            locationFields.country.value = row.Country ?? "";
-            openEditPane(`Edit Location #${id}`, "location");
-        },
-        submit: () => {
-            const locationFields = editFieldByTable.location;
-            clearInputBorders(locationFields.country);
-
-            const country = locationFields.country.value.trim();
-            const validationErrors = [];
-            const countryError = validateNoNumberName(country, "Country");
-            if (countryError) {
-                addValidationError(locationFields.country, countryError, validationErrors);
-            }
-
-            const failure = getValidationFailure(validationErrors);
-            if (failure) return failure;
-
-            return {
-                ok: true,
-                query: `UPDATE Location SET Country = '${escapeSql(country)}' WHERE LocationID = ${activeEdit.id}`,
-                err: "Unable to update Location."
-            };
-        }
-    },
-    evidence: {
-        open: (id, row) => {
-            const evidenceFields = editFieldByTable.evidence;
-            setActiveEdit("evidence", id);
-            evidenceFields.type.value = row.EvidenceType ?? "";
-            evidenceFields.description.value = row.Description ?? "";
-            openEditPane(`Edit Evidence #${id}`, "evidence");
-        },
-        submit: () => {
-            const evidenceFields = editFieldByTable.evidence;
-            clearInputBorders(evidenceFields.type, evidenceFields.description);
-
-            const type = evidenceFields.type.value.trim();
-            const description = evidenceFields.description.value.trim();
-            const validationErrors = [];
-
-            if (!type) {
-                addValidationError(evidenceFields.type, "Evidence type is required", validationErrors);
-            }
-
-            const descriptionError = validateNoNumberName(description, "Description");
-            if (descriptionError) {
-                addValidationError(evidenceFields.description, descriptionError, validationErrors);
-            }
-
-            const failure = getValidationFailure(validationErrors);
-            if (failure) return failure;
-
-            return {
-                ok: true,
-                query: `UPDATE Evidence SET EvidenceType = '${escapeSql(type)}', Description = '${escapeSql(description)}' WHERE EvidenceID = ${activeEdit.id}`,
-                err: "Unable to update Evidence."
-            };
-        }
-    },
-    species: {
-        open: (id, row) => {
-            const speciesFields = editFieldByTable.species;
-            setActiveEdit("species", id);
-            speciesFields.scientificName.value = row.ScientificName ?? "";
-            speciesFields.commonName.value = row.CommonName ?? "";
-            speciesFields.conservationStatus.value = row.ConservationStatus ?? "Unknown";
-            openEditPane(`Edit Species #${id}`, "species");
-        },
-        submit: () => {
-            const speciesFields = editFieldByTable.species;
-            clearInputBorders(speciesFields.scientificName, speciesFields.commonName, speciesFields.conservationStatus);
-
-            const scientificName = speciesFields.scientificName.value.trim();
-            const commonName = speciesFields.commonName.value.trim();
-            const conservationStatus = speciesFields.conservationStatus.value;
-            const validationErrors = [];
-
-            const scientificNameError = validateNoNumberName(scientificName, "Scientific name");
-            const commonNameError = validateNoNumberName(commonName, "Common name");
-
-            if (scientificNameError) {
-                addValidationError(speciesFields.scientificName, scientificNameError, validationErrors);
-            }
-            if (commonNameError) {
-                addValidationError(speciesFields.commonName, commonNameError, validationErrors);
-            }
-            if (!conservationStatus) {
-                addValidationError(speciesFields.conservationStatus, "Conservation status is required", validationErrors);
-            }
-
-            const failure = getValidationFailure(validationErrors);
-            if (failure) return failure;
-
-            return {
-                ok: true,
-                query: `UPDATE Species SET ScientificName = '${escapeSql(scientificName)}', CommonName = '${escapeSql(commonName)}', ConservationStatus = '${escapeSql(conservationStatus)}' WHERE SpeciesID = ${activeEdit.id}`,
-                err: "Unable to update Species."
-            };
-        }
-    },
-    report: {
-        open: (id, row) => {
-            const reportFields = editFieldByTable.report;
-            setActiveEdit("report", id);
-            reportFields.loggerId.value = row.LoggerID ?? "";
-            reportFields.locationId.value = row.LocationID ?? "";
-            reportFields.evidenceId.value = row.EvidenceID ?? "";
-            reportFields.date.value = toDateInputValue(row.ReportDate);
-            reportFields.speciesId.value = row.SpeciesID ?? "";
-            reportFields.type.value = row.ReportType ?? "";
-            reportFields.description.value = row.ReportDescription ?? "";
-            openEditPane(`Edit Report #${id}`, "report");
-        },
-        submit: async () => {
-            const reportFields = editFieldByTable.report;
-            clearInputBorders(
-                reportFields.loggerId,
-                reportFields.locationId,
-                reportFields.evidenceId,
-                reportFields.date,
-                reportFields.speciesId,
-                reportFields.type,
-                reportFields.description
-            );
-
-            const loggerId = Number(reportFields.loggerId.value);
-            const locationId = Number(reportFields.locationId.value);
-            const evidenceId = Number(reportFields.evidenceId.value);
-            const reportDate = reportFields.date.value;
-            const speciesId = Number(reportFields.speciesId.value);
-            const reportType = reportFields.type.value.trim();
-            const reportDescription = reportFields.description.value.trim();
-            const validationErrors = [];
-
-            if (!loggerId || loggerId < 1) addValidationError(reportFields.loggerId, "Logger ID must be a positive number", validationErrors);
-            if (!locationId || locationId < 1) addValidationError(reportFields.locationId, "Location ID must be a positive number", validationErrors);
-            if (!evidenceId || evidenceId < 1) addValidationError(reportFields.evidenceId, "Evidence ID must be a positive number", validationErrors);
-            if (!speciesId || speciesId < 1) addValidationError(reportFields.speciesId, "Species ID must be a positive number", validationErrors);
-            if (!reportDate) addValidationError(reportFields.date, "Report date is required", validationErrors);
-
-            const reportTypeError = validateNoNumberName(reportType, "Report type");
-            const reportDescriptionError = validateNoNumberName(reportDescription, "Description");
-            if (reportTypeError) addValidationError(reportFields.type, reportTypeError, validationErrors);
-            if (reportDescriptionError) addValidationError(reportFields.description, reportDescriptionError, validationErrors);
-
-            if (!validationErrors.length) {
-                const [loggerExists, locationExists, evidenceExists, speciesExists] = await Promise.all([
-                    foreignKeyExists("Logger", "LoggerID", loggerId),
-                    foreignKeyExists("Location", "LocationID", locationId),
-                    foreignKeyExists("Evidence", "EvidenceID", evidenceId),
-                    foreignKeyExists("Species", "SpeciesID", speciesId)
-                ]);
-
-                if (!loggerExists) addValidationError(reportFields.loggerId, "Logger ID does not exist", validationErrors);
-                if (!locationExists) addValidationError(reportFields.locationId, "Location ID does not exist", validationErrors);
-                if (!evidenceExists) addValidationError(reportFields.evidenceId, "Evidence ID does not exist", validationErrors);
-                if (!speciesExists) addValidationError(reportFields.speciesId, "Species ID does not exist", validationErrors);
-            }
-
-            const failure = getValidationFailure(validationErrors);
-            if (failure) return failure;
-
-            return {
-                ok: true,
-                query: `UPDATE Report SET LoggerID = ${loggerId}, LocationID = ${locationId}, EvidenceID = ${evidenceId}, ReportDate = '${escapeSql(reportDate)}', SpeciesID = ${speciesId}, ReportType = '${escapeSql(reportType)}', ReportDescription = '${escapeSql(reportDescription)}' WHERE ReportID = ${activeEdit.id}`,
-                err: "Unable to update Report."
-            };
-        }
-    },
-    trackedAnimal: {
-        open: (id, row) => {
-            const trackedAnimalFields = editFieldByTable.trackedAnimal;
-            setActiveEdit("trackedAnimal", id);
-            trackedAnimalFields.name.value = row.Name ?? "";
-            trackedAnimalFields.speciesId.value = row.SpeciesID ?? "";
-            trackedAnimalFields.birthDate.value = toDateInputValue(row.BirthDate);
-            trackedAnimalFields.status.value = row.Status ?? "Alive";
-            openEditPane(`Edit Tracked Animal #${id}`, "trackedAnimal");
-        },
-        submit: async () => {
-            const trackedAnimalFields = editFieldByTable.trackedAnimal;
-            clearInputBorders(trackedAnimalFields.name, trackedAnimalFields.speciesId, trackedAnimalFields.birthDate, trackedAnimalFields.status);
-
-            const name = trackedAnimalFields.name.value.trim();
-            const speciesId = Number(trackedAnimalFields.speciesId.value);
-            const birthDate = trackedAnimalFields.birthDate.value;
-            const status = trackedAnimalFields.status.value;
-            const validationErrors = [];
-
-            if (!speciesId || speciesId < 1) addValidationError(trackedAnimalFields.speciesId, "Species ID must be a positive number", validationErrors);
-            if (!birthDate) addValidationError(trackedAnimalFields.birthDate, "Birth date is required", validationErrors);
-            if (!status) addValidationError(trackedAnimalFields.status, "Status is required", validationErrors);
-
-            const nameError = validateNoNumberName(name, "Name");
-            if (nameError) addValidationError(trackedAnimalFields.name, nameError, validationErrors);
-
-            if (!validationErrors.length) {
-                const speciesExists = await foreignKeyExists("Species", "SpeciesID", speciesId);
-                if (!speciesExists) addValidationError(trackedAnimalFields.speciesId, "Species ID does not exist", validationErrors);
-            }
-
-            const failure = getValidationFailure(validationErrors);
-            if (failure) return failure;
-
-            return {
-                ok: true,
-                query: `UPDATE Tracked_Animal SET Name = ${name ? `'${escapeSql(name)}'` : "NULL"}, SpeciesID = ${speciesId}, BirthDate = '${escapeSql(birthDate)}', Status = '${escapeSql(status)}' WHERE AnimalID = ${activeEdit.id}`,
-                err: "Unable to update Tracked Animal."
-            };
-        }
-    }
-};
-
-function bindTableActions(tableKey) {
-    const tableConfig = tableConfigByKey[tableKey];
-    if (!tableConfig.body) return;
-
-    tableConfig.body.addEventListener("click", async (event) => {
-        const actionButton = event.target.closest("button[data-action]");
-        if (!actionButton) return;
-
-        const rowId = actionButton.dataset.id;
-        if (!isPositiveIntegerText(rowId)) return;
-
-        if (actionButton.dataset.action === "edit") {
-            const row = findRowById(cachedRowsByTable[tableKey], tableConfig.idKey, rowId);
-            if (row) editHandlerByKey[tableKey].open(rowId, row);
-            return;
-        }
-
-        if (actionButton.dataset.action === "delete" && confirm(`Delete ${tableConfig.label} ID ${rowId}?`)) {
-            const deleteResult = await tableConfig.onDelete(rowId);
-            if (!deleteResult?.success) {
-                return showAlert(toFriendlyConstraintError(deleteResult?.error || `Unable to delete ${tableConfig.label}.`), true);
-            }
-            await renderTables();
-        }
-    });
-}
-
-// Edit submission validates inputs, runs the update query, and refreshes the table view on success.
-function bindEditFormSubmit(tableKey) {
-    const editForm = editFormByKey[tableKey];
-    if (!editForm) return;
-
-    editForm.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        if (activeEdit.key !== tableKey || !activeEdit.id) return;
-
-        const outcome = await Promise.resolve(editHandlerByKey[tableKey].submit());
-        if (!outcome.ok) return showAlert(outcome.msg, true);
-
-        const queryResult = await runQuery(outcome.query);
-        if (!queryResult?.success) {
-            return showAlert(toFriendlyConstraintError(queryResult?.error || outcome.err), true);
-        }
-
+    if (result && result.success) {
         closeEditPane();
-        await renderTables();
-    });
-}
-
-Object.keys(tableConfigByKey).forEach(bindTableActions);
-Object.keys(editFormByKey).forEach(bindEditFormSubmit);
-
-// Global error handlers turn unexpected runtime failures into readable alerts for the user.
-window.addEventListener("error", (event) => {
-    showAlert(`Error: ${toFriendlyConstraintError(event.message)}`, true);
-    console.error("Global error:", event.error);
-});
-
-window.addEventListener("unhandledrejection", (event) => {
-    const reason = event.reason?.message || "An unexpected error occurred";
-    showAlert(`Error: ${toFriendlyConstraintError(reason)}`, true);
-    console.error("Unhandled rejection:", event.reason);
-});
-
-if (tableTabButtons.length) {
-    tableTabButtons.forEach((button) => {
-        button.addEventListener("click", () => setActiveTableTab(button.dataset.tableTab));
-    });
-}
-
-if (hasEditPane) {
-    editPane.close.addEventListener("click", closeEditPane);
-
-    editPane.root.addEventListener("click", (event) => {
-        if (event.target === editPane.root) closeEditPane();
-    });
-
-    document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && editPane.root.classList.contains("is-open")) closeEditPane();
-    });
-
-    cancelEditButtons.forEach((button) => button.addEventListener("click", closeEditPane));
-}
-
-document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        if (tableTabButtons.length) {
-            const defaultTab = tableTabButtons.find((button) => button.classList.contains("is-active"))?.dataset.tableTab || tableTabButtons[0].dataset.tableTab;
-            setActiveTableTab(defaultTab);
-        }
-
-        await renderTables();
-    } catch (error) {
-        showAlert(`Error initializing page: ${toFriendlyConstraintError(error.message)}`, true);
-        console.error("DOMContentLoaded error:", error);
+        refreshAllTables();
+        showAlert("Updated successfully!", false);
+    } else {
+        showError(result ? result.error : "Unknown error occurred.");
     }
-});
+}
 
+// --- Initialization ---
+
+document.addEventListener("DOMContentLoaded", () => {
+    refreshAllTables();
+    document.querySelectorAll("form").forEach(f => f.addEventListener("submit", handleFormSubmit));
+    byId("edit-pane-close").addEventListener("click", closeEditPane);
+    document.querySelectorAll("[id$='-edit-cancel']").forEach(b => b.addEventListener("click", closeEditPane));
+
+    // Tab Logic
+    const tabs = document.querySelectorAll("[data-table-tab]");
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            const target = tab.getAttribute("data-table-tab");
+            tabs.forEach(t => t.classList.remove("is-active"));
+            tab.classList.add("is-active");
+            document.querySelectorAll("[data-table-panel]").forEach(p => {
+                p.classList.toggle("is-active", p.getAttribute("data-table-panel") === target);
+            });
+        });
+    });
+});

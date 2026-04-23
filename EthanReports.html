@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Endangered Species Tracker - Ethan Reports</title>
+    <title>Endangered Species Tracker - Conall Reports</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/runQuery.js"></script>
 </head>
 <body>
 
 <nav class="navbar">
     <div class="navbar-container">
-        <h1 class="navbar-title">
-            <a href="HomePage.html" class="logo-link">Endangered Species Tracker</a>
-        </h1>
+        <h1 class="navbar-title">Endangered Species Tracker</h1>
         <ul class="navbar-menu">
-            <li><a href="HomePage.html" class="active">Home</a></li>
+            <li><a href="HomePage.html">Home</a></li>
             <li><a href="SubmitData.html">Submit data</a></li>
             <li><a href="ViewTables.html">View user reports</a></li>
             <li><a href="ModifyAccount.html">Modify your account</a></li>
-            <li><a href="Reports.html">Reports</a></li>
+            <li><a href="Reports.html" class="active">Reports</a></li>
             <li><a href="AboutUs.html">About us</a></li>
-            <li><a href="index.html" id="logout-button" class="logout-button">Logout</a></li>
+            <li><a href="index.html" class="logout-button">Logout</a></li>
         </ul>
     </div>
 </nav>
@@ -33,6 +33,7 @@
     </div>
 </div>
 
+<div class="container">
 <div class="report-section">
     <h3>Report 1:</h3>
     <p>Report Title: Logger Activity Summary</p><br>
@@ -128,11 +129,8 @@
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
-            const speciesTable = "Species";
-            const reportTable = "Report";
-            const highStatus = "High";
             const [EthanResultTwo] = await Promise.all([
-                runQuery(`SELECT S.Name AS Species_Name, S.Status AS Conservation_Status, COUNT(R.ReportID) AS Total_Sightings, MIN(R.ReportDate) AS Earliest_Record, MAX(R.ReportDate) AS Most_Recent_Record FROM ${speciesTable} S INNER JOIN ${reportTable} R ON S.SpeciesID = R.SpeciesID WHERE S.Status = '${highStatus}' GROUP BY S.Name, S.Status HAVING Total_Sightings > 0 ORDER BY Total_Sightings DESC;`),
+                runQuery(`SELECT S.CommonName AS Species_Name, S.ConservationStatus AS Conservation_Status, COUNT(R.ReportID) AS Total_Sightings, MIN(R.ReportDate) AS Earliest_Record, MAX(R.ReportDate) AS Most_Recent_Record FROM Species S INNER JOIN Report R ON S.SpeciesID = R.SpeciesID WHERE S.ConservationStatus IN ('Endangered', 'Critically Endangered') GROUP BY S.CommonName, S.ConservationStatus ORDER BY Total_Sightings DESC;`)
             ]);
 
             if (EthanResultTwo?.success && Array.isArray(EthanResultTwo.data)) {
@@ -151,38 +149,80 @@
     <p>Report Title: Regional Poaching Summary</p><br>
     <p>Business Question: What is the volume of poaching evidence types reported across different countries and methods used?</p><br>
     <p>Why this report is useful: It helps governments identify hotspots for unusual activity, allowing them to allocate resources more effectively.</p><br>
-    <p>Tables Used: Report, Location, Evidencet</p>
+    <p>Tables Used: Report, Location, Evidence</p>
 
-    <div class="report-data">
-        <table id="ethan-reports3" class="data-table">
-            <thead>
-            <tr>
-                <th>Country</th>
-                <th>Incident Count</th>
-                <th>Evidence</th>
-            </tr>
-            </thead>
-            <tbody id="ethan-reports3-body"></tbody>
-        </table>
+    <div class="report-data" style="height: 360px;">
+        <canvas id="ethan-reports3-chart" aria-label="Regional poaching summary chart" role="img" style="height: 100%;"></canvas>
     </div>
 
     <script>
+        let ethanReportsThreeChart;
+
         function jsonGrabberThree(rows) {
-            const tbody = document.getElementById("ethan-reports3-body");
-            tbody.innerHTML = rows.map((row) => `
-                <tr>
-                    <td>${row.Country ?? ""}</td>
-                    <td>${row.Incident_Count ?? ""}</td>
-                    <td>${row.Evidence_Methods ?? ""}</td>
-                </tr>
-            `).join("");
+            const labels = rows.map((row) => row.Country ?? "");
+            const incidentCounts = rows.map((row) => Number(row.Incident_Count ?? 0));
+            const evidenceMethods = rows.map((row) => row.Evidence_Methods ?? "");
+            const canvas = document.getElementById("ethan-reports3-chart");
+
+            if (ethanReportsThreeChart) {
+                ethanReportsThreeChart.destroy();
+            }
+
+            ethanReportsThreeChart = new Chart(canvas, {
+                type: "bar",
+                data: {
+                    labels,
+                    datasets: [{
+                        label: "Incident Count",
+                        data: incidentCounts,
+                        backgroundColor: "rgba(54, 162, 235, 0.6)",
+                        borderColor: "rgba(54, 162, 235, 1)",
+                        borderWidth: 1,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: "Regional Poaching Summary",
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => {
+                                    const value = context.formattedValue || "";
+                                    const evidence = evidenceMethods[context.dataIndex] || "";
+                                    return evidence ? `Incident Count: ${value} | Evidence: ${evidence}` : `Incident Count: ${value}`;
+                                },
+                            },
+                        },
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                            },
+                            title: {
+                                display: true,
+                                text: "Incident Count",
+                            },
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: "Country",
+                            },
+                        },
+                    },
+                },
+            });
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
-            const threatAuditTable = "GlobalThreatAudit";
-            const cutoffDate = "2025-01-01";
             const [EthanResultThree] = await Promise.all([
-                runQuery(`SELECT Country, COUNT(*) AS Incident_Count, GROUP_CONCAT(DISTINCT EvidenceType) AS Evidence_Methods FROM ${threatAuditTable} WHERE ReportDate >= '${cutoffDate}' GROUP BY Country ORDER BY Incident_Count DESC LIMIT 10;`),
+                runQuery(`SELECT Country, COUNT(*) AS Incident_Count, GROUP_CONCAT(DISTINCT EvidenceType SEPARATOR ', ') AS Evidence_Methods FROM GlobalThreatAudit WHERE ReportType = 'Poaching' GROUP BY Country ORDER BY Incident_Count DESC LIMIT 12;`),
             ]);
 
             if (EthanResultThree?.success && Array.isArray(EthanResultThree.data)) {
@@ -195,8 +235,7 @@
         });
     </script>
 </div>
-
-<script src="js/runQuery.js"></script>
+</div>
 
 <footer class="footer">
     <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>

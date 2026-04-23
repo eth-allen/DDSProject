@@ -1,4 +1,4 @@
-// Readable DOM helper for this page.
+// Cache all DOM references once so tab switching, table rendering, and edit dialogs do not repeatedly query the page.
 const byId = (id) => document.getElementById(id);
 
 const tableBodyByKey = {
@@ -21,10 +21,10 @@ const tablePanelByTab = {
 
 const tableTabButtons = [...document.querySelectorAll("[data-table-tab]")];
 
-const editModal = {
-    root: byId("edit-modal"),
-    title: byId("edit-modal-title"),
-    close: byId("edit-modal-close"),
+const editPane = {
+    root: byId("edit-pane"),
+    title: byId("edit-pane-title"),
+    close: byId("edit-pane-close"),
     sections: {
         logger: byId("logger-edit-section"),
         location: byId("location-edit-section"),
@@ -97,7 +97,7 @@ const cachedRowsByTable = {
 
 const activeEdit = { key: null, id: null };
 const hasAnyTableBody = Object.values(tableBodyByKey).some(Boolean);
-const hasEditModal = Boolean(editModal.root && editModal.title && editModal.close);
+const hasEditPane = Boolean(editPane.root && editPane.title && editPane.close);
 
 const escapeHtml = (value) => String(value)
     .replace(/&/g, "&amp;")
@@ -114,6 +114,12 @@ function findRowById(rows, idKey, id) {
     return rows.find((row) => String(row[idKey]) === String(id));
 }
 
+function setActiveEdit(tableKey, id) {
+    activeEdit.key = tableKey;
+    activeEdit.id = Number(id);
+}
+
+// Shared text validation keeps name-style fields consistent across every edit form.
 function validateNoNumberName(value, label) {
     if (!value) return `${label} is required`;
     if (!isValidAnimalOrSpeciesName(value)) {
@@ -133,7 +139,11 @@ function addValidationError(input, message, validationErrors) {
     validationErrors.push(message);
 }
 
-// Toggle visible panel and ARIA state for tabs.
+function getValidationFailure(validationErrors) {
+    return validationErrors.length > 0 ? { ok: false, msg: validationErrors.join(" | ") } : null;
+}
+
+// Tab handling shows one panel at a time and keeps ARIA state in sync for keyboard and screen-reader users.
 function setActiveTableTab(tabName) {
     Object.entries(tablePanelByTab).forEach(([panelName, panel]) => {
         panel?.classList.toggle("is-active", panelName === tabName);
@@ -147,29 +157,29 @@ function setActiveTableTab(tabName) {
     });
 }
 
-// Open modal and switch to the correct form section.
-function openEditModal(title, sectionKey) {
-    if (!hasEditModal || !editModal.sections[sectionKey]) return;
+// Pane opening swaps the visible form section, updates the title, and marks the panel as active.
+function openEditPane(title, sectionKey) {
+    if (!hasEditPane || !editPane.sections[sectionKey]) return;
 
-    Object.values(editModal.sections).forEach((section) => {
+    Object.values(editPane.sections).forEach((section) => {
         section?.classList.remove("is-active");
     });
 
-    editModal.sections[sectionKey].classList.add("is-active");
-    editModal.title.textContent = title;
-    editModal.root.classList.add("is-open");
-    editModal.root.setAttribute("aria-hidden", "false");
+    editPane.sections[sectionKey].classList.add("is-active");
+    editPane.title.textContent = title;
+    editPane.root.classList.add("is-open");
+    editPane.root.setAttribute("aria-hidden", "false");
 }
 
-// Close modal and clear active editing state.
-function closeEditModal() {
+// Closing the pane also clears the active record so stale edits do not leak into the next update.
+function closeEditPane() {
     activeEdit.key = null;
     activeEdit.id = null;
-    if (!hasEditModal) return;
+    if (!hasEditPane) return;
 
-    editModal.root.classList.remove("is-open");
-    editModal.root.setAttribute("aria-hidden", "true");
-    Object.values(editModal.sections).forEach((section) => {
+    editPane.root.classList.remove("is-open");
+    editPane.root.setAttribute("aria-hidden", "true");
+    Object.values(editPane.sections).forEach((section) => {
         section?.classList.remove("is-active");
     });
 }
@@ -188,7 +198,7 @@ async function runQueryChecked(query) {
     return result;
 }
 
-// Verify parent key exists before updating child rows.
+// Foreign-key checks prevent invalid child updates before the SQL query is sent to the database.
 async function foreignKeyExists(tableName, keyColumn, value) {
     const numericValue = Number(value);
     if (!Number.isInteger(numericValue) || numericValue < 1) return false;
@@ -198,7 +208,7 @@ async function foreignKeyExists(tableName, keyColumn, value) {
     return Boolean(result?.success && Array.isArray(result.data) && result.data.length);
 }
 
-// Convert raw SQL errors into short user-friendly alerts.
+// Database constraint errors are translated into short messages so users never see internal SQL details.
 function toFriendlyConstraintError(rawError) {
     const message = String(rawError || "");
     if (!message) return "Unable to update record.";
@@ -230,7 +240,7 @@ const resequenceReportIds = async () => {
     await runQueryChecked("UPDATE Report SET ReportID = (@next_report_id := @next_report_id + 1) ORDER BY ReportID");
 };
 
-// Delete parent rows safely with FK checks and ID resequencing.
+// Deletes protect referenced parent rows and resequence IDs only after the delete is confirmed safe.
 async function deleteParentAndResequence(tableName, idColumn, reportForeignKeyColumn, id) {
     const numericId = Number(id);
     if (!Number.isInteger(numericId) || numericId < 1) {
@@ -366,7 +376,7 @@ function renderTableRows(tableKey, rows) {
     );
 }
 
-// Load all table data in parallel and render each tab body.
+// Table loading fetches each dataset in parallel and renders a friendly empty state when no rows are returned.
 const renderTables = async () => {
     try {
         if (!hasAnyTableBody || typeof runQuery !== "function") return;
@@ -391,12 +401,11 @@ const editHandlerByKey = {
             const loggerFields = editFieldByTable.logger;
             clearInputBorders(loggerFields.forename, loggerFields.surname, loggerFields.email);
 
-            activeEdit.key = "logger";
-            activeEdit.id = Number(id);
+            setActiveEdit("logger", id);
             loggerFields.forename.value = row.Forename ?? "";
             loggerFields.surname.value = row.Surname ?? "";
             loggerFields.email.value = row.Email ?? "";
-            openEditModal(`Edit Logger #${id}`, "logger");
+            openEditPane(`Edit Logger #${id}`, "logger");
         },
         submit: () => {
             const loggerFields = editFieldByTable.logger;
@@ -420,9 +429,8 @@ const editHandlerByKey = {
                 addValidationError(loggerFields.email, "Email: Must be a valid email address (e.g., user@example.com)", validationErrors);
             }
 
-            if (validationErrors.length > 0) {
-                return { ok: false, msg: validationErrors.join(" | ") };
-            }
+            const failure = getValidationFailure(validationErrors);
+            if (failure) return failure;
 
             return {
                 ok: true,
@@ -434,10 +442,9 @@ const editHandlerByKey = {
     location: {
         open: (id, row) => {
             const locationFields = editFieldByTable.location;
-            activeEdit.key = "location";
-            activeEdit.id = Number(id);
+            setActiveEdit("location", id);
             locationFields.country.value = row.Country ?? "";
-            openEditModal(`Edit Location #${id}`, "location");
+            openEditPane(`Edit Location #${id}`, "location");
         },
         submit: () => {
             const locationFields = editFieldByTable.location;
@@ -448,8 +455,10 @@ const editHandlerByKey = {
             const countryError = validateNoNumberName(country, "Country");
             if (countryError) {
                 addValidationError(locationFields.country, countryError, validationErrors);
-                return { ok: false, msg: validationErrors.join(" | ") };
             }
+
+            const failure = getValidationFailure(validationErrors);
+            if (failure) return failure;
 
             return {
                 ok: true,
@@ -461,11 +470,10 @@ const editHandlerByKey = {
     evidence: {
         open: (id, row) => {
             const evidenceFields = editFieldByTable.evidence;
-            activeEdit.key = "evidence";
-            activeEdit.id = Number(id);
+            setActiveEdit("evidence", id);
             evidenceFields.type.value = row.EvidenceType ?? "";
             evidenceFields.description.value = row.Description ?? "";
-            openEditModal(`Edit Evidence #${id}`, "evidence");
+            openEditPane(`Edit Evidence #${id}`, "evidence");
         },
         submit: () => {
             const evidenceFields = editFieldByTable.evidence;
@@ -484,9 +492,8 @@ const editHandlerByKey = {
                 addValidationError(evidenceFields.description, descriptionError, validationErrors);
             }
 
-            if (validationErrors.length > 0) {
-                return { ok: false, msg: validationErrors.join(" | ") };
-            }
+            const failure = getValidationFailure(validationErrors);
+            if (failure) return failure;
 
             return {
                 ok: true,
@@ -498,12 +505,11 @@ const editHandlerByKey = {
     species: {
         open: (id, row) => {
             const speciesFields = editFieldByTable.species;
-            activeEdit.key = "species";
-            activeEdit.id = Number(id);
+            setActiveEdit("species", id);
             speciesFields.scientificName.value = row.ScientificName ?? "";
             speciesFields.commonName.value = row.CommonName ?? "";
             speciesFields.conservationStatus.value = row.ConservationStatus ?? "Unknown";
-            openEditModal(`Edit Species #${id}`, "species");
+            openEditPane(`Edit Species #${id}`, "species");
         },
         submit: () => {
             const speciesFields = editFieldByTable.species;
@@ -527,9 +533,8 @@ const editHandlerByKey = {
                 addValidationError(speciesFields.conservationStatus, "Conservation status is required", validationErrors);
             }
 
-            if (validationErrors.length > 0) {
-                return { ok: false, msg: validationErrors.join(" | ") };
-            }
+            const failure = getValidationFailure(validationErrors);
+            if (failure) return failure;
 
             return {
                 ok: true,
@@ -541,8 +546,7 @@ const editHandlerByKey = {
     report: {
         open: (id, row) => {
             const reportFields = editFieldByTable.report;
-            activeEdit.key = "report";
-            activeEdit.id = Number(id);
+            setActiveEdit("report", id);
             reportFields.loggerId.value = row.LoggerID ?? "";
             reportFields.locationId.value = row.LocationID ?? "";
             reportFields.evidenceId.value = row.EvidenceID ?? "";
@@ -550,7 +554,7 @@ const editHandlerByKey = {
             reportFields.speciesId.value = row.SpeciesID ?? "";
             reportFields.type.value = row.ReportType ?? "";
             reportFields.description.value = row.ReportDescription ?? "";
-            openEditModal(`Edit Report #${id}`, "report");
+            openEditPane(`Edit Report #${id}`, "report");
         },
         submit: async () => {
             const reportFields = editFieldByTable.report;
@@ -598,9 +602,8 @@ const editHandlerByKey = {
                 if (!speciesExists) addValidationError(reportFields.speciesId, "Species ID does not exist", validationErrors);
             }
 
-            if (validationErrors.length > 0) {
-                return { ok: false, msg: validationErrors.join(" | ") };
-            }
+            const failure = getValidationFailure(validationErrors);
+            if (failure) return failure;
 
             return {
                 ok: true,
@@ -612,13 +615,12 @@ const editHandlerByKey = {
     trackedAnimal: {
         open: (id, row) => {
             const trackedAnimalFields = editFieldByTable.trackedAnimal;
-            activeEdit.key = "trackedAnimal";
-            activeEdit.id = Number(id);
+            setActiveEdit("trackedAnimal", id);
             trackedAnimalFields.name.value = row.Name ?? "";
             trackedAnimalFields.speciesId.value = row.SpeciesID ?? "";
             trackedAnimalFields.birthDate.value = toDateInputValue(row.BirthDate);
             trackedAnimalFields.status.value = row.Status ?? "Alive";
-            openEditModal(`Edit Tracked Animal #${id}`, "trackedAnimal");
+            openEditPane(`Edit Tracked Animal #${id}`, "trackedAnimal");
         },
         submit: async () => {
             const trackedAnimalFields = editFieldByTable.trackedAnimal;
@@ -642,9 +644,8 @@ const editHandlerByKey = {
                 if (!speciesExists) addValidationError(trackedAnimalFields.speciesId, "Species ID does not exist", validationErrors);
             }
 
-            if (validationErrors.length > 0) {
-                return { ok: false, msg: validationErrors.join(" | ") };
-            }
+            const failure = getValidationFailure(validationErrors);
+            if (failure) return failure;
 
             return {
                 ok: true,
@@ -682,7 +683,7 @@ function bindTableActions(tableKey) {
     });
 }
 
-// Validate form, run update query, then refresh displayed tables.
+// Edit submission validates inputs, runs the update query, and refreshes the table view on success.
 function bindEditFormSubmit(tableKey) {
     const editForm = editFormByKey[tableKey];
     if (!editForm) return;
@@ -699,7 +700,7 @@ function bindEditFormSubmit(tableKey) {
             return showAlert(toFriendlyConstraintError(queryResult?.error || outcome.err), true);
         }
 
-        closeEditModal();
+        closeEditPane();
         await renderTables();
     });
 }
@@ -707,7 +708,7 @@ function bindEditFormSubmit(tableKey) {
 Object.keys(tableConfigByKey).forEach(bindTableActions);
 Object.keys(editFormByKey).forEach(bindEditFormSubmit);
 
-// Show readable messages for uncaught runtime errors.
+// Global error handlers turn unexpected runtime failures into readable alerts for the user.
 window.addEventListener("error", (event) => {
     showAlert(`Error: ${toFriendlyConstraintError(event.message)}`, true);
     console.error("Global error:", event.error);
@@ -725,18 +726,18 @@ if (tableTabButtons.length) {
     });
 }
 
-if (hasEditModal) {
-    editModal.close.addEventListener("click", closeEditModal);
+if (hasEditPane) {
+    editPane.close.addEventListener("click", closeEditPane);
 
-    editModal.root.addEventListener("click", (event) => {
-        if (event.target === editModal.root) closeEditModal();
+    editPane.root.addEventListener("click", (event) => {
+        if (event.target === editPane.root) closeEditPane();
     });
 
     document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && editModal.root.classList.contains("is-open")) closeEditModal();
+        if (event.key === "Escape" && editPane.root.classList.contains("is-open")) closeEditPane();
     });
 
-    cancelEditButtons.forEach((button) => button.addEventListener("click", closeEditModal));
+    cancelEditButtons.forEach((button) => button.addEventListener("click", closeEditPane));
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

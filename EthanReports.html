@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Endangered Species Tracker - Ethan Reports</title>
+    <!-- Shared page assets -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,6 +12,7 @@
 </head>
 <body>
 
+<!-- Main navigation -->
 <nav class="navbar">
     <div class="navbar-container">
         <h1 class="navbar-title">Endangered Species Tracker</h1>
@@ -26,6 +28,7 @@
     </div>
 </nav>
 
+<!-- Page introduction -->
 <div class="hero-section">
     <div class="hero-content">
         <h2>Ethan's Reports</h2>
@@ -34,6 +37,7 @@
 </div>
 
 <div class="container">
+<!-- Report 1 -->
 <div class="report-section">
     <h3>Report 1:</h3>
     <p>Report Title: Logger Activity Summary</p><br>
@@ -58,7 +62,7 @@
         </table>
     </div>
 
-    <script src="js/runQuery.js"></script>
+    <!-- Load report 1 data -->
     <script>
         function jsonGrabberOne(rows) {
             const tbody = document.getElementById("ethan-reports1-body");
@@ -92,6 +96,7 @@
     </script>
 </div>
 
+<!-- Report 2 -->
 <div class="report-section">
     <h3>Report 2:</h3>
     <p>Report Title: Endangered Species Population Monitoring</p><br>
@@ -114,6 +119,7 @@
         </table>
     </div>
 
+    <!-- Load report 2 data -->
     <script>
         function jsonGrabberTwo(rows) {
             const tbody = document.getElementById("ethan-reports2-body");
@@ -144,6 +150,7 @@
     </script>
 </div>
 
+<!-- Report 3 -->
 <div class="report-section">
     <h3>Report 3:</h3>
     <p>Report Title: Regional Poaching Summary</p><br>
@@ -155,6 +162,7 @@
         <canvas id="ethan-reports3-chart" aria-label="Regional poaching summary chart" role="img" style="height: 100%;"></canvas>
     </div>
 
+    <!-- Render report 3 chart -->
     <script>
         let ethanReportsThreeChart;
 
@@ -237,6 +245,7 @@
 </div>
 </div>
 
+<!-- Footer -->
 <footer class="footer">
     <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
 </footer>

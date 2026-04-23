@@ -26,9 +26,9 @@ if (!isset($_POST['query'])) {
 /* *******************************************************************************
 ATTENTION ALL STUDENTS - YOU MUST UPDATE THE FOLLOWING VARIABLES WITH YOUR DETAILS
 ******************************************************************************* */
-$hostname = "eallen14.webhosting1.eeecs.qub.ac.uk"; // Update with your hostname, normally "localhost"
-$username = "eallen14"; // update with your mySQL username
-$password = "7kHshfG7SprdtMv4"; // update with your mySQL password
+$hostname = "cmckillen07.webhosting1.eeecs.qub.ac.uk"; // Update with your hostname, normally "localhost"
+$username = "cmckillen07"; // update with your mySQL username
+$password = "PSg00ZtpYtkstkLJ"; // update with your mySQL password
 $database = "CSC1034_2526_069"; // update with the database name to be used.
 
 /* ********************************************************************************

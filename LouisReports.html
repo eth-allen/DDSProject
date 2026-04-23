@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Endangered Species Tracker - Louis reports</title>
+    <title>Endangered Species Tracker - Louis Reports</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <script src="js/LoginAuthorisation.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/runQuery.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -33,61 +34,222 @@
         </div>
     </div>
 
-    <div>
-        <div class="report-section">
-        <h3>Report 1: </h3>
-        <p>Report Title: t</p><br>
-        <p>Business Question: ?</p><br>
-        <p>Why this report is useful: </p><br>
-        <p>Tables Used:</p>
-
+    <div class="report-section">
+        <h3>Report 1: Animals that have little data to show they're still alive</h3>
+        <p>Business Question: Which animals are recorded as alive in the database however have little to no reports in the past 5 years to show they are?</p>
+        <p>Why this report is useful: Identifies animals which have low likelyhood of being alive, allowing for invalid data to be identified and deleted by system admins</p>
+        <p>Tables Used: Tracked_Animal, Report, Logger</p>
         <div class="report-data">
-        <table id="" class="data-table">
-            <thead>
-            <tr>
-                <th></th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody id=""></tbody>
-        </table>
-        </div>
-
-        <script src="js/runQuery.js"></script>
-        
-        <script>
-            function jsonGrabberOne (rows) {
-                const tbody = document.getElementById("conall-reports1-body");
-                tbody.innerHTML = rows.map((row) => `
+            <table class="data-table">
+                <thead>
                     <tr>
-                        <td>${row.SpeciesName ?? ""}</td>
-                        <td>${row.ConservationStatus ?? ""}</td>
-                        <td>${row.TotalReports ?? ""}</td>
-                        <td>${row.ActiveContributors ?? ""}</td>
-                        <td>${row.CountriesDiversity ?? ""}</td>
-                        <td>${row.ReportingPeriod ?? ""}</td>
-                        <td>${row.EvidenceTypesUsed ?? ""}</td>
+                        <th>Animal ID</th>
+                        <th>Name</th>
+                        <th>Species (Scientific & Common)</th>
+                        <th>Times Reported (Past 5 Yrs)</th>
+                        <th>Most Recent Date</th>
+                        <th>Contributing Loggers</th>
                     </tr>
-                `).join("");
-            }
-
-            document.addEventListener("DOMContentLoaded", async () => {
-                const [ConallResultOne] = await Promise.all([
-                    runQuery("SELECT s.SpeciesID, s.Name AS SpeciesName, s.Status AS ConservationStatus, COUNT(r.ReportID) AS TotalReports, COUNT(DISTINCT r.LoggerID) AS ActiveContributors, COUNT(DISTINCT loc.Country) AS CountriesDiversity, CONCAT(DATE_FORMAT(MIN(r.ReportDate), '%d %b %Y'), ' - ', DATE_FORMAT(MAX(r.ReportDate), '%d %b %Y')) AS ReportingPeriod, GROUP_CONCAT(DISTINCT e.EvidenceType ORDER BY e.EvidenceType SEPARATOR ', ') AS EvidenceTypesUsed FROM Species s INNER JOIN Report r ON s.SpeciesID = r.SpeciesID LEFT JOIN Location loc ON r.LocationID = loc.LocationID LEFT JOIN Evidence e ON r.EvidenceID = e.EvidenceID WHERE s.Status = 'High' GROUP BY s.SpeciesID, s.Name, s.Status HAVING COUNT(r.ReportID) > 0 ORDER BY TotalReports DESC, s.Name ASC LIMIT 15;"),
-                ]);
-
-                if (ConallResultOne?.success && Array.isArray(ConallResultOne.data)) {
-                    jsonGrabberOne(ConallResultOne.data);
-                }
-
-                if (ConallResultOne?.error) {
-                    console.error("Data load error", {ConallResultOne});
-                }
-            });
-        </script>
+                </thead>
+                <tbody id="louis-report1-body"></tbody>
+            </table>
         </div>
     </div>
 
+    <div class="report-section">
+        <h3>Report 2: High-Value, Low-Monitored Countries</h3>
+        <p>Business Question: Which countries have confirmed sightings of endangered animals but are being monitored by very few loggers?</p>
+        <p>Why this report is useful: Highlights regions that critically need more conservation staff deployed.</p>
+        <p>Tables Used: Location, Report, Logger, Species</p>
+        <div class="report-data">
+            <canvas id="louis-report2-chart" style="max-width: 800px; height: 500px; margin: 0 auto;"></canvas>
+        </div>
+    </div>
+
+    <div class="report-section">
+        <h3>Report 3: Logger Evidence & Significance</h3>
+        <p>Business Question: Which loggers have the lowest likelihood of submitting evidence, and what is the significance of their sightings?</p>
+        <p>Why this report is useful: Flags potentially unreliable loggers who are claiming highly significant sightings without proof, which can create an inaccurate database</p>
+        <p>Tables Used: Logger, Report, Evidence, Species</p>
+        <div class="report-data">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Logger Username (with ID)</th>
+                        <th>% With Evidence</th>
+                        <th>Avg Significance (1-10)</th>
+                        <th>Unique Species Seen</th>
+                        <th>Logger Unique Species Avg</th>
+                    </tr>
+                </thead>
+                <tbody id="louis-report3-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // --- REPORT 1: Table Population ---
+        function populateReport1(rows) {
+            const tbody = document.getElementById("louis-report1-body");
+            tbody.innerHTML = rows.map((row) => `
+                <tr>
+                    <td>${row['AnimalID'] ?? ""}</td>
+                    <td>${row['Name'] ?? "N/A"}</td>
+                    <td>${row['Species Scientific name (With common name)'] ?? "N/A"}</td>
+                    <td>${row['Times reported in past 5 years'] ?? "0"}</td>
+                    <td>${row['Most recent report date'] ?? "No Data"}</td>
+                    <td>${row['Loggers of reports'] ?? "None"}</td>
+                </tr>
+            `).join("");
+        }
+
+        // --- REPORT 2: Chart Rendering ---
+        function renderReport2Chart(rows) {
+            const ctx = document.getElementById("louis-report2-chart").getContext("2d");
+            
+            // Extract data arrays from the JSON rows
+            const countryNames = rows.map(row => row['Country']);
+            const uniqueSpecies = rows.map(row => row['Total unique species']);
+            const uniqueLoggers = rows.map(row => row['Unique loggers']);
+            
+            new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: countryNames,
+                    datasets: [
+                        {
+                            label: 'Total Unique Endangered Species',
+                            data: uniqueSpecies,
+                            backgroundColor: "#FF6384"
+                        },
+                        {
+                            label: 'Unique Loggers Monitoring',
+                            data: uniqueLoggers,
+                            backgroundColor: "#36A2EB"
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        title: { display: true, text: 'Species vs. Loggers per Country' }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // --- REPORT 3: Table Population ---
+        function populateReport3(rows) {
+            const tbody = document.getElementById("louis-report3-body");
+            tbody.innerHTML = rows.map((row) => `
+                <tr>
+                    <td>${row['Logger username (with id)'] ?? ""}</td>
+                    <td>${row['% of reports with submitted evidence'] ?? "0"}</td>
+                    <td>${row['Reports avg significance (1-10)'] ?? "0"}</td>
+                    <td>${row['Unique Species Seen'] ?? "0"}</td>
+                    <td>${row['Logger unique species avg'] ?? "0"}</td>
+                </tr>
+            `).join("");
+        }
+
+        // SQL execution
+        document.addEventListener("DOMContentLoaded", async () => {
+            
+            // Query 1
+            const sql1 = `
+            SELECT 
+                Tracked_Animal.AnimalID, 
+                Tracked_Animal.Name, 
+                CONCAT(Species.ScientificName, ' (', Species.CommonName, ')') AS 'Species Scientific name (With common name)',
+                COUNT(Report.ReportID) AS 'Times reported in past 5 years', 
+                YEAR(MAX(Report.ReportDate)) AS 'Most recent report date',
+                GROUP_CONCAT(DISTINCT Logger.Username SEPARATOR ', ') AS 'Loggers of reports'
+            FROM Tracked_Animal
+            LEFT JOIN Report ON Tracked_Animal.AnimalID = Report.AnimalID 
+                AND Report.ReportDate >= DATE_SUB(CURDATE(), INTERVAL 5 YEAR)
+            LEFT JOIN Logger ON Report.LoggerID = Logger.LoggerID
+            INNER JOIN Species ON Tracked_Animal.SpeciesID = Species.SpeciesID
+            WHERE 
+                Tracked_Animal.status = "Alive" 
+            GROUP BY 
+                Tracked_Animal.AnimalID, 
+                Tracked_Animal.Name
+            HAVING 
+                COUNT(Report.ReportID) < 5
+            ORDER BY 
+                COUNT(Report.ReportID) ASC
+            LIMIT 30;
+            `;
+
+            
+            // Query 2
+            const sql2 = `
+            SELECT 
+                Country AS 'Country',
+                COUNT(DISTINCT SpeciesID) AS 'Total unique species', 
+                COUNT(SpeciesID) AS 'Total animals',
+                COUNT(DISTINCT LoggerID) AS 'Unique loggers'
+            FROM view_Sighting_Details
+            WHERE ConservationStatus IN ("Critically Endangered", "Endangered")
+            GROUP BY  Country
+            HAVING COUNT(DISTINCT LoggerID) < 5
+            ORDER BY COUNT(DISTINCT LoggerID) ASC
+            LIMIT 30;
+
+
+            `;
+            
+            // Query 3
+            const sql3 = `
+            SELECT 
+                CONCAT(Logger.Username, ' (', Logger.LoggerID, ')') AS 'Logger username (with id)', 
+                CONCAT(ROUND((SUM(CASE WHEN Evidence.EvidenceType = "Sighting" THEN 1 ELSE 0 END) * 100.0) / COUNT(Report.ReportID), 1), '%') AS '% of reports with submitted evidence',
+                CONCAT(ROUND(AVG(
+                    CASE 
+                        WHEN Species.ConservationStatus = "Least Concern" THEN 1
+                        WHEN Species.ConservationStatus = "Vulnerable" THEN 2.5
+                        WHEN Species.ConservationStatus = "Endangered" THEN 5
+                        WHEN Species.ConservationStatus = "Critically Endangered" THEN 10
+                        ELSE 0
+                    END
+                ), 1), '/10') AS 'Reports avg significance (1-10)',
+                COUNT(DISTINCT Species.SpeciesID) AS 'Unique Species Seen',
+                (SELECT ROUND(COUNT(DISTINCT SpeciesID) / COUNT(DISTINCT LoggerID), 1) FROM Report) AS 'Logger unique species avg'
+            FROM Logger
+            INNER JOIN Report ON Logger.LoggerID = Report.LoggerID
+            LEFT JOIN Evidence ON Report.EvidenceID = Evidence.EvidenceID
+            LEFT JOIN Species ON Report.SpeciesID = Species.SpeciesID
+            GROUP BY 
+                Logger.LoggerID, 
+                Logger.Username
+            ORDER BY  
+                ROUND((SUM(CASE WHEN Evidence.EvidenceType = "Sighting" THEN 1 ELSE 0 END) * 100.0) / COUNT(Report.ReportID), 1) ASC
+            LIMIT 30;
+            `;
+
+            // Execute all queries concurrently
+            const [res1, res2, res3] = await Promise.all([
+                runQuery(sql1.trim()),
+                runQuery(sql2.trim()),
+                runQuery(sql3.trim())
+            ]);
+
+            // Process Report 1
+            if (res1?.success && Array.isArray(res1.data)) populateReport1(res1.data);
+            else console.error("Report 1 error", res1);
+
+            // Process Report 2 (Chart)
+            if (res2?.success && Array.isArray(res2.data)) renderReport2Chart(res2.data);
+            else console.error("Report 2 error", res2);
+
+            // Process Report 3
+            if (res3?.success && Array.isArray(res3.data)) populateReport3(res3.data);
+            else console.error("Report 3 error", res3);
+        });
+    </script>
 
     <footer class="footer">
         <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>

@@ -36,9 +36,16 @@
 
     <div class="report-section">
         <h3>Report 1: Animals that have little data to show they're still alive</h3>
-        <p>Business Question: Which animals are recorded as alive in the database however have little to no reports in the past 5 years to show they are?</p>
+        <p>Business Question: Which animals are recorded as alive in the database however have little to no reports in recent years to show they are?</p>
         <p>Why this report is useful: Identifies animals which have low likelyhood of being alive, allowing for invalid data to be identified and deleted by system admins</p>
         <p>Tables Used: Tracked_Animal, Report, Logger</p>
+        
+        <div style="margin-bottom: 15px;">
+            <label for="yearFilter"><strong>Sighting Timeframe (Years):</strong></label>
+            <input type="number" id="yearFilter" value="5" min="1" max="50">
+            <button id="updateReport1Btn" class="btn" style="width: auto; ">Update Table</button>
+        </div>
+
         <div class="report-data">
             <table class="data-table">
                 <thead>
@@ -61,8 +68,20 @@
         <p>Business Question: Which countries have confirmed sightings of endangered animals but are being monitored by very few loggers?</p>
         <p>Why this report is useful: Highlights regions that critically need more conservation staff deployed.</p>
         <p>Tables Used: Location, Report, Logger, Species</p>
-        <div class="report-data">
-            <canvas id="louis-report2-chart" style="max-width: 800px; height: 500px; margin: 0 auto;"></canvas>
+
+        <div style="margin-bottom: 15px;">
+            <label for="statusFilter"><strong>Conservation Status:</strong></label>
+            <select id="statusFilter" style="padding: 5px; margin-right: 10px;">
+                <option value="'Critically Endangered', 'Endangered'">High Risk (CR & EN)</option>
+                <option value="'Critically Endangered'">Critically Endangered Only</option>
+                <option value="'Endangered'">Endangered Only</option>
+                <option value="'Vulnerable'">Vulnerable Only</option>
+            </select>
+            <button id="updateReport2Btn" class="btn" style="width: auto; padding: 6px 15px; margin-top: 0;">Update Chart</button>
+        </div>
+
+    <div class="report-data">
+            <canvas id="louis-report2-chart"></canvas>
         </div>
     </div>
 
@@ -104,15 +123,20 @@
         }
 
         // --- REPORT 2: Chart Rendering ---
+        let report2ChartInstance = null;
+
         function renderReport2Chart(rows) {
             const ctx = document.getElementById("louis-report2-chart").getContext("2d");
             
-            // Extract data arrays from the JSON rows
+            if (report2ChartInstance) {
+                report2ChartInstance.destroy(); 
+            }
+            
             const countryNames = rows.map(row => row['Country']);
             const uniqueSpecies = rows.map(row => row['Total unique species']);
             const uniqueLoggers = rows.map(row => row['Unique loggers']);
             
-            new Chart(ctx, {
+            report2ChartInstance = new Chart(ctx, {
                 type: "bar",
                 data: {
                     labels: countryNames,
@@ -248,6 +272,55 @@
             // Process Report 3
             if (res3?.success && Array.isArray(res3.data)) populateReport3(res3.data);
             else console.error("Report 3 error", res3);
+
+            document.getElementById("updateReport1Btn").addEventListener("click", async () => {
+                const years = document.getElementById("yearFilter").value;
+                const dynSql1 = `
+                SELECT 
+                    Tracked_Animal.AnimalID, 
+                    Tracked_Animal.Name, 
+                    CONCAT(Species.ScientificName, ' (', Species.CommonName, ')') AS 'Species Scientific name (With common name)',
+                    COUNT(Report.ReportID) AS 'Times reported in past ${years} years', 
+                    YEAR(MAX(Report.ReportDate)) AS 'Most recent report date',
+                    GROUP_CONCAT(DISTINCT Logger.Username SEPARATOR ', ') AS 'Loggers of reports'
+                FROM Tracked_Animal
+                LEFT JOIN Report ON Tracked_Animal.AnimalID = Report.AnimalID 
+                    AND Report.ReportDate >= DATE_SUB(CURDATE(), INTERVAL ${years} YEAR)
+                LEFT JOIN Logger ON Report.LoggerID = Logger.LoggerID
+                INNER JOIN Species ON Tracked_Animal.SpeciesID = Species.SpeciesID
+                WHERE 
+                    Tracked_Animal.status = "Alive" 
+                GROUP BY 
+                    Tracked_Animal.AnimalID, 
+                    Tracked_Animal.Name
+                HAVING 
+                    COUNT(Report.ReportID) < 5
+                ORDER BY 
+                    COUNT(Report.ReportID) ASC
+                LIMIT 30;
+                `;
+                const r1 = await runQuery(dynSql1.trim());
+                if (r1?.success && Array.isArray(r1.data)) populateReport1(r1.data);
+            });
+
+            document.getElementById("updateReport2Btn").addEventListener("click", async () => {
+                const status = document.getElementById("statusFilter").value;
+                const dynSql2 = `
+                SELECT 
+                    Country AS 'Country',
+                    COUNT(DISTINCT SpeciesID) AS 'Total unique species', 
+                    COUNT(SpeciesID) AS 'Total animals',
+                    COUNT(DISTINCT LoggerID) AS 'Unique loggers'
+                FROM view_Sighting_Details
+                WHERE ConservationStatus IN (${status})
+                GROUP BY  Country
+                HAVING COUNT(DISTINCT LoggerID) < 5
+                ORDER BY COUNT(DISTINCT LoggerID) ASC
+                LIMIT 30;
+                `;
+                const r2 = await runQuery(dynSql2.trim());
+                if (r2?.success && Array.isArray(r2.data)) renderReport2Chart(r2.data);
+            });
         });
     </script>
 

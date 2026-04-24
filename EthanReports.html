@@ -171,10 +171,15 @@ I created the charts using the chart.js framework which is free to use and is wi
         let ethanReportsThreeChart;
 
         function jsonGrabberThree(rows) {
-            const labels = rows.map((row) => row.Country ?? "");
-            const incidentCounts = rows.map((row) => Number(row.Incident_Count ?? 0));
-            const evidenceMethods = rows.map((row) => row.Evidence_Methods ?? "");
+            const labels = rows.map((row) => row.Country ?? row.country ?? row.Location ?? row.location ?? "");
+            const incidentCounts = rows.map((row) => Number(row.Incident_Count ?? row.incident_count ?? row.IncidentCount ?? row.incidentCount ?? 0));
+            const evidenceMethods = rows.map((row) => row.Evidence_Methods ?? row.evidence_methods ?? row.EvidenceMethods ?? row.evidenceMethods ?? "");
             const canvas = document.getElementById("ethan-reports3-chart");
+
+            if (!canvas) {
+                console.error("Chart canvas not found: ethan-reports3-chart");
+                return;
+            }
 
             if (ethanReportsThreeChart) {
                 ethanReportsThreeChart.destroy();
@@ -192,7 +197,7 @@ I created the charts using the chart.js framework which is free to use and is wi
                         borderWidth: 1,
                     }],
                 },
-                options: {
+                    scales: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
@@ -232,11 +237,10 @@ I created the charts using the chart.js framework which is free to use and is wi
             });
         }
 
-        document.addEventListener("DOMContentLoaded", async () => {     <!-- Event listener to check if DOM content has loaded and then use runQuery() to run the report -->
+        document.addEventListener("DOMContentLoaded", async () => {
             const [EthanResultThree] = await Promise.all([
-                runQuery(`SELECT Country, COUNT(*) AS Incident_Count, GROUP_CONCAT(DISTINCT EvidenceType SEPARATOR ', ') AS Evidence_Methods FROM GlobalThreatAudit WHERE ReportType = 'Poaching' GROUP BY Country ORDER BY Incident_Count DESC LIMIT 12;`),
+                runQuery(`SELECT L.Country, COUNT(R.ReportID) AS Incident_Count, GROUP_CONCAT(DISTINCT E.EvidenceType SEPARATOR ', ') AS Evidence_Methods FROM Report R INNER JOIN Location L ON R.LocationID = L.LocationID INNER JOIN Evidence E ON R.EvidenceID = E.EvidenceID WHERE R.ReportType = 'Poaching' GROUP BY L.Country HAVING Incident_Count >= 1 ORDER BY Incident_Count DESC LIMIT 12;`)
             ]);
-
             if (EthanResultThree?.success && Array.isArray(EthanResultThree.data)) {
                 jsonGrabberThree(EthanResultThree.data);
             }

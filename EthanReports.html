@@ -1,13 +1,16 @@
+<!-- This file holds the HTML for my reports page, it pulls data from the MySQL Database to be displayed in either a tabular or chart format,
+I created the charts using the chart.js framework which is free to use and is within the project scope -- 23/04/26 -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Endangered Species Tracker - Ethan Reports</title>
-    <!-- Shared page assets -->
-    <link rel="stylesheet" href="css/styles.css">
+
+    <link rel="stylesheet" href="css/styles.css">                   <!-- Pulling the stylesheet from css -->
     <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>       <!-- Pulling the chart.js library from a CDN link -->
     <script src="js/runQuery.js"></script>
 </head>
 <body>
@@ -206,7 +209,7 @@
                             },
                         },
                     },
-                    scales: {
+                    scales: {       <!-- scales for axis -->
                         y: {
                             beginAtZero: true,
                             ticks: {
@@ -228,7 +231,7 @@
             });
         }
 
-        document.addEventListener("DOMContentLoaded", async () => {
+        document.addEventListener("DOMContentLoaded", async () => {     <!-- Event listener to check if DOM content has loaded and then use runQuery() to run the report -->
             const [EthanResultThree] = await Promise.all([
                 runQuery(`SELECT Country, COUNT(*) AS Incident_Count, GROUP_CONCAT(DISTINCT EvidenceType SEPARATOR ', ') AS Evidence_Methods FROM GlobalThreatAudit WHERE ReportType = 'Poaching' GROUP BY Country ORDER BY Incident_Count DESC LIMIT 12;`),
             ]);

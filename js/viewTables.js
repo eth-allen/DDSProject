@@ -1,10 +1,13 @@
+// In this file, I have created JavaScript logic for the background tasks to make this page work as standard, this includes scraping JSON
+// field validation for edit forms and popups for crucial messages
+
 const byId = (id) => document.getElementById(id);
 
 // Global state for tracking active edits
 let activeEditTable = null;
 let activeEditId = null;
 
-// Local cache for database records
+// Local cache for records
 const tableCache = {
     logger: [], location: [], evidence: [],
     species: [], report: [], trackedAnimal: []
@@ -12,7 +15,7 @@ const tableCache = {
 
 // Table configuration mapping
 const tableConfigs = {
-    logger: { idKey: "LoggerID", bodyId: "logger-table-body", sqlTable: "Logger", columns: 5, getQuery: "SELECT * FROM Logger ORDER BY LoggerID" },
+    logger: { idKey: "LoggerID", bodyId: "logger-table-body", sqlTable: "Logger", columns: 6, getQuery: "SELECT * FROM Logger ORDER BY LoggerID" },
     location: { idKey: "LocationID", bodyId: "location-table-body", sqlTable: "Location", columns: 3, getQuery: "SELECT * FROM Location ORDER BY LocationID" },
     evidence: { idKey: "EvidenceID", bodyId: "evidence-table-body", sqlTable: "Evidence", columns: 4, getQuery: "SELECT * FROM Evidence ORDER BY EvidenceID" },
     species: { idKey: "SpeciesID", bodyId: "species-table-body", sqlTable: "Species", columns: 5, getQuery: "SELECT * FROM Species ORDER BY SpeciesID" },
@@ -20,10 +23,10 @@ const tableConfigs = {
     trackedAnimal: { idKey: "AnimalID", bodyId: "tracked-animals-table-body", sqlTable: "Tracked_Animal", columns: 6, getQuery: "SELECT * FROM Tracked_Animal ORDER BY AnimalID" }
 };
 
-// --- Error Handling & Utilities ---
+// Handling errors section
 
 /**
- * Converts technical MySQL errors into user-friendly messages.
+ * Converts technical MySQL errors into user-friendly messages for the user
  */
 function getFriendlyErrorMessage(rawError) {
     const errorText = String(rawError).toLowerCase();
@@ -69,7 +72,7 @@ function applyHighlight(id, isError) {
     if (el) el.style.border = isError ? "2px solid red" : "";
 }
 
-// --- Data Management ---
+// Managing the data in tables
 
 async function refreshAllTables() {
     for (const key in tableConfigs) {
@@ -94,7 +97,7 @@ function renderRows(tableKey, data) {
 
     tbody.innerHTML = data.map(row => {
         let cells = "";
-        if (tableKey === 'logger') cells = `<td>${row.LoggerID}</td><td>${escapeHtml(row.Forename)}</td><td>${escapeHtml(row.Surname)}</td><td>${escapeHtml(row.Email)}</td>`;
+        if (tableKey === 'logger') cells = `<td>${row.LoggerID}</td><td>${escapeHtml(row.Username || "")}</td><td>${escapeHtml(row.Forename)}</td><td>${escapeHtml(row.Surname)}</td><td>${escapeHtml(row.Email)}</td>`;
         else if (tableKey === 'location') cells = `<td>${row.LocationID}</td><td>${escapeHtml(row.Country)}</td>`;
         else if (tableKey === 'evidence') cells = `<td>${row.EvidenceID}</td><td>${row.EvidenceType}</td><td>${escapeHtml(row.Description)}</td>`;
         else if (tableKey === 'species') cells = `<td>${row.SpeciesID}</td><td>${escapeHtml(row.ScientificName)}</td><td>${escapeHtml(row.CommonName)}</td><td>${row.ConservationStatus}</td>`;
@@ -109,7 +112,7 @@ function renderRows(tableKey, data) {
     }).join('');
 }
 
-// --- Interaction Logic ---
+// Edit logic for edit panel
 
 function handleEditClick(tableKey, id) {
     activeEditTable = tableKey;
@@ -119,6 +122,7 @@ function handleEditClick(tableKey, id) {
 
     let sectionId = "";
     if (tableKey === 'logger') {
+        byId("edit-username-input").value = row.Username || "";
         byId("edit-forename-input").value = row.Forename;
         byId("edit-surname-input").value = row.Surname;
         byId("edit-email-input").value = row.Email;
@@ -177,52 +181,92 @@ async function handleDeleteClick(tableKey, id) {
     else showError(result.error);
 }
 
-// --- Form Submission Logic for ALL tables ---
+// Logic for form submission when editing records
 
 async function handleFormSubmit(e) {
     e.preventDefault();
     clearValidationEffects();
     let query = "";
 
+    // 1. Logger Table Validation
     if (activeEditTable === 'logger') {
+        const username = byId("edit-username-input").value.trim();
         const fname = byId("edit-forename-input").value.trim();
         const sname = byId("edit-surname-input").value.trim();
         const email = byId("edit-email-input").value.trim();
-        if (!isValidName(fname)) { applyHighlight("edit-forename-input", true); return showAlert("Invalid Forename.", true); }
-        if (!isValidName(sname)) { applyHighlight("edit-surname-input", true); return showAlert("Invalid Surname.", true); }
-        if (!isValidEmail(email)) { applyHighlight("edit-email-input", true); return showAlert("Invalid Email.", true); }
-        query = `UPDATE Logger SET Forename='${escapeSql(fname)}', Surname='${escapeSql(sname)}', Email='${escapeSql(email)}' WHERE LoggerID = ${activeEditId}`;
+        if (!isValidUsername(username)) { applyHighlight("edit-username-input", true); return showAlert("Invalid Username. No special characters allowed.", true); }
+        if (!isValidName(fname)) { applyHighlight("edit-forename-input", true); return showAlert("Invalid Forename. No numbers allowed.", true); }
+        if (!isValidName(sname)) { applyHighlight("edit-surname-input", true); return showAlert("Invalid Surname. No numbers allowed.", true); }
+        if (!isValidEmail(email)) { applyHighlight("edit-email-input", true); return showAlert("Invalid Email. Format: user@example.com", true); }
+        query = `UPDATE Logger SET Username='${escapeSql(username)}', Forename='${escapeSql(fname)}', Surname='${escapeSql(sname)}', Email='${escapeSql(email)}' WHERE LoggerID = ${activeEditId}`;
     }
+
+    // 2. Location Table Validation
     else if (activeEditTable === 'location') {
         const country = byId("edit-country-input").value.trim();
-        if (country.length < 1) { applyHighlight("edit-country-input", true); return showAlert("Country required.", true); }
+        if (country.length < 1 || country.length > 100) { applyHighlight("edit-country-input", true); return showAlert("Country name required (1-100 characters).", true); }
         query = `UPDATE Location SET Country='${escapeSql(country)}' WHERE LocationID = ${activeEditId}`;
     }
+
+    // 3. Evidence Table Validation
     else if (activeEditTable === 'evidence') {
         const type = byId("edit-evidence-type-input").value;
         const desc = byId("edit-evidence-desc-input").value.trim();
-        if (!type) { applyHighlight("edit-evidence-type-input", true); return showAlert("Type required.", true); }
+        if (!type) { applyHighlight("edit-evidence-type-input", true); return showAlert("Evidence type required.", true); }
+        // Length check allows special characters in descriptions
         if (desc.length < 1) { applyHighlight("edit-evidence-desc-input", true); return showAlert("Description required.", true); }
         query = `UPDATE Evidence SET EvidenceType='${type}', Description='${escapeSql(desc)}' WHERE EvidenceID = ${activeEditId}`;
     }
+
+    // 4. Species Table Validation
     else if (activeEditTable === 'species') {
         const sName = byId("edit-species-scientific-name-input").value.trim();
         const cName = byId("edit-species-name-input").value.trim();
         const status = byId("edit-species-status-input").value;
         if (!isValidAnimalOrSpeciesName(sName)) { applyHighlight("edit-species-scientific-name-input", true); return showAlert("Invalid Scientific Name.", true); }
+        if (cName.length < 2 || cName.length > 100) { applyHighlight("edit-species-name-input", true); return showAlert("Invalid Common Name length.", true); }
+        if (!status) { applyHighlight("edit-species-status-input", true); return showAlert("Conservation status required.", true); }
         query = `UPDATE Species SET ScientificName='${escapeSql(sName)}', CommonName='${escapeSql(cName)}', ConservationStatus='${status}' WHERE SpeciesID = ${activeEditId}`;
     }
+
+    // 5. Report Table Validation
     else if (activeEditTable === 'report') {
+        const loggerId = byId("edit-report-logger-id-input").value;
+        const locationId = byId("edit-report-location-id-input").value;
+        const evidenceId = byId("edit-report-evidence-id-input").value;
+        const speciesId = byId("edit-report-species-id-input").value;
+        const date = byId("edit-report-date-input").value;
         const type = byId("edit-report-type-input").value.trim();
         const desc = byId("edit-report-description-input").value.trim();
-        if (type.length < 1) { applyHighlight("edit-report-type-input", true); return showAlert("Type required.", true); }
-        query = `UPDATE Report SET LoggerID=${byId("edit-report-logger-id-input").value}, LocationID=${byId("edit-report-location-id-input").value}, EvidenceID=${byId("edit-report-evidence-id-input").value}, ReportDate='${byId("edit-report-date-input").value}', SpeciesID=${byId("edit-report-species-id-input").value}, ReportType='${escapeSql(type)}', ReportDescription='${escapeSql(desc)}' WHERE ReportID = ${activeEditId}`;
-    }
-    else if (activeEditTable === 'trackedAnimal') {
-        const name = byId("edit-tracked-animals-name-input").value.trim();
-        query = `UPDATE Tracked_Animal SET Name=${name ? `'${escapeSql(name)}'` : "NULL"}, SpeciesID=${byId("edit-tracked-animals-species-id-input").value}, BirthDate='${byId("edit-tracked-animals-birth-date-input").value}', Status='${byId("edit-tracked-animals-status-input").value}' WHERE AnimalID = ${activeEditId}`;
+
+        if (loggerId < 1) { applyHighlight("edit-report-logger-id-input", true); return showAlert("Valid Logger ID required.", true); }
+        if (locationId < 1) { applyHighlight("edit-report-location-id-input", true); return showAlert("Valid Location ID required.", true); }
+        if (evidenceId < 1) { applyHighlight("edit-report-evidence-id-input", true); return showAlert("Valid Evidence ID required.", true); }
+        if (speciesId < 1) { applyHighlight("edit-report-species-id-input", true); return showAlert("Valid Species ID required.", true); }
+        if (!date) { applyHighlight("edit-report-date-input", true); return showAlert("Date required.", true); }
+        // Length checks allow for special characters in type and description
+        if (type.length < 1) { applyHighlight("edit-report-type-input", true); return showAlert("Report type required.", true); }
+        if (desc.length < 1) { applyHighlight("edit-report-description-input", true); return showAlert("Description required.", true); }
+
+        query = `UPDATE Report SET LoggerID=${loggerId}, LocationID=${locationId}, EvidenceID=${evidenceId}, ReportDate='${date}', SpeciesID=${speciesId}, ReportType='${escapeSql(type)}', ReportDescription='${escapeSql(desc)}' WHERE ReportID = ${activeEditId}`;
     }
 
+    // 6. Tracked Animal Table Validation
+    else if (activeEditTable === 'trackedAnimal') {
+        const name = byId("edit-tracked-animals-name-input").value.trim();
+        const speciesId = byId("edit-tracked-animals-species-id-input").value;
+        const bDate = byId("edit-tracked-animals-birth-date-input").value;
+        const status = byId("edit-tracked-animals-status-input").value;
+
+        if (name !== "" && !isValidAnimalOrSpeciesName(name)) { applyHighlight("edit-tracked-animals-name-input", true); return showAlert("Invalid Animal Name.", true); }
+        if (speciesId < 1) { applyHighlight("edit-tracked-animals-species-id-input", true); return showAlert("Valid Species ID required.", true); }
+        if (!bDate) { applyHighlight("edit-tracked-animals-birth-date-input", true); return showAlert("Birth date required.", true); }
+        if (!status) { applyHighlight("edit-tracked-animals-status-input", true); return showAlert("Status required.", true); }
+
+        query = `UPDATE Tracked_Animal SET Name=${name ? `'${escapeSql(name)}'` : "NULL"}, SpeciesID=${speciesId}, BirthDate='${bDate}', Status='${status}' WHERE AnimalID = ${activeEditId}`;
+    }
+
+    // Run the update only if validation passed
     const result = await runQuery(query);
     if (result && result.success) {
         closeEditPane();
@@ -233,7 +277,7 @@ async function handleFormSubmit(e) {
     }
 }
 
-// --- Initialization ---
+// Initialization
 
 document.addEventListener("DOMContentLoaded", () => {
     refreshAllTables();
@@ -241,7 +285,7 @@ document.addEventListener("DOMContentLoaded", () => {
     byId("edit-pane-close").addEventListener("click", closeEditPane);
     document.querySelectorAll("[id$='-edit-cancel']").forEach(b => b.addEventListener("click", closeEditPane));
 
-    // Tab Logic
+    // Tab logic
     const tabs = document.querySelectorAll("[data-table-tab]");
     tabs.forEach(tab => {
         tab.addEventListener("click", () => {

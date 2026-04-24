@@ -1,3 +1,6 @@
+<!-- This file holds the HTML for my reports page, it pulls data from the MySQL Database to be displayed in either a tabular or chart format,
+I created the charts using the chart.js framework which is free to use and is within the project scope -- 23/04/26 -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,10 +50,11 @@
 <div class="container">
     <div id="loggers" class="form-table-container table-tab-panel is-active" data-table-panel="loggers" role="tabpanel" aria-labelledby="loggers-tab">
         <h2>View Loggers</h2>
-        <table id="logger-table">
+        <table id="logger-table">       <!-- Setting up Table columns and assign each column to a SQL Table Column -->
             <thead>
             <tr>
                 <th>Logger ID</th>
+                <th>Username</th>
                 <th>Forename</th>
                 <th>Surname</th>
                 <th>Email</th>
@@ -148,8 +152,11 @@
             <button type="button" id="edit-pane-close" class="edit-pane-close" aria-label="Close edit pane">&times;</button>
             <h2 id="edit-pane-title">Edit Record</h2>
 
-            <section id="logger-edit-section" class="edit-pane-section">
+            <section id="logger-edit-section" class="edit-pane-section">        <!-- Setting up the edit pane for each table and it's input boxes, in the js file these are then linked to the specific column in db table -->
                 <form id="logger-edit-form">
+                    <label for="edit-username-input">Username</label>
+                    <input type="text" id="edit-username-input" required><br>
+
                     <label for="edit-forename-input">Forename</label>
                     <input type="text" id="edit-forename-input" required><br>
 

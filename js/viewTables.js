@@ -194,17 +194,38 @@ async function handleFormSubmit(e) {
         const fname = byId("edit-forename-input").value.trim();
         const sname = byId("edit-surname-input").value.trim();
         const email = byId("edit-email-input").value.trim();
-        if (!isValidUsername(username)) { applyHighlight("edit-username-input", true); return showAlert("Invalid Username. No special characters allowed.", true); }
-        if (!isValidName(fname)) { applyHighlight("edit-forename-input", true); return showAlert("Invalid Forename. No numbers allowed.", true); }
-        if (!isValidName(sname)) { applyHighlight("edit-surname-input", true); return showAlert("Invalid Surname. No numbers allowed.", true); }
-        if (!isValidEmail(email)) { applyHighlight("edit-email-input", true); return showAlert("Invalid Email. Format: user@example.com", true); }
+
+        if (!isValidUsername(username)) {
+            applyHighlight("edit-username-input", true);
+            return showAlert("Invalid Username. Alphanumeric only (3-20 chars).", true);
+        }
+        if (!isValidName(fname) || /\d/.test(fname)) {
+            applyHighlight("edit-forename-input", true);
+            return showAlert("Invalid Forename. No numbers or special characters allowed.", true);
+        }
+        if (!isValidName(sname) || /\d/.test(sname)) {
+            applyHighlight("edit-surname-input", true);
+            return showAlert("Invalid Surname. No numbers or special characters allowed.", true);
+        }
+        if (!isValidEmail(email)) {
+            applyHighlight("edit-email-input", true);
+            return showAlert("Invalid Email. Format: user@example.com", true);
+        }
         query = `UPDATE Logger SET Username='${escapeSql(username)}', Forename='${escapeSql(fname)}', Surname='${escapeSql(sname)}', Email='${escapeSql(email)}' WHERE LoggerID = ${activeEditId}`;
     }
 
     // 2. Location Table Validation
     else if (activeEditTable === 'location') {
         const country = byId("edit-country-input").value.trim();
-        if (country.length < 1 || country.length > 100) { applyHighlight("edit-country-input", true); return showAlert("Country name required (1-100 characters).", true); }
+        if (country.length < 2 || country.length > 100) {
+            applyHighlight("edit-country-input", true);
+            return showAlert("Country name must be between 2 and 100 characters.", true);
+        }
+        // Strict Numeric Check added here
+        if (/\d/.test(country)) {
+            applyHighlight("edit-country-input", true);
+            return showAlert("Country name cannot contain numbers.", true);
+        }
         query = `UPDATE Location SET Country='${escapeSql(country)}' WHERE LocationID = ${activeEditId}`;
     }
 
@@ -212,9 +233,15 @@ async function handleFormSubmit(e) {
     else if (activeEditTable === 'evidence') {
         const type = byId("edit-evidence-type-input").value;
         const desc = byId("edit-evidence-desc-input").value.trim();
-        if (!type) { applyHighlight("edit-evidence-type-input", true); return showAlert("Evidence type required.", true); }
-        // Length check allows special characters in descriptions
-        if (desc.length < 1) { applyHighlight("edit-evidence-desc-input", true); return showAlert("Description required.", true); }
+        if (!type) {
+            applyHighlight("edit-evidence-type-input", true);
+            return showAlert("Evidence type selection is required.", true);
+        }
+        if (desc.length < 5) {
+            applyHighlight("edit-evidence-desc-input", true);
+            return showAlert("Description is too short (min 5 characters).", true);
+        }
+        // Evidence descriptions might legitimately contain numbers (e.g. "Saw 2 bears"), so we don't block them here.
         query = `UPDATE Evidence SET EvidenceType='${type}', Description='${escapeSql(desc)}' WHERE EvidenceID = ${activeEditId}`;
     }
 
@@ -223,30 +250,48 @@ async function handleFormSubmit(e) {
         const sName = byId("edit-species-scientific-name-input").value.trim();
         const cName = byId("edit-species-name-input").value.trim();
         const status = byId("edit-species-status-input").value;
-        if (!isValidAnimalOrSpeciesName(sName)) { applyHighlight("edit-species-scientific-name-input", true); return showAlert("Invalid Scientific Name.", true); }
-        if (cName.length < 2 || cName.length > 100) { applyHighlight("edit-species-name-input", true); return showAlert("Invalid Common Name length.", true); }
-        if (!status) { applyHighlight("edit-species-status-input", true); return showAlert("Conservation status required.", true); }
+
+        if (!isValidAnimalOrSpeciesName(sName) || /\d/.test(sName)) {
+            applyHighlight("edit-species-scientific-name-input", true);
+            return showAlert("Invalid Scientific Name. No numbers allowed.", true);
+        }
+        if (cName.length < 2 || cName.length > 100) {
+            applyHighlight("edit-species-name-input", true);
+            return showAlert("Common Name must be 2-100 characters.", true);
+        }
+        if (!status) {
+            applyHighlight("edit-species-status-input", true);
+            return showAlert("Conservation status required.", true);
+        }
         query = `UPDATE Species SET ScientificName='${escapeSql(sName)}', CommonName='${escapeSql(cName)}', ConservationStatus='${status}' WHERE SpeciesID = ${activeEditId}`;
     }
 
     // 5. Report Table Validation
     else if (activeEditTable === 'report') {
-        const loggerId = byId("edit-report-logger-id-input").value;
-        const locationId = byId("edit-report-location-id-input").value;
-        const evidenceId = byId("edit-report-evidence-id-input").value;
-        const speciesId = byId("edit-report-species-id-input").value;
+        const loggerId = parseInt(byId("edit-report-logger-id-input").value);
+        const locationId = parseInt(byId("edit-report-location-id-input").value);
+        const evidenceId = parseInt(byId("edit-report-evidence-id-input").value);
+        const speciesId = parseInt(byId("edit-report-species-id-input").value);
         const date = byId("edit-report-date-input").value;
         const type = byId("edit-report-type-input").value.trim();
         const desc = byId("edit-report-description-input").value.trim();
 
-        if (loggerId < 1) { applyHighlight("edit-report-logger-id-input", true); return showAlert("Valid Logger ID required.", true); }
-        if (locationId < 1) { applyHighlight("edit-report-location-id-input", true); return showAlert("Valid Location ID required.", true); }
-        if (evidenceId < 1) { applyHighlight("edit-report-evidence-id-input", true); return showAlert("Valid Evidence ID required.", true); }
-        if (speciesId < 1) { applyHighlight("edit-report-species-id-input", true); return showAlert("Valid Species ID required.", true); }
-        if (!date) { applyHighlight("edit-report-date-input", true); return showAlert("Date required.", true); }
-        // Length checks allow for special characters in type and description
-        if (type.length < 1) { applyHighlight("edit-report-type-input", true); return showAlert("Report type required.", true); }
-        if (desc.length < 1) { applyHighlight("edit-report-description-input", true); return showAlert("Description required.", true); }
+        if (isNaN(loggerId) || loggerId < 1) { applyHighlight("edit-report-logger-id-input", true); return showAlert("Valid Logger ID required.", true); }
+        if (isNaN(locationId) || locationId < 1) { applyHighlight("edit-report-location-id-input", true); return showAlert("Valid Location ID required.", true); }
+        if (isNaN(evidenceId) || evidenceId < 1) { applyHighlight("edit-report-evidence-id-input", true); return showAlert("Valid Evidence ID required.", true); }
+        if (isNaN(speciesId) || speciesId < 1) { applyHighlight("edit-report-species-id-input", true); return showAlert("Valid Species ID required.", true); }
+
+        if (!date) { applyHighlight("edit-report-date-input", true); return showAlert("Submission date required.", true); }
+        if (type.length < 1) {
+            applyHighlight("edit-report-type-input", true);
+            return showAlert("Report type required.", true);
+        }
+        // Strict Numeric Check added for Report Type
+        if (/\d/.test(type)) {
+            applyHighlight("edit-report-type-input", true);
+            return showAlert("Report type cannot contain numbers.", true);
+        }
+        if (desc.length < 5) { applyHighlight("edit-report-description-input", true); return showAlert("Detailed description required.", true); }
 
         query = `UPDATE Report SET LoggerID=${loggerId}, LocationID=${locationId}, EvidenceID=${evidenceId}, ReportDate='${date}', SpeciesID=${speciesId}, ReportType='${escapeSql(type)}', ReportDescription='${escapeSql(desc)}' WHERE ReportID = ${activeEditId}`;
     }
@@ -254,30 +299,49 @@ async function handleFormSubmit(e) {
     // 6. Tracked Animal Table Validation
     else if (activeEditTable === 'trackedAnimal') {
         const name = byId("edit-tracked-animals-name-input").value.trim();
-        const speciesId = byId("edit-tracked-animals-species-id-input").value;
+        const speciesId = parseInt(byId("edit-tracked-animals-species-id-input").value);
         const bDate = byId("edit-tracked-animals-birth-date-input").value;
         const status = byId("edit-tracked-animals-status-input").value;
 
-        if (name !== "" && !isValidAnimalOrSpeciesName(name)) { applyHighlight("edit-tracked-animals-name-input", true); return showAlert("Invalid Animal Name.", true); }
-        if (speciesId < 1) { applyHighlight("edit-tracked-animals-species-id-input", true); return showAlert("Valid Species ID required.", true); }
-        if (!bDate) { applyHighlight("edit-tracked-animals-birth-date-input", true); return showAlert("Birth date required.", true); }
-        if (!status) { applyHighlight("edit-tracked-animals-status-input", true); return showAlert("Status required.", true); }
+        if (name !== "") {
+            if (!isValidAnimalOrSpeciesName(name) || /\d/.test(name)) {
+                applyHighlight("edit-tracked-animals-name-input", true);
+                return showAlert("Invalid Animal Name. No numbers allowed.", true);
+            }
+        }
+        if (isNaN(speciesId) || speciesId < 1) {
+            applyHighlight("edit-tracked-animals-species-id-input", true);
+            return showAlert("Valid Species ID required.", true);
+        }
+        if (!bDate) {
+            applyHighlight("edit-tracked-animals-birth-date-input", true);
+            return showAlert("Birth date is required.", true);
+        }
+        if (!status) {
+            applyHighlight("edit-tracked-animals-status-input", true);
+            return showAlert("Animal status required.", true);
+        }
 
-        query = `UPDATE Tracked_Animal SET Name=${name ? `'${escapeSql(name)}'` : "NULL"}, SpeciesID=${speciesId}, BirthDate='${bDate}', Status='${status}' WHERE AnimalID = ${activeEditId}`;
+        const nameValue = name ? `'${escapeSql(name)}'` : "NULL";
+        query = `UPDATE Tracked_Animal SET Name=${nameValue}, SpeciesID=${speciesId}, BirthDate='${bDate}', Status='${status}' WHERE AnimalID = ${activeEditId}`;
     }
 
     // Run the update only if validation passed
-    const result = await runQuery(query);
-    if (result && result.success) {
-        closeEditPane();
-        refreshAllTables();
-        showAlert("Updated successfully!", false);
-    } else {
-        showError(result ? result.error : "Unknown error occurred.");
+    try {
+        const result = await runQuery(query);
+        if (result && result.success) {
+            closeEditPane();
+            refreshAllTables();
+            showAlert("Updated successfully!", false);
+        } else {
+            showError(result ? result.error : "An unknown error occurred during saving.");
+        }
+    } catch (err) {
+        showError("Database connection failed. Please check your network.");
     }
 }
 
-// Initialization
+// Initialisation
 
 document.addEventListener("DOMContentLoaded", () => {
     refreshAllTables();

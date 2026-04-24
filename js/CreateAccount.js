@@ -85,6 +85,7 @@ loginForm.addEventListener("submit", async function(event) {
         const escapedForename = escapeSql(forename);
         const escapedSurname = escapeSql(surname);
         const escapedEmail = escapeSql(email);
+
         // Inserts form data into database
         const insertResult = await runQuery(`INSERT INTO Logger (username, forename, surname, email) VALUES ('${escapedUsername}', '${escapedForename}', '${escapedSurname}', '${escapedEmail}')`);
 
@@ -95,9 +96,11 @@ loginForm.addEventListener("submit", async function(event) {
         }
         // Else direct user to homepage logged in (or login page if thats too hard)
         else { 
-            showAlert("Account created successfully, directing you to login page", false); // probably better less intrusvie way of doing this like through html editing     
-            console.log("Account created with username: " + escapedUsername + "forename: " + escapedForename + "surname: " + escapedSurname + "email: " + escapedEmail)
-            window.location.href = "index.html"; 
+            showAlert("Account created successfully, directing you to login page", false); // probably better less intrusvie way of doing this like through html editing   
+            setTimeout(function() {
+                console.log("Account created with username: " + escapedUsername + "forename: " + escapedForename + "surname: " + escapedSurname + "email: " + escapedEmail)
+                window.location.href = "index.html"; 
+            }, 1000); // Timer so user can see visual feedback
         }
     }
     else {

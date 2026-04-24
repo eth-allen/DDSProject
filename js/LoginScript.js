@@ -13,9 +13,7 @@ if (loginForm) { // prevents script from
             return; 
         }
 
-        // TODO: Implement actual authentication logic here
         if (username) {
-
             const retrievedUsername = await runQuery(`SELECT Username FROM Logger WHERE Username = '${username}';`);
 
             // If no usernames returned (username doesn't exist)
@@ -31,14 +29,12 @@ if (loginForm) { // prevents script from
                 
             } else if (retrievedUsername.success) { 
                 showAlert("Successful login. Directing you to the home page...", false);
-                sessionStorage.setItem("loggedInUser", username); // Saves current logged in user to session
 
-                // Delays before redirecting so user can see success alert
                 setTimeout(function() {
+                    sessionStorage.setItem("loggedInUser", username); // Saves current logged in user to session
                     window.location.href = "HomePage.html"; 
-                }, 1050);
+                }, 500); // Timer so user can see visual feedback
 
-                window.location.href = "HomePage.html"; // Sends user to homepage
             } else {
                 showAlert("Unknown failiure", true);
             }

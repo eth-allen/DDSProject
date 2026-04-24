@@ -53,7 +53,7 @@
                         <th>Animal ID</th>
                         <th>Name</th>
                         <th>Species (Scientific & Common)</th>
-                        <th>Times Reported (Past 5 Yrs)</th>
+                        <th>Times Reported (In given timeframe)</th>
                         <th>Most Recent Date</th>
                         <th>Contributing Loggers</th>
                     </tr>
@@ -219,7 +219,7 @@
             FROM view_Sighting_Details
             WHERE ConservationStatus IN ("Critically Endangered", "Endangered")
             GROUP BY  Country
-            HAVING COUNT(DISTINCT LoggerID) < 5
+            HAVING COUNT(DISTINCT LoggerID) < 6
             ORDER BY COUNT(DISTINCT LoggerID) ASC
             LIMIT 30;
 
@@ -280,7 +280,7 @@
                     Tracked_Animal.AnimalID, 
                     Tracked_Animal.Name, 
                     CONCAT(Species.ScientificName, ' (', Species.CommonName, ')') AS 'Species Scientific name (With common name)',
-                    COUNT(Report.ReportID) AS 'Times reported in past ${years} years', 
+                    COUNT(Report.ReportID) AS 'Times reported in past 5 years',
                     YEAR(MAX(Report.ReportDate)) AS 'Most recent report date',
                     GROUP_CONCAT(DISTINCT Logger.Username SEPARATOR ', ') AS 'Loggers of reports'
                 FROM Tracked_Animal

@@ -1,7 +1,3 @@
-form button {
-    display:block;
-    padding:5px;
-}
 
 .submit-tabs {
     display: flex;
@@ -123,4 +119,18 @@ form button {
     outline: none;
     border-color: #2d5016;
     background-color: #f9fdf6;
+}
+
+.form-group-radio fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.form-group-radio legend {
+    font-weight: 500;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 8px;
+    padding: 0;
 }

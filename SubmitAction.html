@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endangered Species Tracker - Data submission</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/submitData.css">
+    <script src="js/LoginAuthorisation.js"></script>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <style>
+    </style>
+
+</head>
+<body>
+    <div id="alertBox" style="display: none;"></div>
+
+    <nav class="navbar">
+        <div class="navbar-container">
+            <h1 class="navbar-title">
+                <a href="HomePage.html" class="logo-link">Endangered Species Tracker</a></h1>
+            <ul class="navbar-menu">
+                <li><a href="HomePage.html">Home</a></li>
+                <li><a href="SubmitData.html">Submit data</a></li>
+                <li><a href="SubmitAction.html" class = "active">Submit action</a></li>
+                <li><a href="ViewTables.html">View user reports</a></li>
+                <li><a href="ModifyAccount.html">Modify your account</a></li>
+                <li><a href="Reports.html" >Reports</a></li>
+                <li><a href="AboutUs.html">About us</a></li>
+                <li><a href="index.html" class="logout-button">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="hero-section">
+        <div class="hero-content">
+            <h2>Submit an action taken</h2>
+        </div>
+    </div>
+
+<div class="submit-tabs" role="tablist" aria-label="Submit action tabs">
+    <button id="log-action-tab" type="button" class="submit-tab-button is-active" data-submit-tab="log-action" role="tab" aria-selected="true" aria-controls="log-action">Log Action</button>
+    <button id="add-action-tab" type="button" class="submit-tab-button" data-submit-tab="add-action" role="tab" aria-selected="false" aria-controls="add-action">Add Action Type</button>
+</div>
+
+<div class="container">
+    <div id="log-action" class="submit-tab-panel is-active" data-submit-panel="log-action" role="tabpanel" aria-labelledby="log-action-tab">
+        <form id="log-action-form">
+            
+            <div class="form-group">
+                <label for="report-selection">Select Report</label>
+                <select id="report-selection" required>
+                    <option value="">-- Select a report --</option>
+                    </select> 
+            </div>
+
+            <div class="form-group">
+                <label for="action-selection">Select Action</label>
+                <select id="action-selection" required>
+                    <option value="">-- Select an action --</option>
+                    </select> 
+            </div>
+
+            <div class="form-group">
+                <label for="action-date-input">Date Action Taken</label>
+                <input type="date" id="action-date-input" required> 
+            </div>
+
+            <div class="form-group">
+                <label for="outcome-notes-input">Outcome Notes</label>
+                <input type="text" id="outcome-notes-input" placeholder="Enter outcome notes here" required> 
+            </div>
+
+            <button id="log-action-submit-button" class="btn" type="submit">Submit Action</button>
+        </form>
+    </div>
+
+    <div id="add-action" class="submit-tab-panel" data-submit-panel="add-action" role="tabpanel" aria-labelledby="add-action-tab">
+        <form id="add-action-form">
+            
+            <div class="form-group">
+                <label for="action-name-input">Action Name</label>
+                <input type="text" id="action-name-input" placeholder="e.g. Dispatch Veterinary Team" required>
+            </div>
+
+            <div class="form-group">
+                <label for="action-category-input">Action Category</label>
+                <select id="action-category-input" required>
+                    <option value="">-- Select a category --</option>
+                    <option value="Law Enforcement">Law Enforcement</option>
+                    <option value="Medical">Medical</option>
+                    <option value="Environmental">Environmental</option>
+                    <option value="Community">Community</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <button id="add-action-submit-button" class="btn" type="submit">Add Action Type</button>
+        </form>
+    </div>
+</div>
+
+<script src="js/runQuery.js"></script>
+<script src="js/validationUtilities.js"></script>
+<script src="js/submitAction.js"></script>
+
+
+<footer class="footer">
+    <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
+</footer>
+
+
+</body>
+</html>

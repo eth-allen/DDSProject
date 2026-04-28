@@ -1,4 +1,4 @@
-// LoginScript.js - Handle login form submission
+// login-script.js - Handle login form submission
 {
 const loginForm = document.getElementById('loginForm');
 
@@ -44,7 +44,8 @@ if (loginForm) { // prevents script from
                 showAlert("Successful login. Directing you to the home page...", false);
 
                 setTimeout(function() {
-                    window.location.href = "HomePage.html"; 
+                    sessionStorage.setItem("loggedInUser", username); // Saves current logged in user to session
+                    window.location.href = "homepage.html"; 
                 }, 500); // Timer so user can see visual feedback
 
             } else {

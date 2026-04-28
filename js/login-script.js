@@ -28,11 +28,16 @@ if (loginForm) { // prevents script from
             } else if (retrievedData.success) { // If successful all details are updated
 
                 // Setting user data in session storage with retrieved data.
-                const data = retrievedData.data;
+                const data = retrievedData.data[0];
 
                 const StoredLoggerID = data.LoggerID;
                 const StoredUsername = data.Username;
                 const StoredRole = data.Role;
+
+                console.log("Full User Object from DB:", data);
+                console.log(`Retrieved LoggerID:, ${StoredLoggerID} Retrieved Username: ${StoredUsername} Retrieved Role: ${StoredRole}`);
+
+
 
                 sessionStorage.setItem("loggerID", StoredLoggerID) // Saves logger id to session storage
                 sessionStorage.setItem("loggedInUser", StoredUsername); // Saves current logged in user to session
@@ -40,7 +45,6 @@ if (loginForm) { // prevents script from
 
 
                 // Visual feedback for action + redirection:
-
                 showAlert("Successful login. Directing you to the home page...", false);
 
                 setTimeout(function() {

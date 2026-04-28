@@ -105,9 +105,20 @@ function renderRows(tableKey, data) {
         else if (tableKey === 'trackedAnimal') cells = `<td>${row.AnimalID}</td><td>${escapeHtml(row.Name || "N/A")}</td><td>${row.SpeciesID}</td><td>${row.BirthDate}</td><td>${row.Status}</td>`;
 
         const id = row[config.idKey];
+
+        // Role based access class assigning (default is admin-only editing/deleting buttons BUT if its a report + user made the report they can )
+        const currentLoggerID = sessionStorage.getItem("loggerID").trim();
+        const currentLoggerRole = sessionStorage.getItem("loggerRole").trim();
+        
+        let buttonClass = "table-button admin-only"; // Default class name is admin only
+
+        if (currentLoggerRole.toLowerCase() === "admin" || (tableKey === 'report' && row.LoggerID == currentLoggerID)) {
+            buttonClass = "table-button"; // removes admin-only restriction for edit/delete buttons if logger made specific report
+        }
+
         return `<tr>${cells}<td>
-            <button class="table-button" onclick="handleEditClick('${tableKey}', ${id})">Edit</button>
-            <button class="table-button" onclick="handleDeleteClick('${tableKey}', ${id})">Delete</button>
+            <button class="${buttonClass}" onclick="handleEditClick('${tableKey}', ${id})">Edit</button>
+            <button class="${buttonClass}" onclick="handleDeleteClick('${tableKey}', ${id})">Delete</button>
         </td></tr>`;
     }).join('');
 }
@@ -343,8 +354,8 @@ async function handleFormSubmit(e) {
 
 // Initialisation
 
-document.addEventListener("DOMContentLoaded", () => {
-    refreshAllTables();
+document.addEventListener("DOMContentLoaded", async () => {
+    await refreshAllTables();
     document.querySelectorAll("form").forEach(f => f.addEventListener("submit", handleFormSubmit));
     byId("edit-pane-close").addEventListener("click", closeEditPane);
     document.querySelectorAll("[id$='-edit-cancel']").forEach(b => b.addEventListener("click", closeEditPane));
@@ -362,3 +373,4 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
+

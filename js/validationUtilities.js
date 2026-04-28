@@ -40,6 +40,19 @@ function isValidAnimalOrSpeciesName(name) {
     }
 }
 
+// --- Escape SQL functionality --- 
+
+function escapeSql(value) {
+    if (value === null || value === undefined) { return ""; }
+    
+    let escapedText = String(value);
+    
+    escapedText = escapedText.replace(/\\/g, "\\\\");
+    escapedText = escapedText.replace(/'/g, "''");
+    
+    return escapedText;
+}
+
 
 // ----------- VISUAL ALERT BOX ----------------
 function showAlert(alertText, isError) {

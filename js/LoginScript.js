@@ -6,32 +6,44 @@ if (loginForm) { // prevents script from
     loginForm.addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        const username = document.getElementById('username').value.trim(); // removes whitespace with .trim();
+        const inputtedUsername = escapeSql(document.getElementById('username').value.trim()); // Escaped input + removes whitespace with .trim();
 
-        if (!username || username === "") {
+        if (!inputtedUsername || inputtedUsername === "") {
             showAlert('Please enter a valid username.', true);
             return; 
         }
 
-        if (username) {
-            const retrievedUsername = await runQuery(`SELECT Username FROM Logger WHERE Username = '${username}';`);
+        if (inputtedUsername) {
+            const retrievedData = await runQuery(`SELECT LoggerID, Username, Role FROM Logger WHERE Username = '${inputtedUsername}';`);
 
             // If no usernames returned (username doesn't exist)
-            if(retrievedUsername.data.length === 0) {
+            if(retrievedData.data.length === 0) {
                 showAlert("Username does not exist.", true);
-                console.log("runQuery returned no data! retrievedUsername.data: " + retrievedUsername.data + ", retrievedUsername.error: " + retrievedUsername.error + ", retrievedUsername.success: " + retrievedUsername.success);
-                // Figure out how to reset page or something
+                console.log("runQuery returned no data! retrievedUsername.data: " + retrievedData.data + ", retrievedUsername.error: " + retrievedData.error + ", retrievedUsername.success: " + retrievedData.success);
 
-            } else if (retrievedUsername.error != undefined) { // If runqueory returns an error for whatever reason
+            } else if (retrievedData.error != undefined) { // If runqueory returns an error for whatever reason
                 showAlert("Login unsuccessful, error occured", true);
-                console.log("Error: " + retrievedUsername.error + ", Extra data: " + "retrievedUsername.data: " + sername.data + + ", retrievedUsername.success: " + username.success);
-                // figure out how to reset page or something probably
-                
-            } else if (retrievedUsername.success) { 
+                console.log("Error: " + retrievedData.error + ", Extra data: " + "retrievedUsername.data: " + sername.data + + ", retrievedUsername.success: " + inputtedUsername.success);
+           
+            } else if (retrievedData.success) { // If successful all details are updated
+
+                // Setting user data in session storage with retrieved data.
+                const data = retrievedData.data;
+
+                const StoredLoggerID = data.LoggerID;
+                const StoredUsername = data.Username;
+                const StoredRole = data.Role;
+
+                sessionStorage.setItem("loggerID", StoredLoggerID) // Saves logger id to session storage
+                sessionStorage.setItem("loggedInUser", StoredUsername); // Saves current logged in user to session
+                sessionStorage.setItem("loggerRole", StoredRole); // Saves logger role to session storage
+
+
+                // Visual feedback for action + redirection:
+
                 showAlert("Successful login. Directing you to the home page...", false);
 
                 setTimeout(function() {
-                    sessionStorage.setItem("loggedInUser", username); // Saves current logged in user to session
                     window.location.href = "HomePage.html"; 
                 }, 500); // Timer so user can see visual feedback
 

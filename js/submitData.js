@@ -1,8 +1,5 @@
 const reportForm = document.getElementById("report-form");
 
-function escapeSql(value) {
-    return String(value).replace(/'/g, "''");
-}
 
 function renderSpeciesSelection(rows) {
     const speciesSelection = document.getElementById("species-selection");

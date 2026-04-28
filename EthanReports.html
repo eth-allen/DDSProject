@@ -1,0 +1,316 @@
+<!-- On this page I have set up a parametrisation function which can be used by the end user in order to tweak reports by altering a specific metric,
+for example in Report 1, the user is able to alter the report by changing the minimum amount of reports a logger has submitted in order to be included in the report.
+this allows the end user to easily adjust the report to their needs without having to understand SQL or how the database is structured. -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endangered Species Tracker - Ethan Reports</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/runQuery.js"></script>
+    <script src="js/LoginAuthorisation.js"></script>
+
+    <style>
+        .filter-container {
+            background-color: #f4f4f4;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .filter-container label {
+            font-weight: bold;
+        }
+        .filter-container input, .filter-container select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-container">
+        <h1 class="navbar-title">Endangered Species Tracker</h1>
+        <ul class="navbar-menu">
+            <li><a href="HomePage.html">Home</a></li>
+            <li><a href="SubmitData.html">Submit data</a></li>
+            <li><a href="SubmitAction.html">Submit action</a></li>
+            <li><a href="ViewTables.html">View user reports</a></li>
+            <li><a href="ModifyAccount.html">Modify your account</a></li>
+            <li><a href="Reports.html" class="active">Reports</a></li>
+            <li><a href="AboutUs.html">About us</a></li>
+            <li><a href="index.html" class="logout-button">Logout</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="hero-section">
+    <div class="hero-content">
+        <h2>Ethan's Reports</h2>
+        <p>Below you can see the report type, tables used and the dataset results for each of my reports. Use the filters to update the results in real-time.</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="report-section">
+        <h3>Report 1:</h3>
+        <p>Report Title: Logger Activity Summary</p><br>
+        <p>Business Question: Which loggers have submitted the most reports, what is the average gap in days between their submissions?</p><br>
+        <p>Why this report is useful: Identifies the most active workers and flags who has gone silent.</p><br>
+        <p>Tables Used: Logger, Report</p>
+
+        <div class="filter-container">
+            <label for="r1-min-reports">Minimum Reports Submitted:</label>
+            <input type="number" id="r1-min-reports" value="1" min="1">
+        </div>
+
+        <div class="report-data">
+            <table id="ethan-reports1" class="data-table">
+                <thead>
+                <tr>
+                    <th>Logger ID</th>
+                    <th>Logger Name</th>
+                    <th>Email</th>
+                    <th>Total Reports</th>
+                    <th>First Report Date</th>
+                    <th>Recent Report Date</th>
+                    <th>Days Between Reports</th>
+                </tr>
+                </thead>
+                <tbody id="ethan-reports1-body"></tbody>
+            </table>
+        </div>
+
+        <script>
+            function jsonGrabberOne(rows) {
+                const tbody = document.getElementById("ethan-reports1-body");
+                tbody.innerHTML = rows.map((row) => `
+                <tr>
+                    <td>${row.LoggerID ?? ""}</td>
+                    <td>${row.FullName ?? ""}</td>
+                    <td>${row.Email ?? ""}</td>
+                    <td>${row.TotalReports ?? ""}</td>
+                    <td>${row.FirstReport ?? ""}</td>
+                    <td>${row.MostRecentReport ?? ""}</td>
+                    <td>${row.AvgDaysBetweenReports ?? ""}</td>
+                </tr>
+            `).join("");
+            }
+
+            async function loadReportOne() {
+                const minVal = document.getElementById("r1-min-reports").value || 1;
+                const loggerView = "vw_logger_activity";
+                const result = await runQuery(`SELECT * FROM ${loggerView} WHERE TotalReports >= ${minVal} ORDER BY TotalReports DESC, MostRecentReport DESC;`);
+
+                if (result?.success && Array.isArray(result.data)) {
+                    jsonGrabberOne(result.data);
+                } else if (result?.error) {
+                    console.error("Data load error for Report 1", result.error);
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                loadReportOne();
+                // Add event listener for real-time filtering
+                document.getElementById("r1-min-reports").addEventListener("input", loadReportOne);
+            });
+        </script>
+    </div>
+
+    <div class="report-section">
+        <h3>Report 2:</h3>
+        <p>Report Title: Endangered Species Population Monitoring</p><br>
+        <p>Business Question: Which species with a 'High' status have the most sightings, and what is the date range of these observations?</p><br>
+        <p>Why this report is useful: It allows conservation scientists to identify which critically endangered species are being actively tracked by the public and ensures data is current for population modeling.</p><br>
+        <p>Tables Used: Species, Report</p>
+
+        <div class="filter-container">
+            <label for="r2-status">Filter by Conservation Status:</label>
+            <select id="r2-status">
+                <option value="Both">Endangered & Critically Endangered</option>
+                <option value="Endangered">Endangered Only</option>
+                <option value="Critically Endangered">Critically Endangered Only</option>
+            </select>
+        </div>
+
+        <div class="report-data">
+            <table id="ethan-reports2" class="data-table">
+                <thead>
+                <tr>
+                    <th>Species Name</th>
+                    <th>Conservation Status</th>
+                    <th>Total Sightings</th>
+                    <th>Earliest Sighting</th>
+                    <th>Most Recent Sighting</th>
+                </tr>
+                </thead>
+                <tbody id="ethan-reports2-body"></tbody>
+            </table>
+        </div>
+
+        <script>
+            function jsonGrabberTwo(rows) {
+                const tbody = document.getElementById("ethan-reports2-body");
+                tbody.innerHTML = rows.map((row) => `
+                <tr>
+                    <td>${row.Species_Name ?? ""}</td>
+                    <td>${row.Conservation_Status ?? ""}</td>
+                    <td>${row.Total_Sightings ?? ""}</td>
+                    <td>${row.Earliest_Record ?? ""}</td>
+                    <td>${row.Most_Recent_Record ?? ""}</td>
+                </tr>
+            `).join("");
+            }
+
+            async function loadReportTwo() {
+                const statusFilter = document.getElementById("r2-status").value;
+                let sqlCondition = "IN ('Endangered', 'Critically Endangered')";
+
+                if (statusFilter === "Endangered") {
+                    sqlCondition = "= 'Endangered'";
+                } else if (statusFilter === "Critically Endangered") {
+                    sqlCondition = "= 'Critically Endangered'";
+                }
+
+                const query = `SELECT S.CommonName AS Species_Name, S.ConservationStatus AS Conservation_Status, COUNT(R.ReportID) AS Total_Sightings, MIN(R.ReportDate) AS Earliest_Record, MAX(R.ReportDate) AS Most_Recent_Record FROM Species S INNER JOIN Report R ON S.SpeciesID = R.SpeciesID WHERE S.ConservationStatus ${sqlCondition} GROUP BY S.CommonName, S.ConservationStatus ORDER BY Total_Sightings DESC;`;
+
+                const result = await runQuery(query);
+
+                if (result?.success && Array.isArray(result.data)) {
+                    jsonGrabberTwo(result.data);
+                } else if (result?.error) {
+                    console.error("Data load error for Report 2", result.error);
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                loadReportTwo();
+                // Add event listener for real-time filtering
+                document.getElementById("r2-status").addEventListener("change", loadReportTwo);
+            });
+        </script>
+    </div>
+
+    <div class="report-section">
+        <h3>Report 3:</h3>
+        <p>Report Title: Regional Poaching Summary</p><br>
+        <p>Business Question: What is the volume of poaching evidence types reported across different countries and methods used?</p><br>
+        <p>Why this report is useful: It helps governments identify hotspots for unusual activity, allowing them to allocate resources more effectively.</p><br>
+        <p>Tables Used: Report, Location, Evidence</p>
+
+        <div class="filter-container">
+            <label for="r3-min-incidents">Minimum Incident Count:</label>
+            <input type="number" id="r3-min-incidents" value="1" min="1">
+        </div>
+
+        <div class="report-data" style="height: 360px;">
+            <canvas id="ethan-reports3-chart" aria-label="Regional poaching summary chart" role="img" style="height: 100%;"></canvas>
+        </div>
+
+        <script>
+            let ethanReportsThreeChart;
+
+            function jsonGrabberThree(rows) {
+                const labels = rows.map((row) => row.Country ?? row.country ?? row.Location ?? row.location ?? "");
+                const incidentCounts = rows.map((row) => Number(row.Incident_Count ?? row.incident_count ?? row.IncidentCount ?? row.incidentCount ?? 0));
+                const evidenceMethods = rows.map((row) => row.Evidence_Methods ?? row.evidence_methods ?? row.EvidenceMethods ?? row.evidenceMethods ?? "");
+                const canvas = document.getElementById("ethan-reports3-chart");
+
+                if (!canvas) {
+                    console.error("Chart canvas not found: ethan-reports3-chart");
+                    return;
+                }
+
+                if (ethanReportsThreeChart) {
+                    ethanReportsThreeChart.destroy();
+                }
+
+                ethanReportsThreeChart = new Chart(canvas, {
+                    type: "bar",
+                    data: {
+                        labels,
+                        datasets: [{
+                            label: "Incident Count",
+                            data: incidentCounts,
+                            backgroundColor: "rgba(54, 162, 235, 0.6)",
+                            borderColor: "rgba(54, 162, 235, 1)",
+                            borderWidth: 1,
+                        }],
+                    },
+                    options: {  // Fixed: this was incorrectly labeled 'scales' in your original file
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: "Regional Poaching Summary",
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => {
+                                        const value = context.formattedValue || "";
+                                        const evidence = evidenceMethods[context.dataIndex] || "";
+                                        return evidence ? `Incident Count: ${value} | Evidence: ${evidence}` : `Incident Count: ${value}`;
+                                    },
+                                },
+                            },
+                        },
+                        scales: {       y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0,
+                                },
+                                title: {
+                                    display: true,
+                                    text: "Incident Count",
+                                },
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: "Country",
+                                },
+                            },
+                        },
+                    },
+                });
+            }
+
+            async function loadReportThree() {
+                const minIncidents = document.getElementById("r3-min-incidents").value || 1;
+
+                const query = `SELECT L.Country, COUNT(R.ReportID) AS Incident_Count, GROUP_CONCAT(DISTINCT E.EvidenceType SEPARATOR ', ') AS Evidence_Methods FROM Report R INNER JOIN Location L ON R.LocationID = L.LocationID INNER JOIN Evidence E ON R.EvidenceID = E.EvidenceID WHERE R.ReportType = 'Poaching' GROUP BY L.Country HAVING Incident_Count >= ${minIncidents} ORDER BY Incident_Count DESC LIMIT 12;`;
+
+                const result = await runQuery(query);
+
+                if (result?.success && Array.isArray(result.data)) {
+                    jsonGrabberThree(result.data);
+                } else if (result?.error) {
+                    console.error("Data load error for Report 3", result.error);
+                }
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                loadReportThree();
+                // Add event listener for real-time filtering
+                document.getElementById("r3-min-incidents").addEventListener("input", loadReportThree);
+            });
+        </script>
+    </div>
+</div>
+
+<footer class="footer">
+    <p>&copy; 2026 Endangered Species Tracker. Supporting conservation through data.</p>
+</footer>
+</body>
+</html>

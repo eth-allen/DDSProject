@@ -9,6 +9,28 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/runQuery.js"></script>
     <script src="js/LoginAuthorisation.js"></script>
+    <style>
+        .filter-container {
+            background-color: #f4f4f4;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .filter-container label {
+            font-weight: bold;
+        }
+        .filter-container input, .filter-container select {
+            padding: 5px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .filter-container input[type="number"] {
+            width: 250px;
+        }
+    </style>
 </head>
 <body>
 
@@ -40,6 +62,15 @@
         <p>Business Question: Which high-priority species are being actively reported, where are they being spotted, and how many loggers are contributing to their documentation?</p><br>
         <p>Why this report is useful: Identifies which critically endangered species are receiving the most attention and geographic coverage, helping prioritize conservation efforts.</p><br>
         <p>Tables Used: Species, Report, Location, Evidence</p>
+
+        <div class="filter-container">
+            <label for="r1-status">Filter by Conservation Status:</label>
+            <select id="r1-status">
+                <option value="Both">Endangered & Critically Endangered</option>
+                <option value="Endangered">Endangered Only</option>
+                <option value="Critically Endangered">Critically Endangered Only</option>
+            </select>
+        </div>
 
         <div class="report-data">
         <table id="conall-reports1" class="data-table">
@@ -74,18 +105,31 @@
                 `).join("");
             }
 
-            document.addEventListener("DOMContentLoaded", async () => {
-                const [ConallResultOne] = await Promise.all([
-                    runQuery("SELECT s.SpeciesID, s.CommonName AS SpeciesName, s.ConservationStatus AS ConservationStatus, COUNT(r.ReportID) AS TotalReports, COUNT(DISTINCT r.LoggerID) AS ActiveContributors, COUNT(DISTINCT loc.Country) AS CountriesDiversity, CONCAT(DATE_FORMAT(MIN(r.ReportDate), '%d %b %Y'), ' - ', DATE_FORMAT(MAX(r.ReportDate), '%d %b %Y')) AS ReportingPeriod, GROUP_CONCAT(DISTINCT e.EvidenceType ORDER BY e.EvidenceType SEPARATOR ', ') AS EvidenceTypesUsed FROM Species s INNER JOIN Report r ON s.SpeciesID = r.SpeciesID LEFT JOIN Location loc ON r.LocationID = loc.LocationID LEFT JOIN Evidence e ON r.EvidenceID = e.EvidenceID WHERE s.ConservationStatus IN ('Endangered', 'Critically Endangered') GROUP BY s.SpeciesID, s.CommonName, s.ConservationStatus HAVING COUNT(r.ReportID) > 0 ORDER BY TotalReports DESC, s.CommonName ASC LIMIT 15;"),
-                ]);
+            async function loadReportOne() {
+                const statusFilter = document.getElementById("r1-status").value;
+                let sqlCondition = "IN ('Endangered', 'Critically Endangered')";
 
-                if (ConallResultOne?.success && Array.isArray(ConallResultOne.data)) {
-                    jsonGrabberOne(ConallResultOne.data);
+                if (statusFilter === "Endangered") {
+                    sqlCondition = "= 'Endangered'";
+                } else if (statusFilter === "Critically Endangered") {
+                    sqlCondition = "= 'Critically Endangered'";
                 }
 
-                if (ConallResultOne?.error) {
-                    console.error("Data load error", {ConallResultOne});
+                const query = `SELECT s.SpeciesID, s.CommonName AS SpeciesName, s.ConservationStatus AS ConservationStatus, COUNT(r.ReportID) AS TotalReports, COUNT(DISTINCT r.LoggerID) AS ActiveContributors, COUNT(DISTINCT loc.Country) AS CountriesDiversity, CONCAT(DATE_FORMAT(MIN(r.ReportDate), '%d %b %Y'), ' - ', DATE_FORMAT(MAX(r.ReportDate), '%d %b %Y')) AS ReportingPeriod, GROUP_CONCAT(DISTINCT e.EvidenceType ORDER BY e.EvidenceType SEPARATOR ', ') AS EvidenceTypesUsed FROM Species s INNER JOIN Report r ON s.SpeciesID = r.SpeciesID LEFT JOIN Location loc ON r.LocationID = loc.LocationID LEFT JOIN Evidence e ON r.EvidenceID = e.EvidenceID WHERE s.ConservationStatus ${sqlCondition} GROUP BY s.SpeciesID, s.CommonName, s.ConservationStatus HAVING COUNT(r.ReportID) > 0 ORDER BY TotalReports DESC, s.CommonName ASC LIMIT 15;`;
+
+                const result = await runQuery(query);
+
+                if (result?.success && Array.isArray(result.data)) {
+                    jsonGrabberOne(result.data);
+                } else if (result?.error) {
+                    console.error("Data load error for Report 1", result.error);
                 }
+            }
+
+            document.addEventListener("DOMContentLoaded", () => {
+                loadReportOne();
+                // Add event listener for real-time filtering
+                document.getElementById("r1-status").addEventListener("change", loadReportOne);
             });
         </script>
         </div>
@@ -98,8 +142,15 @@
         <p>Why this report is useful: Identifies top contributors and evaluates the geographic and species diversity of their submissions to recognize active field workers.</p><br>
         <p>Tables Used: Logger, Report, Species, Location</p>
 
+        <div class="filter-container">
+            <label for="r2-logger-limit">Number of Loggers to Display:</label>
+            <input type="number" id="r2-logger-limit" value="5" min="1" max="20">
+        </div>
+
         <div class="report-data">
-            <canvas id="conall-reports2-chart" style="max-width: 800px; height: 500px; margin: 0 auto;"></canvas>
+            <div style="width: 100%; height: 500px; max-width: 800px; margin: 0 auto;">
+                <canvas id="conall-reports2-chart"></canvas>
+            </div>
 
             <script>
                 let chart2Instance = null;
@@ -110,22 +161,32 @@
                     const loggerNames = rows.map(row => row.LoggerName);
                     const reportCounts = rows.map(row => row.TotalReports);
                     
+                    // Generate colors based on number of loggers
+                    const colourPalette = [
+                        "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF",
+                        "#FF9F40", "#FF6B9D", "#00D9FF", "#FFB347", "#87CEEB",
+                        "#DDA0DD", "#F0E68C", "#20B2AA", "#FFB6C1", "#98FB98",
+                        "#FFA07A", "#7B68EE", "#3CB371", "#FF4500", "#8B4513"
+                    ];
+                    
+                    if (chart2Instance) {
+                        chart2Instance.destroy();
+                    }
+                    
                     chart2Instance = new Chart(ctx, {
                         type: "pie",
                         data: {
                             labels: loggerNames,
                             datasets: [{
                                 data: reportCounts,
-                                backgroundColor: [
-                                    "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF",
-                                ],
+                                backgroundColor: colourPalette,
                                 borderColor: "#fff",
                                 borderWidth: 2
                             }]
                         },
                         options: {
                             responsive: true,
-                            maintainAspectRatio: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 legend: {
                                     position: "right"
@@ -142,18 +203,23 @@
                     });
                 }
 
-                document.addEventListener("DOMContentLoaded", async () => {
-                    const [ConallResultTwo] = await Promise.all([
-                        runQuery("SELECT CONCAT(UPPER(l.Surname), ', ', l.Forename) AS LoggerName, COUNT(r.ReportID) AS TotalReports FROM Logger l INNER JOIN Report r ON l.LoggerID = r.LoggerID GROUP BY l.LoggerID, l.Surname, l.Forename ORDER BY TotalReports DESC LIMIT 5;"),
-                    ]);
+                async function loadReportTwo() {
+                    const loggerLimit = document.getElementById("r2-logger-limit").value || 5;
+                    const query = `SELECT CONCAT(UPPER(l.Surname), ', ', l.Forename) AS LoggerName, COUNT(r.ReportID) AS TotalReports FROM Logger l INNER JOIN Report r ON l.LoggerID = r.LoggerID GROUP BY l.LoggerID, l.Surname, l.Forename ORDER BY TotalReports DESC LIMIT ${loggerLimit};`;
 
-                    if (ConallResultTwo?.success && Array.isArray(ConallResultTwo.data)) {
-                        renderPieChart(ConallResultTwo.data);
-                    }
+                    const result = await runQuery(query);
 
-                    if (ConallResultTwo?.error) {
-                        console.error("Data load error", {ConallResultTwo});
+                    if (result?.success && Array.isArray(result.data)) {
+                        renderPieChart(result.data);
+                    } else if (result?.error) {
+                        console.error("Data load error for Report 2", result.error);
                     }
+                }
+
+                document.addEventListener("DOMContentLoaded", () => {
+                    loadReportTwo();
+                    // Add event listener for real-time filtering
+                    document.getElementById("r2-logger-limit").addEventListener("input", loadReportTwo);
                 });
             </script>
         </div>
@@ -166,6 +232,11 @@
             <p>Business Question: What countries have the most loggers and have a high diversity of species being reported?</p><br>
             <p>Why this report is useful: Identifies geographic regions with the most conservation activity and species diversity, helping coordinate international conservation efforts.</p><br>
             <p>Tables Used: Location, Report, Species</p>
+
+            <div class="filter-container">
+                <label for="r3-year">Filter by Year:</label>
+                <input type="number" id="r3-year" value="" placeholder="All Years" min="2018" max="2026">
+            </div>
 
             <div class="report-data">
                 <table id="conall-reports3" class="data-table">
@@ -197,18 +268,29 @@
                         `).join("");
                     }
 
-                    document.addEventListener("DOMContentLoaded", async () => {
-                        const [ConallResultThree] = await Promise.all([
-                            runQuery("SELECT loc.Country, COUNT(DISTINCT r.SpeciesID) AS TotalSpeciesDiversity, COUNT(DISTINCT r.ReportID) AS TotalObservations, COUNT(DISTINCT r.LoggerID) AS TotalContributingLoggers, COUNT(DISTINCT CASE WHEN s.ConservationStatus IN ('Endangered', 'Critically Endangered') THEN r.SpeciesID END) AS HighPrioritySpeciesCount, DATE_FORMAT(MAX(r.ReportDate), '%d %b %Y') AS LastObservationDate FROM Location loc INNER JOIN Report r ON loc.LocationID = r.LocationID INNER JOIN Species s ON r.SpeciesID = s.SpeciesID GROUP BY loc.Country HAVING HighPrioritySpeciesCount > 0 ORDER BY HighPrioritySpeciesCount DESC, TotalSpeciesDiversity DESC, TotalObservations DESC LIMIT 25;"),
-                        ]);
+                    async function loadReportThree() {
+                        const yearFilter = document.getElementById("r3-year").value;
+                        let yearCondition = "";
 
-                        if (ConallResultThree?.success && Array.isArray(ConallResultThree.data)) {
-                            jsonGrabberThree(ConallResultThree.data);
+                        if (yearFilter) {
+                            yearCondition = `AND YEAR(r.ReportDate) = ${yearFilter}`;
                         }
 
-                        if (ConallResultThree?.error) {
-                            console.error("Data load error", {ConallResultThree});
+                        const query = `SELECT loc.Country, COUNT(DISTINCT r.SpeciesID) AS TotalSpeciesDiversity, COUNT(DISTINCT r.ReportID) AS TotalObservations, COUNT(DISTINCT r.LoggerID) AS TotalContributingLoggers, COUNT(DISTINCT CASE WHEN s.ConservationStatus IN ('Endangered', 'Critically Endangered') THEN r.SpeciesID END) AS HighPrioritySpeciesCount, DATE_FORMAT(MAX(r.ReportDate), '%d %b %Y') AS LastObservationDate FROM Location loc INNER JOIN Report r ON loc.LocationID = r.LocationID INNER JOIN Species s ON r.SpeciesID = s.SpeciesID WHERE 1=1 ${yearCondition} GROUP BY loc.Country HAVING HighPrioritySpeciesCount > 0 ORDER BY HighPrioritySpeciesCount DESC, TotalSpeciesDiversity DESC, TotalObservations DESC LIMIT 25;`;
+
+                        const result = await runQuery(query);
+
+                        if (result?.success && Array.isArray(result.data)) {
+                            jsonGrabberThree(result.data);
+                        } else if (result?.error) {
+                            console.error("Data load error for Report 3", result.error);
                         }
+                    }
+
+                    document.addEventListener("DOMContentLoaded", () => {
+                        loadReportThree();
+                        // Add event listener for real-time filtering
+                        document.getElementById("r3-year").addEventListener("input", loadReportThree);
                     });
                 </script>
             </div>

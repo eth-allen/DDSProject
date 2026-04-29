@@ -118,12 +118,16 @@ function renderRows(tableKey, data) {
 
         if (currentLoggerRole.toLowerCase() === "admin" || (tableKey === 'report' && row.LoggerID == currentLoggerID)) {
             buttonClass = "table-button"; // removes admin-only restriction for edit/delete buttons if logger made specific report
-        }
 
-        return `<tr>${cells}<td>
+            return `<tr>${cells}<td>
             <button class="${buttonClass}" onclick="handleEditClick('${tableKey}', ${id})">Edit</button>
             <button class="${buttonClass}" onclick="handleDeleteClick('${tableKey}', ${id})">Delete</button>
-        </td></tr>`;
+            </td></tr>`;
+        } else {
+            return `<tr>${cells}<td>None</td></tr>`;
+        }
+
+
     }).join('');
 }
 

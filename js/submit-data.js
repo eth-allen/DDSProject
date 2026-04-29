@@ -99,22 +99,15 @@ reportForm.addEventListener("submit", async (event) => {
 
     const currentDate = new Date();
 
-    const loggerUsername = sessionStorage.getItem("loggedInUser");
-    if (!loggerUsername) {
-        showAlert("You must be logged in to submit a report.", true);
-        console.log("Logged in user value: ", sessionStorage.getItem("loggedInUser"))
+    let storedLoggerID = sessionStorage.getItem("loggerID");
+    if(storedLoggerID === "" || storedLoggerID === null) {
+        showAlert("Cannot submit report because you are not logged into an account!", true);
         return;
+    } else {
+        storedLoggerID = escapeSql(storedLoggerID);
     }
 
-    const escapedUsername = escapeSql(loggerUsername);
-    const loggerIDQueryResult = await runQuery(`SELECT LoggerID, Username FROM Logger WHERE Username = '${escapedUsername}'`);
-    if (loggerIDQueryResult?.error || !loggerIDQueryResult?.success || !Array.isArray(loggerIDQueryResult.data) || loggerIDQueryResult.data.length === 0) {
-        console.error("Failed to get user id when submitting", { loggerIDQueryResult });
-        showAlert("Unable to find your account details.", true);
-        return;
-    }
-
-    const loggerID = loggerIDQueryResult.data[0].LoggerID;
+    const loggerID = storedLoggerID;
     const locationID = lastGivenLocation;
     const evidenceID = lastGivenEvidence;
     const reportDate = currentDate.toISOString().substring(0, 10);
@@ -122,6 +115,7 @@ reportForm.addEventListener("submit", async (event) => {
     const reportType = document.querySelector('input[name="report-type-input"]:checked').value;
     const description = document.getElementById("description-input").value;
     const isTrackedAnimal = document.querySelector('input[name="tracked-animal-question"]:checked').value === "yes";
+    const isActionRequired = document.querySelector('input[name="report-action-question"]:checked').value === "yes";
     
     let animalID = null;
     
@@ -160,13 +154,37 @@ reportForm.addEventListener("submit", async (event) => {
             animalID = document.getElementById("tracked-animal-selection").value;
         }
     }
+    
+    // If report is type 'action required' 
+    let escapedUrgency = "NULL";
+    let escapedIssue = "NULL";
+    
+    if(isActionRequired) {
+        const reportUrgency = document.getElementById("urgency-type-selection").value;
+        const issue = document.getElementById("issue-input").value.trim();
+
+        const validUrgencies = ["Low", "Medium", "High", "Critical"];
+
+        if(!reportUrgency || !(validUrgencies.includes(reportUrgency))) {
+            showAlert("Report submission failed. Report urgency given is not valid!", true);
+            return; 
+        }
+
+        if(issue !== "" && issue.length > 255) {
+            showAlert("Report submission failed. Given issue length exceeds max length of 255!", true);
+            return;
+        }
+
+        escapedUrgency = `'${escapeSql(reportUrgency)}'`;
+        escapedIssue = issue !== "" ? `'${escapeSql(issue)}'` : "NULL";
+    }
 
     console.log(`loggerID: ${loggerID}, locationID: ${locationID}, evidenceID: ${evidenceID}, reportDate: ${reportDate}, speciesID: ${speciesID}, reportType: ${reportType}, description: ${description}`);
 
     const escapedReportDescription = escapeSql(description);
 
-    if (!animalID) {
-        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${reportType}', '${escapedReportDescription}')`);
+ if (!animalID) {
+        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportType, ReportDescription, Urgency, Issue) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${reportType}', '${escapedReportDescription}', ${escapedUrgency}, ${escapedIssue})`);
         if (insertResult?.error) {
             console.error("Report save failed", { insertResult });
             showAlert("Unable to save report.", true);
@@ -180,8 +198,8 @@ reportForm.addEventListener("submit", async (event) => {
             showAlert("Something went wrong submitting the report", true);
         }
     }
-    else {
-        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, AnimalID, ReportType, ReportDescription) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, ${animalID}, '${reportType}', '${escapedReportDescription}')`);
+ else {
+        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, AnimalID, ReportType, ReportDescription, Urgency, Issue) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, ${animalID}, '${reportType}', '${escapedReportDescription}', ${escapedUrgency}, ${escapedIssue})`);
 
         if (insertResult?.error) {
             console.error("Report save failed", { insertResult });

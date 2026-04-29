@@ -43,159 +43,152 @@
 <div class="container">
     <div id="report" class="submit-tab-panel is-active" data-submit-panel="report" role="tabpanel" aria-labelledby="report-tab">
         <div id="reports">
-
-        
-
-        <form id="report-form">
-            
-            <div class="form-group">
-                <label for="country-input">Country</label> 
-                <input type="text" id="country-input" placeholder="Enter country name" list="country-names" required> 
-            </div>
-
-            <datalist id="country-names">
-
-            </datalist>
-
-            <div class="form-group">
-                <label for="species-selection">Species</label>
-                <select id="species-selection" required>
-                    <option value="species1">1st Species</option>
-                    <option value="species2">2st Species</option>
-                </select> 
-            </div>
-
-            <div class="form-group-radio">
-                <fieldset>
-                    <legend>Associate this report with a tracked animal?</legend>
-                    <div>
-                    <label for="tracked-animal-yes">Yes</label>
-                    <input type="radio" id="tracked-animal-yes" name="tracked-animal-question" value="yes">
-                    </div>
-                    
-                    <div>
-                    <label for="tracked-animal-no">No</label>
-                    <input type="radio" id="tracked-animal-no" name="tracked-animal-question" value="no" checked>
-                    </div>
-                </fieldset>
-            </div>
-
-            <div class="form-group-radio" style="display: none;" id="tracked-animal-details">
-                <fieldset>
-                    <legend>Is this a new tracked animal or a previously existing one?</legend>
-                    <div>
-                    <label for="tracked-animal-new">New</label>
-                    <input type="radio" id="tracked-animal-new" name="new-tracked-animal-question" value="new">
-                    </div>
-                    
-                    <div>
-                    <label for="tracked-animal-existing">Previously Existing</label>
-                    <input type="radio" id="tracked-animal-existing" name="new-tracked-animal-question" value="existing">
-                    </div>
-                </fieldset>
-            </div>
-
-            <div id="existing-tracked-animal-details" style="display: none;">
+            <form id="report-form">
+                
                 <div class="form-group">
-                    <label for="tracked-animal-selection">Choose a tracked animal</label>
-                    <select id="tracked-animal-selection">
-
-                    </select>
-                </div>
-            </div>
-
-            <div id="new-tracked-animal-details" style="display: none;">
-                <div class="form-group">
-                    <label for="tracked-animal-name">Animal Name</label>
-                    <input type="text" id="tracked-animal-name" placeholder="Enter animal name">
+                    <label for="country-input">Country</label> 
+                    <input type="text" id="country-input" placeholder="Enter country name" list="country-names" required> 
                 </div>
 
+                <datalist id="country-names">
+
+                </datalist>
+
                 <div class="form-group">
-                    <label for="tracked-animal-birthday">Birthday (Optional)</label>
-                    <input type="date" id="tracked-animal-birthday">
+                    <label for="species-selection">Species</label>
+                    <select id="species-selection" required>
+                        <option value="species1">1st Species</option>
+                        <option value="species2">2st Species</option>
+                    </select> 
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="evidence-type-selection">Choose Evidence Type</label>
-                <select id="evidence-type-selection" required>
-                    <option value="">-- Select an evidence type --</option>
-                    <option value="Photographic">Photographic</option>
-                    <option value="Audio">Audio</option>
-                    <option value="Video">Video</option>
-                    <option value="Sighting">Sighting</option>
-                </select>
-            </div>
+                <div class="form-group-radio">
+                    <fieldset>
+                        <legend>Associate this report with a tracked animal?</legend>
+                        <div>
+                        <label for="tracked-animal-yes">Yes</label>
+                        <input type="radio" id="tracked-animal-yes" name="tracked-animal-question" value="yes">
+                        </div>
+                        
+                        <div>
+                        <label for="tracked-animal-no">No</label>
+                        <input type="radio" id="tracked-animal-no" name="tracked-animal-question" value="no" checked>
+                        </div>
+                    </fieldset>
+                </div>
 
-            <div class="form-group">
-                <label for="evidence-description-input">Evidence Description</label>
-                <input type="text" id="evidence-description-input" placeholder="Enter evidence description here" required> 
-            </div>
+                <div class="form-group-radio" style="display: none;" id="tracked-animal-details">
+                    <fieldset>
+                        <legend>Is this a new tracked animal or a previously existing one?</legend>
+                        <div>
+                        <label for="tracked-animal-new">New</label>
+                        <input type="radio" id="tracked-animal-new" name="new-tracked-animal-question" value="new">
+                        </div>
+                        
+                        <div>
+                        <label for="tracked-animal-existing">Previously Existing</label>
+                        <input type="radio" id="tracked-animal-existing" name="new-tracked-animal-question" value="existing">
+                        </div>
+                    </fieldset>
+                </div>
 
-            <div class="form-group-radio">
-                <fielset>
-                    <legend>Choose the report type</legend>
+                <div id="existing-tracked-animal-details" style="display: none;">
+                    <div class="form-group">
+                        <label for="tracked-animal-selection">Choose a tracked animal</label>
+                        <select id="tracked-animal-selection">
 
-                    <div>
-                    <label for="poaching-radio">Poaching</label> 
-                    <input type="radio" id="poaching-radio" name="report-type-input" value="Poaching" required>
+                        </select>
                     </div>
-                    
-                    <div>
-                    <label for="spotting-radio">Animal Spotting</label>
-                    <input type="radio" id="spotting-radio" name="report-type-input" value="Animal Spotting" required>
-                    </div>
-                </fielset>
-            </div>
+                </div>
 
-            <div class="form-group">
-                <label for="description-input">Report Description</label>
-                <input type="text" id="description-input" placeholder="Enter report description here" required> 
-                <small>Max description length is 255 characters</small>
-            </div>
-
-            
-            <div class="form-group-radio">
-                <fieldset>
-                    <legend>Does this report require action?</legend>
-                    <div>
-                        <label for="action-required-yes">Yes</label>
-                        <input type="radio" id="action-required-yes" name="report-action-question" value="yes">
+                <div id="new-tracked-animal-details" style="display: none;">
+                    <div class="form-group">
+                        <label for="tracked-animal-name">Animal Name</label>
+                        <input type="text" id="tracked-animal-name" placeholder="Enter animal name">
                     </div>
-                    <div>
-                        <label for="action-required-no">No</label>
-                        <input type="radio" id="action-required-no" name="report-action-question" value="no" checked>
-                    </div>
-                </fieldset>
-            </div>
 
-            <div id="action-details" style="display: none;">
+                    <div class="form-group">
+                        <label for="tracked-animal-birthday">Birthday (Optional)</label>
+                        <input type="date" id="tracked-animal-birthday">
+                    </div>
+                </div>
+
                 <div class="form-group">
-                    <label for="urgency-type-selection">Choose Urgency Level</label>
-                    <select id="urgency-type-selection">
-                        <option value="">-- Select an urgency level --</option>
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
-                        <option value="Critical">Critical</option>
+                    <label for="evidence-type-selection">Choose Evidence Type</label>
+                    <select id="evidence-type-selection" required>
+                        <option value="">-- Select an evidence type --</option>
+                        <option value="Photographic">Photographic</option>
+                        <option value="Audio">Audio</option>
+                        <option value="Video">Video</option>
+                        <option value="Sighting">Sighting</option>
                     </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="issue-input">Issue observed</label>
-                    <input type="text" id="issue-input" placeholder="Enter issue observed here"> 
-                    <small>Max issue length is 255 characters</small>
+                    <label for="evidence-description-input">Evidence Description</label>
+                    <input type="text" id="evidence-description-input" placeholder="Enter evidence description here" required> 
                 </div>
-            </div>
-        </div>
 
+                <div class="form-group-radio">
+                    <fielset>
+                        <legend>Choose the report type</legend>
 
+                        <div>
+                        <label for="poaching-radio">Poaching</label> 
+                        <input type="radio" id="poaching-radio" name="report-type-input" value="Poaching" required>
+                        </div>
+                        
+                        <div>
+                        <label for="spotting-radio">Animal Spotting</label>
+                        <input type="radio" id="spotting-radio" name="report-type-input" value="Animal Spotting" required>
+                        </div>
+                    </fielset>
+                </div>
 
+                <div class="form-group">
+                    <label for="description-input">Report Description</label>
+                    <input type="text" id="description-input" placeholder="Enter report description here" required> 
+                    <small>Max description length is 255 characters</small>
+                </div>
+
+                
+                <div class="form-group-radio">
+                    <fieldset>
+                        <legend>Does this report require action?</legend>
+                        <div>
+                            <label for="action-required-yes">Yes</label>
+                            <input type="radio" id="action-required-yes" name="report-action-question" value="yes">
+                        </div>
+                        <div>
+                            <label for="action-required-no">No</label>
+                            <input type="radio" id="action-required-no" name="report-action-question" value="no" checked>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div id="action-details" style="display: none;">
+                    <div class="form-group">
+                        <label for="urgency-type-selection">Choose Urgency Level</label>
+                        <select id="urgency-type-selection">
+                            <option value="">-- Select an urgency level --</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="issue-input">Issue observed</label>
+                        <input type="text" id="issue-input" placeholder="Enter issue observed here"> 
+                        <small>Max issue length is 255 characters</small>
+                    </div>
+                </div>
 
             <button id="report-submit-button" class="btn" type="submit">Submit Report</button>
-        </form>
-        </div>
-    </div>
+            </form>
+        </div> <!-- Closes 'reports' div -->
+    </div>  <!-- Closes 'submit-tab-panel' div -->
 
     <div id="species" class="submit-tab-panel" data-submit-panel="species" role="tabpanel" aria-labelledby="species-tab">
         <form id="species-form">
@@ -226,10 +219,7 @@
             <button id="species-submit-button" class="btn" type="submit">Add Species</button>
         </form>
     </div>
-
 </div>
-
-
 
 <script src="js/run-query.js"></script>
 <script src="js/submit-data.js"></script>

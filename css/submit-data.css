@@ -105,21 +105,6 @@
     background-color: #f9fdf6;
 }
 
-.form-group select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    background-color: white;
-}
-
-.form-group select:focus {
-    outline: none;
-    border-color: #2d5016;
-    background-color: #f9fdf6;
-}
 
 .form-group-radio fieldset {
     border: none;
@@ -134,3 +119,4 @@
     margin-bottom: 8px;
     padding: 0;
 }
+

@@ -17,14 +17,14 @@ if (loginForm) { // prevents script from
             const retrievedData = await runQuery(`SELECT LoggerID, Username, Role FROM Logger WHERE Username = '${inputtedUsername}';`);
 
             // If no usernames returned (username doesn't exist)
-            if(retrievedData.data.length === 0) {
+
+            if (retrievedData.error != undefined) { // If runqueory returns an error for whatever reason
+                showAlert("Login unsuccessful, error occured", true);
+                console.log("Error: " + retrievedData.error + ", Extra data: " + "retrievedUsername.data: " + retrievedData.data +  ", retrievedUsername.success: " + retrievedData.success);
+            }
+            else if(retrievedData.data.length === 0) {
                 showAlert("Username does not exist.", true);
                 console.log("runQuery returned no data! retrievedUsername.data: " + retrievedData.data + ", retrievedUsername.error: " + retrievedData.error + ", retrievedUsername.success: " + retrievedData.success);
-
-            } else if (retrievedData.error != undefined) { // If runqueory returns an error for whatever reason
-                showAlert("Login unsuccessful, error occured", true);
-                console.log("Error: " + retrievedData.error + ", Extra data: " + "retrievedUsername.data: " + sername.data + + ", retrievedUsername.success: " + inputtedUsername.success);
-           
             } else if (retrievedData.success) { // If successful all details are updated
 
                 // Setting user data in session storage with retrieved data.
@@ -37,9 +37,7 @@ if (loginForm) { // prevents script from
                 console.log("Full User Object from DB:", data);
                 console.log(`Retrieved LoggerID:, ${StoredLoggerID} Retrieved Username: ${StoredUsername} Retrieved Role: ${StoredRole}`);
 
-
-
-                sessionStorage.setItem("loggerID", StoredLoggerID) // Saves logger id to session storage
+                sessionStorage.setItem("loggerID", StoredLoggerID); // Saves logger id to session storage
                 sessionStorage.setItem("loggedInUser", StoredUsername); // Saves current logged in user to session
                 sessionStorage.setItem("loggerRole", StoredRole); // Saves logger role to session storage
 
@@ -48,7 +46,6 @@ if (loginForm) { // prevents script from
                 showAlert("Successful login. Directing you to the home page...", false);
 
                 setTimeout(function() {
-                    sessionStorage.setItem("loggedInUser", username); // Saves current logged in user to session
                     window.location.href = "homepage.html"; 
                 }, 500); // Timer so user can see visual feedback
 

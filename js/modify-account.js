@@ -77,7 +77,7 @@ function escapeSql(value) {
     const loggerQueryResult = await runQuery(`SELECT Username, Forename, Surname, Email FROM Logger WHERE Username = '${currentUser}'`); // Gets kogger details from username
 
     if(loggerQueryResult?.error) { // If it throws an error
-        alert("An error occured. Account data could not be pulled");
+        showAlert("An error occured. Account data could not be pulled", true);
         console.error("Error occured pulling user ID from username. Username: " + currentUser + "Error: " + loggerQueryResult.error);
 
     } else if(loggerQueryResult?.success && loggerQueryResult?.data.length > 0) { // If userID is successfully pulled from database
@@ -91,8 +91,10 @@ function escapeSql(value) {
 
         
     } else { // If its not successful but doesn't throw an error
-        alert("An unknown error occured pulling account data.");
+        showAlert("An unknown error occured pulling account data.", true);
+        console.log("Session storage - 'loggedInUser': " + sessionStorage.getItem("loggedInUser"))
         console.log(loggerQueryResult);
+
     }
 })();
 

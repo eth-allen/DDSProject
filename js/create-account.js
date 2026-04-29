@@ -13,6 +13,9 @@ const surnameConditions = document.getElementById("surnameConditions")
 const emailBox = document.getElementById("email");
 const emailConditions = document.getElementById("emailConditions")
 
+const roleBox = document.getElementById("role");
+const roleConditions = document.getElementById("roleConditions");
+
 
 function escapeSql(value) {
     return String(value).replace(/'/g, "''");
@@ -36,6 +39,8 @@ loginForm.addEventListener("submit", async function(event) {
     emailBox.style.border = "";
     emailConditions.style.color = "";
 
+    roleBox.style.border = "";
+    roleConditions.style.color = "";
     // ---------- SEPERATING FORM ELEMENTS INTO VARIALES ------------ //
 
     // Turns entered form information into form data variable
@@ -46,10 +51,12 @@ loginForm.addEventListener("submit", async function(event) {
     const forename = formData.get("forename");
     const surname = formData.get("surname");
     const email = formData.get("email");
+    const role = formData.get("role");
 
     // ---------- VALIDATION OF USER INPUT ------------ //
 
     let isValid = true;
+    const validRoles = ["Standard", "Logger", "Admin"];
 
     if(!isValidUsername(username)) {
         isValid = false;
@@ -75,7 +82,12 @@ loginForm.addEventListener("submit", async function(event) {
         emailBox.style.border = "2px solid red";
         emailConditions.style.color = "red";
     }
-
+    if (!role || !validRoles.includes(role)) {
+        isValid = false;
+        console.log("Role validation failed");
+        roleBox.style.border = "2px solid red";
+        roleConditions.style.color = "red";
+    }
     // ---------- SUBMISSION OF FORM TO DATABASE ------------ //
 
     // --- FORM SUBMISSION
@@ -85,9 +97,10 @@ loginForm.addEventListener("submit", async function(event) {
         const escapedForename = escapeSql(forename);
         const escapedSurname = escapeSql(surname);
         const escapedEmail = escapeSql(email);
+        const escapedRole = escapeSql(role);
 
-        // Inserts form data into database
-        const insertResult = await runQuery(`INSERT INTO Logger (username, forename, surname, email) VALUES ('${escapedUsername}', '${escapedForename}', '${escapedSurname}', '${escapedEmail}')`);
+        // Inserts SQL into the database
+        const insertResult = await runQuery(`INSERT INTO Logger (username, forename, surname, email, role) VALUES ('${escapedUsername}', '${escapedForename}', '${escapedSurname}', '${escapedEmail}', '${escapedRole}')`);
 
         //If theres an error with sql query
         if (insertResult?.error) {
@@ -96,7 +109,7 @@ loginForm.addEventListener("submit", async function(event) {
         }
         // Else direct user to homepage logged in (or login page if thats too hard)
         else { 
-            showAlert("Account created successfully, directing you to login page", false); // probably better less intrusvie way of doing this like through html editing   
+            showAlert("Account created successfully, directing you to login page", false); 
             setTimeout(function() {
                 console.log("Account created with username: " + escapedUsername + "forename: " + escapedForename + "surname: " + escapedSurname + "email: " + escapedEmail)
                 window.location.href = "index.html"; 

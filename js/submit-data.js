@@ -155,14 +155,20 @@ reportForm.addEventListener("submit", async (event) => {
         }
     }
     
-    // If report is type 'action required' 
+    // -- If report is type 'action required' 
     let escapedUrgency = "NULL";
     let escapedIssue = "NULL";
     
     if(isActionRequired) {
+        // Gets visual elements to show invalid fields by ID
+        document.getElementById("species-selection").value;
+        document.getElementById("species-selection").value;
+
+        // Gets input elements by id
         const reportUrgency = document.getElementById("urgency-type-selection").value;
         const issue = document.getElementById("issue-input").value.trim();
 
+        // Validates urgency given
         const validUrgencies = ["Low", "Medium", "High", "Critical"];
 
         if(!reportUrgency || !(validUrgencies.includes(reportUrgency))) {
@@ -170,6 +176,7 @@ reportForm.addEventListener("submit", async (event) => {
             return; 
         }
 
+        // Valides issue given is within length
         if(issue !== "" && issue.length > 255) {
             showAlert("Report submission failed. Given issue length exceeds max length of 255!", true);
             return;
@@ -184,7 +191,7 @@ reportForm.addEventListener("submit", async (event) => {
     const escapedReportDescription = escapeSql(description);
 
  if (!animalID) {
-        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportType, ReportDescription, Urgency, Issue) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${reportType}', '${escapedReportDescription}', ${escapedUrgency}, ${escapedIssue})`);
+        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportType, ReportDescription, UrgencyLevel, IssueObserved) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${reportType}', '${escapedReportDescription}', ${escapedUrgency}, ${escapedIssue})`);
         if (insertResult?.error) {
             console.error("Report save failed", { insertResult });
             showAlert("Unable to save report.", true);

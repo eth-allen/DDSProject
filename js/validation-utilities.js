@@ -6,6 +6,7 @@ const usernameRegex = /^[^<>&"'\s]+$/ // banned special character list (<, >, &,
 const namesRegex = /^[a-zA-Z\-']+$/; // allowed char list for forename/surname (a to z and A to Z + hypons and '), +$ makes it check entire word/input
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // looked up email regex list which should do fairly simple validation on emails 
 const animalNameRegex = /^[a-zA-Z\-' ]+$/;
+const validRoles = ["Standard", "Logger", "Admin"];
 
 // --- USERNAME VALIDATION: (Check lengths not < 1 and > 32, no spaces and no special characters &lt;, &gt;, &amp;, &quot;, &#39;)
 // Tests if username fails any validation criteria
@@ -39,6 +40,17 @@ function isValidAnimalOrSpeciesName(name) {
         return true; // Otherwise returns true
     }
 }
+
+// --- ROLE TYPE VALIDATION
+
+
+function isValidRole(role) {
+    if(!role || !validRoles.includes(role)) {
+        return false;
+    } else {return true; }
+}
+
+
 
 // --- Escape SQL functionality --- 
 

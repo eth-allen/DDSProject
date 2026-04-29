@@ -56,7 +56,7 @@ loginForm.addEventListener("submit", async function(event) {
     // ---------- VALIDATION OF USER INPUT ------------ //
 
     let isValid = true;
-    const validRoles = ["Standard", "Logger", "Admin"];
+
 
     if(!isValidUsername(username)) {
         isValid = false;
@@ -82,7 +82,7 @@ loginForm.addEventListener("submit", async function(event) {
         emailBox.style.border = "2px solid red";
         emailConditions.style.color = "red";
     }
-    if (!role || !validRoles.includes(role)) {
+    if (!isValidRole(role)) {
         isValid = false;
         console.log("Role validation failed");
         roleBox.style.border = "2px solid red";

@@ -7,6 +7,7 @@ const viewUsername = document.getElementById("view-username");
 const viewForename = document.getElementById("view-forename");
 const viewSurname = document.getElementById("view-surname");
 const viewEmail = document.getElementById("view-email");
+const viewRole = document.getElementById("view-role");
 
 // --- MODIFY ACCOUNT ELEMENTS ---
 const modifyPanel = document.getElementById("modify-panel");
@@ -24,6 +25,9 @@ const surnameConditions = document.getElementById("surname-conditions");
 
 const enteredEmailBox = document.getElementById("entered-email");
 const emailConditions = document.getElementById("email-conditions");
+
+const enteredRoleBox = document.getElementById("entered-role");
+const roleConditions = document.getElementById("role-conditions");
 
 // --- DELETE ACCOUNT ELEMENTS ---
 const deletePanel = document.getElementById("delete-panel");
@@ -74,7 +78,7 @@ function escapeSql(value) {
 (async function() {
     const currentUser = escapeSql(sessionStorage.getItem("loggedInUser"));
     
-    const loggerQueryResult = await runQuery(`SELECT Username, Forename, Surname, Email FROM Logger WHERE Username = '${currentUser}'`); // Gets kogger details from username
+    const loggerQueryResult = await runQuery(`SELECT Username, Forename, Surname, Email, Role FROM Logger WHERE Username = '${currentUser}'`); // Gets kogger details from username
 
     if(loggerQueryResult?.error) { // If it throws an error
         showAlert("An error occured. Account data could not be pulled", true);
@@ -88,6 +92,7 @@ function escapeSql(value) {
         viewForename.textContent = userData.Forename;
         viewSurname.textContent = userData.Surname;
         viewEmail.textContent = userData.Email;
+        viewRole.textContent = userData.Role;
 
         
     } else { // If its not successful but doesn't throw an error
@@ -112,10 +117,11 @@ modifyAccountForm.addEventListener("submit", async function(event) {
     const formData = new FormData(modifyAccountForm);
 
     // Splits up form data into atomic values
-    const username = formData.get("entered-username")
-    const forename = formData.get("entered-forename")
-    const surname = formData.get("entered-surname")
-    const email = formData.get("entered-email")
+    const username = formData.get("entered-username");
+    const forename = formData.get("entered-forename");
+    const surname = formData.get("entered-surname");
+    const email = formData.get("entered-email");
+    const role = formData.get("entered-role");
 
     enteredUsernameBox.style.border = "";
     usernameConditions.style.color = "";
@@ -128,6 +134,9 @@ modifyAccountForm.addEventListener("submit", async function(event) {
 
     enteredEmailBox.style.border = "";
     emailConditions.style.color = "";
+
+    enteredRoleBox.style.border = "";
+    roleConditions.style.color = "";
 
     // ---------- VALIDATION OF USER INPUT ------------ //
 
@@ -157,6 +166,12 @@ modifyAccountForm.addEventListener("submit", async function(event) {
         enteredEmailBox.style.border = "2px solid red";
         emailConditions.style.color = "red";
     }
+    if (!isValidRole(role)) {
+        isValid = false;
+        console.log("Role validation failed");
+        enteredRoleBox.style.border = "2px solid red";
+        roleConditions.style.color = "red";
+    }
 
     if(isValid) { // If validation passes, users new details are updated in database
         // EscapeSQLs all data:
@@ -164,8 +179,9 @@ modifyAccountForm.addEventListener("submit", async function(event) {
         const escapedForename = escapeSql(forename);
         const escapedSurname = escapeSql(surname);
         const escapedEmail = escapeSql(email);
+        const escapedRole = escapeSql(role);
 
-        const updateResult = await runQuery(`UPDATE Logger SET Username='${escapedUsername}', Forename='${escapedForename}', Surname='${escapedSurname}', Email='${email}' WHERE Username='${currentUser}'`); // TODO: FIGURE OUT SQL UPDATE COMMAND
+        const updateResult = await runQuery(`UPDATE Logger SET Username='${escapedUsername}', Forename='${escapedForename}', Surname='${escapedSurname}', Email='${escapedEmail}', Role='${escapedRole}' WHERE Username='${escapeSql(currentUser)}'`); // TODO: FIGURE OUT SQL UPDATE COMMAND
 
         if(updateResult?.error) {
             showAlert("An error occured updating account details.", true);
@@ -181,6 +197,9 @@ modifyAccountForm.addEventListener("submit", async function(event) {
             viewForename.textContent = forename;
             viewSurname.textContent = surname;
             viewEmail.textContent = email;
+            viewRole.textContent = role;
+
+            // ADD VIEW ROLE
         } else {
             showAlert("Unknown error occured updating account details", true);
             console.log(updateResult);
@@ -196,6 +215,9 @@ modifyAccountForm.addEventListener("submit", async function(event) {
 
         enteredEmailBox.style.border = "";
         emailConditions.style.color = "";
+
+        enteredRoleBox.style.border = "";
+        roleConditions.style.color = "";
 
     } else {
         showAlert("Invalid inputed entered.", true); // Tells user their inputs invalid

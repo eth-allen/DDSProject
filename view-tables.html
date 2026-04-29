@@ -45,6 +45,8 @@
     <button id="species-tab" type="button" class="table-tab-button" data-table-tab="species" role="tab" aria-selected="false" aria-controls="species">Species</button>
     <button id="reports-tab" type="button" class="table-tab-button" data-table-tab="reports" role="tab" aria-selected="false" aria-controls="reports">Reports</button>
     <button id="tracked-animals-tab" type="button" class="table-tab-button" data-table-tab="tracked-animals" role="tab" aria-selected="false" aria-controls="tracked-animals">Tracked Animals</button>
+    <button id="conservation-actions-tab" type="button" class="table-tab-button" data-table-tab="conservation-actions" role="tab" aria-selected="false" aria-controls="conservation-actions">Conservation Actions</button>
+    <button id="report-actions-tab" type="button" class="table-tab-button" data-table-tab="report-actions" role="tab" aria-selected="false" aria-controls="report-actions">Report Actions</button>
 </div>
 
 <div class="container">
@@ -144,6 +146,40 @@
             </tr>
             </thead>
             <tbody id="tracked-animals-table-body"></tbody>
+        </table>
+    </div>
+
+    <div id="conservation-actions" class="form-table-container table-tab-panel" data-table-panel="conservation-actions" role="tabpanel" aria-labelledby="conservation-actions-tab">
+        <h2>View Conservation Actions</h2>
+        <table id="conservation-actions-table">
+            <thead>
+            <tr>
+                <th>Action ID</th>
+                <th>Action Name</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="conservation-actions-table-body"></tbody>
+        </table>
+    </div>
+
+    <div id="report-actions" class="form-table-container table-tab-panel" data-table-panel="report-actions" role="tabpanel" aria-labelledby="report-actions-tab">
+        <h2>View Report Actions</h2>
+        <table id="report-actions-table">
+            <thead>
+            <tr>
+                <th>Report Action ID</th>
+                <th>Report ID</th>
+                <th>Action ID</th>
+                <th>Logger ID</th>
+                <th>Action Date</th>
+                <th>Details</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="report-actions-table-body"></tbody>
         </table>
     </div>
 
@@ -283,6 +319,62 @@
                     </div>
                 </form>
             </section>
+
+            <section id="conservation-actions-edit-section" class="edit-pane-section">
+                <form id="conservation-actions-edit-form">
+                    <label for="edit-action-name-input">Action Name</label>
+                    <input type="text" id="edit-action-name-input" required><br>
+
+                    <label for="edit-action-category-input">Category</label>
+                    <select id="edit-action-category-input" required>
+                        <option value="Law Enforcement">Law Enforcement</option>
+                        <option value="Medical/Hospitalisation">Medical/Hospitalisation</option>
+                        <option value="Environmental">Environmental</option>
+                        <option value="Community/Education">Community/Education</option>
+                        <option value="Infrastructure">Infrastructure</option>
+                        <option value="Research/Monitoring">Research/Monitoring</option>
+                        <option value="Other">Other</option>
+                    </select><br>
+
+                    <div class="edit-pane-actions">
+                        <button type="submit">Save Action</button>
+                        <button type="button" id="conservation-actions-edit-cancel">Cancel</button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="report-actions-edit-section" class="edit-pane-section">
+                <form id="report-actions-edit-form">
+                    <label for="edit-ra-report-id-input">Report ID</label>
+                    <input type="number" id="edit-ra-report-id-input" min="1" required><br>
+
+                    <label for="edit-ra-action-id-input">Action ID</label>
+                    <input type="number" id="edit-ra-action-id-input" min="1" required><br>
+
+                    <label for="edit-ra-logger-id-input">Logger ID</label>
+                    <input type="number" id="edit-ra-logger-id-input" min="1" required><br>
+
+                    <label for="edit-ra-date-input">Action Date</label>
+                    <input type="date" id="edit-ra-date-input" required><br>
+
+                    <label for="edit-ra-details-input">Action Details</label>
+                    <input type="text" id="edit-ra-details-input" required><br>
+
+                    <label for="edit-ra-status-input">Action Status</label>
+                    <select id="edit-ra-status-input" required>
+                        <option value="Planned">Planned</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Cancelled">Cancelled</option>
+                    </select><br>
+
+                    <div class="edit-pane-actions">
+                        <button type="submit">Save Report Action</button>
+                        <button type="button" id="report-actions-edit-cancel">Cancel</button>
+                    </div>
+                </form>
+            </section>
+            
         </div>
     </div>
 </div> <footer class="footer">

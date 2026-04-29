@@ -10,18 +10,19 @@ let activeEditId = null;
 // Local cache for records
 const tableCache = {
     logger: [], location: [], evidence: [],
-    species: [], report: [], trackedAnimal: []
+    species: [], report: [], trackedAnimal: [],
+    conservationAction: [], reportAction: []
 };
 
-// Table configuration mapping
 const tableConfigs = {
     logger: { idKey: "LoggerID", bodyId: "logger-table-body", sqlTable: "Logger", columns: 6, getQuery: "SELECT * FROM Logger ORDER BY LoggerID" },
     location: { idKey: "LocationID", bodyId: "location-table-body", sqlTable: "Location", columns: 3, getQuery: "SELECT * FROM Location ORDER BY LocationID" },
     evidence: { idKey: "EvidenceID", bodyId: "evidence-table-body", sqlTable: "Evidence", columns: 4, getQuery: "SELECT * FROM Evidence ORDER BY EvidenceID" },
     species: { idKey: "SpeciesID", bodyId: "species-table-body", sqlTable: "Species", columns: 5, getQuery: "SELECT * FROM Species ORDER BY SpeciesID" },
     report: { idKey: "ReportID", bodyId: "reports-table-body", sqlTable: "Report", columns: 9, getQuery: "SELECT * FROM Report ORDER BY ReportID" },
-    trackedAnimal: { idKey: "AnimalID", bodyId: "tracked-animals-table-body", sqlTable: "Tracked_Animal", columns: 6, getQuery: "SELECT * FROM Tracked_Animal ORDER BY AnimalID" }
-
+    trackedAnimal: { idKey: "AnimalID", bodyId: "tracked-animals-table-body", sqlTable: "Tracked_Animal", columns: 6, getQuery: "SELECT * FROM Tracked_Animal ORDER BY AnimalID" },
+    conservationAction: { idKey: "ActionID", bodyId: "conservation-actions-table-body", sqlTable: "Conservation_Action", columns: 4, getQuery: "SELECT * FROM Conservation_Action ORDER BY ActionID" },
+    reportAction: { idKey: "ReportActionID", bodyId: "report-actions-table-body", sqlTable: "Report_Action", columns: 8, getQuery: "SELECT * FROM Report_Action ORDER BY ReportActionID" }
 };
 
 // Handling errors section
@@ -104,6 +105,8 @@ function renderRows(tableKey, data) {
         else if (tableKey === 'species') cells = `<td>${row.SpeciesID}</td><td>${escapeHtml(row.ScientificName)}</td><td>${escapeHtml(row.CommonName)}</td><td>${row.ConservationStatus}</td>`;
         else if (tableKey === 'report') cells = `<td>${row.ReportID}</td><td>${row.LoggerID}</td><td>${row.LocationID}</td><td>${row.EvidenceID}</td><td>${row.ReportDate}</td><td>${row.SpeciesID}</td><td>${escapeHtml(row.ReportType)}</td><td>${escapeHtml(row.ReportDescription)}</td>`;
         else if (tableKey === 'trackedAnimal') cells = `<td>${row.AnimalID}</td><td>${escapeHtml(row.Name || "N/A")}</td><td>${row.SpeciesID}</td><td>${row.BirthDate}</td><td>${row.Status}</td>`;
+        else if (tableKey === 'conservationAction') cells = `<td>${row.ActionID}</td><td>${escapeHtml(row.ActionName)}</td><td>${row.Category}</td>`;
+        else if (tableKey === 'reportAction') cells = `<td>${row.ReportActionID}</td><td>${row.ReportID}</td><td>${row.ActionID}</td><td>${row.LoggerID}</td><td>${row.ActionDate}</td><td>${escapeHtml(row.ActionDetails)}</td><td>${row.ActionStatus}</td>`;
 
         const id = row[config.idKey];
 
@@ -166,6 +169,18 @@ function handleEditClick(tableKey, id) {
         byId("edit-tracked-animals-birth-date-input").value = row.BirthDate.split(' ')[0];
         byId("edit-tracked-animals-status-input").value = row.Status;
         sectionId = "tracked-animals-edit-section";
+    } else if (tableKey === 'conservationAction') {
+        byId("edit-action-name-input").value = row.ActionName;
+        byId("edit-action-category-input").value = row.Category;
+        sectionId = "conservation-actions-edit-section";
+    } else if (tableKey === 'reportAction') {
+        byId("edit-ra-report-id-input").value = row.ReportID;
+        byId("edit-ra-action-id-input").value = row.ActionID;
+        byId("edit-ra-logger-id-input").value = row.LoggerID;
+        byId("edit-ra-date-input").value = row.ActionDate.split(' ')[0];
+        byId("edit-ra-details-input").value = row.ActionDetails;
+        byId("edit-ra-status-input").value = row.ActionStatus;
+        sectionId = "report-actions-edit-section";
     }
 
     if (sectionId) openEditPane("Edit Record", sectionId);
@@ -336,6 +351,42 @@ async function handleFormSubmit(e) {
 
         const nameValue = name ? `'${escapeSql(name)}'` : "NULL";
         query = `UPDATE Tracked_Animal SET Name=${nameValue}, SpeciesID=${speciesId}, BirthDate='${bDate}', Status='${status}' WHERE AnimalID = ${activeEditId}`;
+    }
+
+    // 7. Conservation Action Table Validation
+    else if (activeEditTable === 'conservationAction') {
+        const actionName = byId("edit-action-name-input").value.trim();
+        const category = byId("edit-action-category-input").value;
+
+        if (actionName.length < 3) {
+            applyHighlight("edit-action-name-input", true);
+            return showAlert("Action name must be at least 3 characters.", true);
+        }
+        if (!category) {
+            applyHighlight("edit-action-category-input", true);
+            return showAlert("Action category is required.", true);
+        }
+
+        query = `UPDATE Conservation_Action SET ActionName='${escapeSql(actionName)}', Category='${category}' WHERE ActionID = ${activeEditId}`;
+    }
+
+    // 8. Report Action Table Validation
+    else if (activeEditTable === 'reportAction') {
+        const rId = parseInt(byId("edit-ra-report-id-input").value);
+        const aId = parseInt(byId("edit-ra-action-id-input").value);
+        const lId = parseInt(byId("edit-ra-logger-id-input").value);
+        const aDate = byId("edit-ra-date-input").value;
+        const details = byId("edit-ra-details-input").value.trim();
+        const aStatus = byId("edit-ra-status-input").value;
+
+        if (isNaN(rId) || rId < 1) { applyHighlight("edit-ra-report-id-input", true); return showAlert("Valid Report ID required.", true); }
+        if (isNaN(aId) || aId < 1) { applyHighlight("edit-ra-action-id-input", true); return showAlert("Valid Action ID required.", true); }
+        if (isNaN(lId) || lId < 1) { applyHighlight("edit-ra-logger-id-input", true); return showAlert("Valid Logger ID required.", true); }
+        if (!aDate) { applyHighlight("edit-ra-date-input", true); return showAlert("Action date required.", true); }
+        if (details.length < 5) { applyHighlight("edit-ra-details-input", true); return showAlert("Detailed description required (min 5 characters).", true); }
+        if (!aStatus) { applyHighlight("edit-ra-status-input", true); return showAlert("Action status required.", true); }
+
+        query = `UPDATE Report_Action SET ReportID=${rId}, ActionID=${aId}, LoggerID=${lId}, ActionDate='${aDate}', ActionDetails='${escapeSql(details)}', ActionStatus='${aStatus}' WHERE ReportActionID = ${activeEditId}`;
     }
 
     // Run the update only if validation passed

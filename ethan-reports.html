@@ -121,7 +121,6 @@ this allows the end user to easily adjust the report to their needs without havi
 
             document.addEventListener("DOMContentLoaded", () => {
                 loadReportOne();
-                // Add event listener for real-time filtering
                 document.getElementById("r1-min-reports").addEventListener("input", loadReportOne);
             });
         </script>
@@ -247,7 +246,7 @@ this allows the end user to easily adjust the report to their needs without havi
                             borderWidth: 1,
                         }],
                     },
-                    options: {  // Fixed: this was incorrectly labeled 'scales' in your original file
+                    options: {  <!-- options pane for chart -->
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
@@ -302,7 +301,6 @@ this allows the end user to easily adjust the report to their needs without havi
 
             document.addEventListener("DOMContentLoaded", () => {
                 loadReportThree();
-                // Add event listener for real-time filtering
                 document.getElementById("r3-min-incidents").addEventListener("input", loadReportThree);
             });
         </script>

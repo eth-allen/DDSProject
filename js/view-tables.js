@@ -21,6 +21,7 @@ const tableConfigs = {
     species: { idKey: "SpeciesID", bodyId: "species-table-body", sqlTable: "Species", columns: 5, getQuery: "SELECT * FROM Species ORDER BY SpeciesID" },
     report: { idKey: "ReportID", bodyId: "reports-table-body", sqlTable: "Report", columns: 9, getQuery: "SELECT * FROM Report ORDER BY ReportID" },
     trackedAnimal: { idKey: "AnimalID", bodyId: "tracked-animals-table-body", sqlTable: "Tracked_Animal", columns: 6, getQuery: "SELECT * FROM Tracked_Animal ORDER BY AnimalID" }
+
 };
 
 // Handling errors section

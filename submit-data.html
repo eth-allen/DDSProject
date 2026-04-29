@@ -153,6 +153,45 @@
                 <input type="text" id="description-input" placeholder="Enter report description here" required> 
             </div>
 
+            
+            <div class="form-group-radio">
+                <fieldset>
+                    <legend>Does this report require action?</legend>
+                    <div>
+                    <label for="action-required-yes">Yes</label>
+                    <input type="radio" id="action-required-yes" name="report-action-question" value="yes">
+                    </div>
+                    
+                    <div>
+                    <label for="action-required-yes">No</label>
+                    <input type="radio" id="action-required-no" name="report-action-question" value="no" checked>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div style="display: none;" id="action-details">
+                <label for="urgency-type-selection">Choose Urgency Level</label>
+                <select id="urgency-type-selection" required>
+                    <option value="">-- Select an urgency level --</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                    <option value="Critical">Critical</option>
+                </select>
+            </div>
+
+            <div style="display: none;" id="action-details">
+                <div style="display: none;" id="issue-observed-details"></div>
+                    <div class="form-group">
+                        <label for="issue-input">Issue observed</label>
+                        <input type="text" id="issue-input" placeholder="Enter issue observed here" required> 
+                    </div>
+                </div>
+            </div>
+
+
+
+
             <button id="report-submit-button" class="btn" type="submit">Submit Report</button>
         </form>
         </div>

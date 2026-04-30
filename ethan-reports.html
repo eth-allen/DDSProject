@@ -98,7 +98,7 @@ this allows the end user to easily adjust the report to their needs without havi
                 const tbody = document.getElementById("ethan-reports1-body");
                 tbody.innerHTML = rows.map((row) => `
                 <tr>
-                    <td>${row.LoggerID ?? ""}</td
+                    <td>${row.LoggerID ?? ""}</td>
                     <td>${row.FullName ?? ""}</td>
                     <td>${row.Email ?? ""}</td>
                     <td>${row.TotalReports ?? ""}</td>
@@ -196,7 +196,6 @@ this allows the end user to easily adjust the report to their needs without havi
 
             document.addEventListener("DOMContentLoaded", () => {
                 loadReportTwo();
-                // Add event listener for real-time filtering
                 document.getElementById("r2-status").addEventListener("change", loadReportTwo);
             });
         </script>

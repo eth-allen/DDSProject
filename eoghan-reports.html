@@ -51,8 +51,23 @@
     <div class="container">
 
         <div>
+            
             <h2>Report 1</h2>
             <p>This chart answers the business question of which species to give attention to while at the same time being a helpful graphic to inform people. This report is presented in the form of a bar chart.</p>
+            <div class="form-group-radio">
+                <fieldset>
+                    <legend>Get the most or least reported on animals?</legend>
+                    <div>
+                    <label for="most-radio">Most</label>
+                    <input type="radio" id="most-radio" name="report-1-question" value="most">
+                    </div>
+                    
+                    <div>
+                    <label for="least-radio">Least</label>
+                    <input type="radio" id="least-radio" name="report-1-question" value="least" checked>
+                    </div>
+                </fieldset>
+            </div>
             <div class="chart-container">
                 <canvas id="chart1">
                     <p>alt fallback text?</p>
@@ -64,8 +79,21 @@
         
         <div id="report2-container">
             <h2>Report 2</h2>
-            <p>The business question this report answers is how does the distrubution of evidence types change based on the report type. Examining this data could be used to create new methods of finding and prosecuting poachers in the future. This doughnut chart specifically shows the distribution for reports of poaching.</p>
-            
+            <p>The business question this report answers is how does the distrubution of evidence types change based on the report type. Examining this data could be used to create new methods of finding and prosecuting poachers in the future.</p>
+            <div class="form-group-radio">
+                <fieldset>
+                    <legend>Do you want to find the distribution for animal sighting reports or poaching reports?</legend>
+                    <div>
+                    <label for="sighting-radio">Animal Sightings</label>
+                    <input type="radio" id="sighting-radio" name="report-2-question" value="spotting">
+                    </div>
+                    
+                    <div>
+                    <label for="poaching-radio">Poaching</label>
+                    <input type="radio" id="poaching-radio" name="report-2-question" value="poaching" checked>
+                    </div>
+                </fieldset>
+            </div>
             <div id="doughnut-chart-div-container"> <!--these divs are for centering and resizing the chart-->
                 <div class="chart-container" id="doughnut-chart-div">
                 <canvas id="chart2">
@@ -79,7 +107,7 @@
         
             <h2>Report 3</h2>
             <p>The business question this report answers is how much the amount of reports changed over the past few years. This is important as it helps track how much the site is being used and might give hints on how to get more people to give reports.</p>
-            <table id="table3">
+            <table id="table3" class="data-table">
                 <thead>
                     <tr>
                         <th>Year</th>
@@ -104,15 +132,22 @@
     <script src="js/validation-utilities.js"></script>
     <script>
     
+    let barChartInstance = null;
+    let doughnutChartInstance = null;
+
     function createBarChart(animalNames, sightingNumbers) {
         const ctx = document.getElementById('chart1');
 
-        new Chart(ctx, {
+        if (barChartInstance) {
+            barChartInstance.destroy();
+        }
+
+        barChartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
             labels: animalNames,
             datasets: [{
-                label: 'Top 10 Animals with Least Reported Evidence/Sightings',
+                label: 'Number of reports about this species',
                 data: sightingNumbers,
                 backgroundColor:"green"
             }]
@@ -126,12 +161,16 @@
     function createDoughnutChart(evidenceTypes, evidenceTypeAmounts) {
         const ctx = document.getElementById('chart2');
 
-        const chart = new Chart(ctx, {
+        if (doughnutChartInstance) {
+            doughnutChartInstance.destroy();
+        }
+
+        doughnutChartInstance = new Chart(ctx, {
             type: 'doughnut',
             data: {
             labels: evidenceTypes, 
             datasets: [{
-                label: "Number of poaching reports with this type of evidence", 
+                label: "Number of reports with this report type and type of evidence", 
                 data: evidenceTypeAmounts
             }]
             },
@@ -140,12 +179,24 @@
         });
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
-        //report 1:
+    async function renderReport1() {
+
+        let checkedRadioButton = document.querySelector('input[name="report-1-question"]:checked');
+        
+        let variableSQL = "";
+        if (checkedRadioButton.value === "least") {
+            variableSQL = "ASC";
+        }
+        else if (checkedRadioButton.value === "most") {
+            variableSQL = "DESC"
+        }
+
+        console.log(checkedRadioButton.value);
+
         const report1QueryResult = await runQuery(
             `SELECT vrq.CommonName, vrq.ReportQuantity, vrq.SpeciesID
             FROM v_SpeciesAliveReportQuantity vrq
-            ORDER BY vrq.ReportQuantity ASC
+            ORDER BY vrq.ReportQuantity ${variableSQL}
             LIMIT 10;`
         );
 
@@ -163,14 +214,26 @@
 
             createBarChart(animalNames, sightingNumbers);
         }
+    }
 
-        //report 2:
+    async function renderReport2() {
+        let checkedRadioButton = document.querySelector('input[name="report-2-question"]:checked');
+        
+        let variableSQL = "";
+        if (checkedRadioButton.value === "poaching") {
+            variableSQL = "Poaching";
+        }
+        else if (checkedRadioButton.value === "spotting") {
+            variableSQL = "Animal Spotting"
+        }
 
         const report2QueryResult = await runQuery(
             `SELECT vera.ReportType, vera.EvidenceType, vera.EvidenceTypeCount
             FROM v_EvidenceReportTypeAmounts vera
-            WHERE vera.ReportType='Poaching';`
+            WHERE vera.ReportType='${variableSQL}';`
         );
+
+        console.log(variableSQL + ", " + checkedRadioButton.value);
 
         if (report2QueryResult.success && Array.isArray(report2QueryResult.data)) {
             let evidenceTypes = [];
@@ -183,6 +246,13 @@
 
             createDoughnutChart(evidenceTypes, evidenceTypeAmounts);
         }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+
+        renderReport1();
+
+        renderReport2();
 
         const report3QueryResult = await runQuery(
             `SELECT YEAR(r.ReportDate) AS Year, MONTH(r.ReportDate) AS Month, COUNT(MONTH(r.ReportDate)) AS ReportsPerMonth, COUNT(DISTINCT s.SpeciesID) AS UniqueSpeciesReports
@@ -206,6 +276,22 @@
                 `;
             }
         }
+    });
+
+    const report1RadioGroup = document.querySelectorAll('input[name="report-1-question"]');
+
+    report1RadioGroup.forEach((radio) => {
+        radio.addEventListener("change", () => {
+            renderReport1();
+        });
+    });
+
+    const report2RadioGroup = document.querySelectorAll('input[name="report-2-question"]');
+
+    report2RadioGroup.forEach((radio) => {
+        radio.addEventListener("change", () => {
+            renderReport2();
+        });
     });
 
     </script>

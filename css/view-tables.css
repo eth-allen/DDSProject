@@ -58,7 +58,7 @@ form button {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.75);
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -72,20 +72,38 @@ form button {
 .edit-pane-panel {
     position: relative;
     width: min(520px, 100%);
-    background: #fff;
+    background: white;
     border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+#edit-pane-title {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 24px;
+    font-weight: 600;
+    color: #2d5016;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 12px;
 }
 
 .edit-pane-close {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 15px;
+    right: 15px;
     border: none;
     background: transparent;
+    color: #666;
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
     font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .edit-pane-section {
@@ -96,10 +114,70 @@ form button {
     display: block;
 }
 
+.edit-pane-section label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.edit-pane-section input,
+.edit-pane-section select {
+    width: 100%;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+.edit-pane-section input:focus,
+.edit-pane-section select:focus {
+    outline: none;
+    border-color: #2d5016;
+    background-color: #f9fdf6;
+}
+
+.edit-pane-section br {
+    display: none;
+}
+
 .edit-pane-actions {
     display: flex;
-    gap: 10px;
-    margin-top: 15px;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.edit-pane-actions button {
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.edit-pane-actions button:active {
+    transform: scale(0.98);
+}
+
+.edit-pane-actions button[type="submit"] {
+    background: linear-gradient(135deg, #2d5016 0%, #1a3a0a 100%);
+    color: white;
+}
+
+.edit-pane-actions button[type="button"] {
+    background: white;
+    color: #666;
+    border: 1px solid #ddd;
 }
 
 .admin-only {

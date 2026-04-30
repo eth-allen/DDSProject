@@ -284,7 +284,11 @@
                     <input type="number" id="edit-report-species-id-input" min="1" required><br>
 
                     <label for="edit-report-type-input">Report Type</label>
-                    <input type="text" id="edit-report-type-input" required><br>
+                    <select id="edit-report-type-input" required>
+                        <option value="" disabled selected>Select report type</option>
+                        <option value="Poaching">Poaching</option>
+                        <option value="Animal Spotting">Animal Spotting</option>
+                    </select><br>
 
                     <label for="edit-report-description-input">Description</label>
                     <input type="text" id="edit-report-description-input" required><br>

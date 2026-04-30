@@ -133,6 +133,7 @@
         // --- REPORT 1: Table Population ---
         function populateReport1(rows) {
             const tbody = document.getElementById("louis-report1-body");
+            
             tbody.innerHTML = rows.map((row) => `
                 <tr>
                     <td>${row['AnimalID'] ?? ""}</td>

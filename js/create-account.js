@@ -16,6 +16,9 @@ const emailConditions = document.getElementById("emailConditions")
 const roleBox = document.getElementById("role");
 const roleConditions = document.getElementById("roleConditions");
 
+const passwordBox = document.getElementById("password");
+const passwordConditions = document.getElementById("passwordConditions")
+
 const submitButton = document.getElementById("submit-button");
 
 function escapeSql(value) {
@@ -43,6 +46,10 @@ loginForm.addEventListener("submit", async function(e) {
 
     roleBox.style.border = "";
     roleConditions.style.color = "";
+
+    passwordBox.style.border = "";
+    passwordConditions.style.color = "";
+
     // ---------- SEPERATING FORM ELEMENTS INTO VARIALES ------------ //
 
     // Turns entered form information into form data variable
@@ -54,6 +61,7 @@ loginForm.addEventListener("submit", async function(e) {
     const surname = formData.get("surname");
     const email = formData.get("email");
     const role = formData.get("role");
+    const password = formData.get("password");
 
     // ---------- VALIDATION OF USER INPUT ------------ //
 
@@ -90,6 +98,12 @@ loginForm.addEventListener("submit", async function(e) {
         roleBox.style.border = "2px solid red";
         roleConditions.style.color = "red";
     }
+    if(!isValidPassword(password)) {
+        isValid = false;
+        console.log("Password validation failed");
+        passwordBox.style.border = "2px solid red";
+        passwordConditions.style.color = "red";
+    }
     // ---------- SUBMISSION OF FORM TO DATABASE ------------ //
 
     // --- FORM SUBMISSION
@@ -100,9 +114,10 @@ loginForm.addEventListener("submit", async function(e) {
         const escapedSurname = escapeSql(surname);
         const escapedEmail = escapeSql(email);
         const escapedRole = escapeSql(role);
+        const escapedPassword = escapeSql(password);
 
         // Inserts SQL into the database
-        const insertResult = await runQuery(`INSERT INTO Logger (username, forename, surname, email, role) VALUES ('${escapedUsername}', '${escapedForename}', '${escapedSurname}', '${escapedEmail}', '${escapedRole}')`);
+        const insertResult = await runQuery(`INSERT INTO Logger (Username, Forename, Surname, Email, Role, Password) VALUES ('${escapedUsername}', '${escapedForename}', '${escapedSurname}', '${escapedEmail}', '${escapedRole}', '${escapedPassword}')`);
 
         //If theres an error with sql query
         if (insertResult?.error) {
@@ -111,11 +126,11 @@ loginForm.addEventListener("submit", async function(e) {
         }
         // Else direct user to homepage logged in (or login page if thats too hard)
         else { 
-            showAlert("Account created successfully, directing you to login page", false); 
+            showAlert("Account created successfully, directing you to login page...", false); 
             setTimeout(function() {
                 console.log("Account created with username: " + escapedUsername + "forename: " + escapedForename + "surname: " + escapedSurname + "email: " + escapedEmail)
                 window.location.href = "index.html"; 
-            }, 1000); // Timer so user can see visual feedback
+            }, 750); // Timer so user can see visual feedback
         }
     }
     else {

@@ -2,7 +2,7 @@
 // ----------- VALIDATION FOR USER ACCOUNT INPUTS ------------
 
 // Tegex lists for the .test() validation 
-const usernameRegex = /^[^<>&"'\s]+$/ // banned special character list (<, >, &, ", ' and whitespace))
+const usernameAndPasswordRegex = /^[^<>&"'\s]+$/ // banned special character list (<, >, &, ", ' and whitespace))
 const namesRegex = /^[a-zA-Z\-']+$/; // allowed char list for forename/surname (a to z and A to Z + hypons and '), +$ makes it check entire word/input
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // looked up email regex list which should do fairly simple validation on emails 
 const animalNameRegex = /^[a-zA-Z\-' ]+$/;
@@ -11,7 +11,7 @@ const validRoles = ["Standard", "Logger", "Admin"];
 // --- USERNAME VALIDATION: (Check lengths not < 1 and > 32, no spaces and no special characters &lt;, &gt;, &amp;, &quot;, &#39;)
 // Tests if username fails any validation criteria
 function isValidUsername(username) {
-    if ((username.length > 32 || username.length < 1) || !(usernameRegex.test(username)) || username === "")  {
+    if ((username.length > 32 || username.length < 1) || !(usernameAndPasswordRegex.test(username)) || username === "")  {
         return false;
     } else { return true; }
 }
@@ -40,6 +40,15 @@ function isValidAnimalOrSpeciesName(name) {
         return true; // Otherwise returns true
     }
 }
+
+// --- PASSWORD VALIDATION
+
+function isValidPassword(password) {
+    if ((password.length > 32 || password.length <= 8) || !(usernameAndPasswordRegex.test(password)) || password === "")  {
+        return false;
+    } else { return true; }
+}
+
 
 // --- ROLE TYPE VALIDATION
 

@@ -1,42 +1,4 @@
 
-// --- VIEW ACCOUNT ELEMENTS ---
-const viewPanel = document.getElementById("view-panel");
-
-// Displayed account detail boxes
-const viewUsername = document.getElementById("view-username");
-const viewForename = document.getElementById("view-forename");
-const viewSurname = document.getElementById("view-surname");
-const viewEmail = document.getElementById("view-email");
-const viewRole = document.getElementById("view-role");
-
-// --- MODIFY ACCOUNT ELEMENTS ---
-const modifyPanel = document.getElementById("modify-panel");
-const modifyAccountForm = document.getElementById("modify-form");
-
-// Data entry box elements
-const enteredUsernameBox = document.getElementById("entered-username");
-const usernameConditions = document.getElementById("username-conditions");
-
-const enteredForenameBox = document.getElementById("entered-forename");
-const forenameConditions = document.getElementById("forename-conditions");
-
-const enteredSurnameBox = document.getElementById("entered-surname");
-const surnameConditions = document.getElementById("surname-conditions");
-
-const enteredEmailBox = document.getElementById("entered-email");
-const emailConditions = document.getElementById("email-conditions");
-
-const enteredRoleBox = document.getElementById("entered-role");
-const roleConditions = document.getElementById("role-conditions");
-
-// --- DELETE ACCOUNT ELEMENTS ---
-const deletePanel = document.getElementById("delete-panel");
-const deleteAccountCheckbox = document.getElementById("confirm-delete"); 
-const deleteAccountButton = document.getElementById("delete-account-button");
-
-
-
-
 // --- SELECT ALL PANEL TABS/ELEMENTS --- 
 // Selects all panels and panel tabs
 const sidebarTabs = document.querySelectorAll('.sidebar-button');
@@ -68,10 +30,45 @@ sidebarTabs.forEach(function(sidebarTab) {
     });
 });
 
-// Escape SQL function 
-function escapeSql(value) {
-    return String(value).replace(/'/g, "''");
-}
+
+
+// --- VIEW ACCOUNT ELEMENTS ---
+const viewPanel = document.getElementById("view-panel");
+
+// Displayed account detail boxes
+const viewUsername = document.getElementById("view-username");
+const viewForename = document.getElementById("view-forename");
+const viewSurname = document.getElementById("view-surname");
+const viewEmail = document.getElementById("view-email");
+const viewRole = document.getElementById("view-role");
+
+// --- MODIFY ACCOUNT ELEMENTS ---
+const modifyPanel = document.getElementById("modify-panel");
+
+const modifyAccountForm = document.getElementById("modify-form");
+
+// Data entry box elements (modify account)
+const enteredUsernameBox = document.getElementById("entered-username");
+const usernameConditions = document.getElementById("username-conditions");
+
+const enteredForenameBox = document.getElementById("entered-forename");
+const forenameConditions = document.getElementById("forename-conditions");
+
+const enteredSurnameBox = document.getElementById("entered-surname");
+const surnameConditions = document.getElementById("surname-conditions");
+
+const enteredEmailBox = document.getElementById("entered-email");
+const emailConditions = document.getElementById("email-conditions");
+
+const enteredRoleBox = document.getElementById("entered-role");
+const roleConditions = document.getElementById("role-conditions");
+
+const submitButton = document.getElementById("submit-button");
+
+// --- DELETE ACCOUNT ELEMENTS ---
+const deletePanel = document.getElementById("delete-panel");
+const deleteAccountCheckbox = document.getElementById("confirm-delete"); 
+const deleteAccountButton = document.getElementById("delete-account-button");
 
 // ------- VIEW ACCOUNT PANEL LOGIC --------
 
@@ -107,8 +104,10 @@ function escapeSql(value) {
 // ------- MODIFY ACCOUNT PANEL LOGIC -------
 
 // modify account form
-modifyAccountForm.addEventListener("submit", async function(event) {
-    event.preventDefault(); // Stops automatic refresh on submission
+modifyAccountForm.addEventListener("submit", async function(e) {
+    e.preventDefault(); // Stops automatic refresh on submission
+
+    submitButton.disabled = true; // disables submit btn to prevent double submission while processing
 
     // Finds user logged in
     const currentUser = sessionStorage.getItem("loggedInUser");
@@ -198,12 +197,15 @@ modifyAccountForm.addEventListener("submit", async function(event) {
             viewSurname.textContent = surname;
             viewEmail.textContent = email;
             viewRole.textContent = role;
-
             // ADD VIEW ROLE
+
+            e.target.reset(); // Resets form values to prevent accidental resubmission wasting querys + against spec 
+            
         } else {
             showAlert("Unknown error occured updating account details", true);
             console.log(updateResult);
         }
+
         enteredUsernameBox.style.border = "";
         usernameConditions.style.color = "";
 
@@ -222,6 +224,8 @@ modifyAccountForm.addEventListener("submit", async function(event) {
     } else {
         showAlert("Invalid inputed entered.", true); // Tells user their inputs invalid
     }
+
+    submitButton.disabled = false; // Reenables submit button after submission + resulting actions fully completed
 });
 
 

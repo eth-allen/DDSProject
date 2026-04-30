@@ -11,21 +11,21 @@ const validRoles = ["Standard", "Logger", "Admin"];
 // --- USERNAME VALIDATION: (Check lengths not < 1 and > 32, no spaces and no special characters &lt;, &gt;, &amp;, &quot;, &#39;)
 // Tests if username fails any validation criteria
 function isValidUsername(username) {
-    if ((username.length > 32 || username.length < 1) || !(usernameRegex.test(username)))  {
+    if ((username.length > 32 || username.length < 1) || !(usernameRegex.test(username)) || username === "")  {
         return false;
     } else { return true; }
 }
 
 // --- NAME VALIDATION (Check lengths not < 1 and > 32, no spaces and no special characters whatsoever)
 function isValidName(name) {
-    if ( (name.length > 32 || name.length < 1) || !(namesRegex.test(name)) ) {
+    if ( (name.length > 32 || name.length < 1) || !(namesRegex.test(name)) || name === "") {
         return false;
     } else { return true; }
 }   
 
 // --- EMAIL VALIDATION (checks regex list + length as emails cant be longer than 254 or less than 2 characters and could cause db issues if entered)
 function isValidEmail(email) {
-    if (!emailRegex.test(email) || email.length > 254 || email.length < 3) {
+    if (!emailRegex.test(email) || email.length > 254 || email.length < 3 || email === "") {
         return false;
     } else { return true; }
 }
@@ -34,7 +34,7 @@ function isValidEmail(email) {
 
 // Tests if the species or animal name fails length or regex
 function isValidAnimalOrSpeciesName(name) {
-    if ( (name.length > 100 || name.length < 2) || !(animalNameRegex.test(name)) ) { // If fails regex/too long
+    if ( (name.length > 100 || name.length < 2) || !(animalNameRegex.test(name)) || name === "") { // If fails regex/too long
         return false; // Returns false
     } else { 
         return true; // Otherwise returns true

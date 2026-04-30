@@ -16,15 +16,17 @@ const emailConditions = document.getElementById("emailConditions")
 const roleBox = document.getElementById("role");
 const roleConditions = document.getElementById("roleConditions");
 
+const submitButton = document.getElementById("submit-button");
 
 function escapeSql(value) {
     return String(value).replace(/'/g, "''");
 }
 
 // Event listener, when submit button in login form is pressed, stuff in event listener occurs
-loginForm.addEventListener("submit", async function(event) {
+loginForm.addEventListener("submit", async function(e) {
     
-    event.preventDefault(); // stops page automatically refreshing when submits pressed
+    e.preventDefault(); // stops page automatically refreshing when submits pressed
+    submitButton.disabled = true; // To prevent double submission submit buttosns disabled until result + actions completed
 
     // ---------- RESETS ALL ELEMENTS COLOURS + STUFF TO STOP SPILLOVER FROM FORMER SUBMISSIONS ----------- //
     usernameBox.style.border = ""; 
@@ -121,4 +123,5 @@ loginForm.addEventListener("submit", async function(event) {
         console.log("Form validation failed (isValid is false)");
         showAlert("Invalid form data entered.", true); // Probably better less intrusvie way of doing this like through html editing 
     }
+    submitButton.disabled = false; // If an error occured submissions reenabled so user can resubmit valid input
 }); // } + ) is normal because of how event listener works 

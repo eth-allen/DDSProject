@@ -140,3 +140,16 @@ loginForm.addEventListener("submit", async function(e) {
     }
     submitButton.disabled = false; // If an error occured submissions reenabled so user can resubmit valid input
 }); // } + ) is normal because of how event listener works 
+
+
+// Admin button for showcasing/testing create account
+document.getElementById("admin-button").addEventListener("click", function() {
+    const roleSection = document.getElementById("role-section");
+
+    // Makes it toggable
+    if (roleSection.style.display === "none") {
+        roleSection.style.display = "block";
+    } else {
+        roleSection.style.display = "none";
+    }
+});

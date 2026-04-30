@@ -91,6 +91,13 @@ const deleteAccountButton = document.getElementById("delete-account-button");
         viewEmail.textContent = userData.Email;
         viewRole.textContent = userData.Role;
 
+        // Auto prefils modify acc fields with this data too
+        enteredUsernameBox.value = userData.Username;
+        enteredForenameBox.value = userData.Forename;
+        enteredSurnameBox.value = userData.Surname;
+        enteredEmailBox.value = userData.Email;
+        enteredRoleBox.value = userData.Role;
+
         
     } else { // If its not successful but doesn't throw an error
         showAlert("An unknown error occured pulling account data.", true);
@@ -187,9 +194,10 @@ modifyAccountForm.addEventListener("submit", async function(e) {
             console.log(updateResult.error);
         }
         else if(updateResult?.success) {
-            showAlert("Account details successfully updated", false);
-            
-            sessionStorage.setItem("loggedInUser", username); // Sets current session to new username
+
+            // Updates session storage values (loggerID not nessasary because is permananto)
+            sessionStorage.setItem("loggedInUser", username); 
+            sessionStorage.setItem("loggerRole", role);
             
             // Updates viewed details so they aren't broken + no page refresh required
             viewUsername.textContent = username;
@@ -199,8 +207,20 @@ modifyAccountForm.addEventListener("submit", async function(e) {
             viewRole.textContent = role;
             // ADD VIEW ROLE
 
-            e.target.reset(); // Resets form values to prevent accidental resubmission wasting querys + against spec 
+            // updateds boxes with new data
+            enteredUsernameBox.value = username;
+            enteredForenameBox.value = forename;
+            enteredSurnameBox.value = surname;
+            enteredEmailBox.value = email;
+            enteredRoleBox.value = role;
             
+            showAlert("Account details successfully updated", false);
+            
+            // Refreshes page to fix navbar (with delay so feedback alert can be seen)
+            setTimeout(function() {
+                window.location.reload(); 
+            }, 1000);
+
         } else {
             showAlert("Unknown error occured updating account details", true);
             console.log(updateResult);
@@ -259,5 +279,18 @@ deleteAccountButton.addEventListener('click', async function() { // On click of 
     } else { // If unknown error
         showAlert("An unknown error occured", true); 
         console.log(deletionResult)
+    }
+});
+
+// Admin button for showcase/testing
+document.getElementById("admin-button").addEventListener("click", function() {
+
+    const roleSection = document.getElementById("modify-role-section");
+
+    // Makes it toggable
+    if (roleSection.style.display === "none") {
+        roleSection.style.display = "block";
+    } else {
+        roleSection.style.display = "none";
     }
 });

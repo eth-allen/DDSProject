@@ -24,12 +24,16 @@ if (loginForm) { // prevents script from
         if (!inputtedUsername || inputtedUsername === "") {
             usernameBox.style.border = "2px solid red";
             usernameConditions.style.color = "red";
+            passwordBox.style.border = "2px solid red";
+            passwordConditions.style.color = "red";
             showAlert('Please enter a valid username.', true);
 
         } else if(!inputtedPassword || inputtedPassword === "") { 
+            showAlert('Please enter a valid password.', true);
             passwordBox.style.border = "2px solid red";
             passwordConditions.style.color = "red";
-            showAlert('Please enter a valid password.', true);
+            usernameBox.style.border = "2px solid red";
+            usernameConditions.style.color = "red";
         } else {
             const retrievedData = await runQuery(`SELECT LoggerID, Username, Role, Password FROM Logger WHERE Username = '${inputtedUsername}';`);
 
@@ -40,6 +44,10 @@ if (loginForm) { // prevents script from
             }
             else if(retrievedData.data.length === 0) {
                 showAlert("Username does not exist.", true);
+                usernameBox.style.border = "2px solid red";
+                usernameConditions.style.color = "red";
+                passwordBox.style.border = "2px solid red";
+                passwordConditions.style.color = "red";
                 console.log("runQuery returned no data! retrievedUsername.data: " + retrievedData.data + ", retrievedUsername.error: " + retrievedData.error + ", retrievedUsername.success: " + retrievedData.success);
             } else if (retrievedData.success) { // If successful all details are updated
 
@@ -70,9 +78,9 @@ if (loginForm) { // prevents script from
                     }, 500); // Timer so user can see visual feedback
                 } else {
                     // If passwords invalid orange visual feedbacks shown to show its invalid to user
-                    showAlert("Password does not match account");
-                    passwordBox.style.border = "2px solid orange";
-                    passwordConditions.style.color = "orange";
+                    showAlert("Password does not match account", true);
+                    passwordBox.style.border = "2px solid red";
+                    passwordConditions.style.color = "red";
                 }
             }
         } 

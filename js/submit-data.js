@@ -252,7 +252,7 @@ speciesForm.addEventListener("submit", async (event) => {
     commonNameConstraints.style.color = "";     
     
     // Actually validates the users input 
-    var isValid = true;
+    let isValid = true;
 
     if(!isValidAnimalOrSpeciesName(escapedScientificName)) {
         isValid = false;

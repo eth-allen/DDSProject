@@ -39,15 +39,44 @@
     </div>
 
 <div class="submit-tabs" role="tablist" aria-label="Submit action tabs">
-    <button id="log-action-tab" type="button" class="submit-tab-button is-active" data-submit-tab="log-action" role="tab" aria-selected="true" aria-controls="log-action">Log Action</button>
-    <button id="add-action-tab" type="button" class="submit-tab-button" data-submit-tab="add-action" role="tab" aria-selected="false" aria-controls="add-action">Add Action Type</button>
+    <button id="add-action-tab" type="button" class="submit-tab-button is-active" data-submit-tab="add-action" role="tab" aria-selected="false" aria-controls="add-action">Add Action Type</button>
+    <button id="log-action-tab" type="button" class="submit-tab-button" data-submit-tab="log-action" role="tab" aria-selected="true" aria-controls="log-action">Log Action</button>
 </div>
 
 <div class="container">
-    <div id="log-action" class="submit-tab-panel is-active" data-submit-panel="log-action" role="tabpanel" aria-labelledby="log-action-tab">
+    <div id="add-action" class="submit-tab-panel is-active" data-submit-panel="add-action" role="tabpanel" aria-labelledby="add-action-tab">
+        <form id="add-action-form">
+            
+            <div class="form-group">
+                <h3>Add a new type of conversion action</h3>
+                <br>
+                <label for="action-name-input">Action Name</label>
+                <input type="text" id="action-name-input" placeholder="e.g. Dispatch Veterinary Team" required>
+            </div>
+
+            <div class="form-group">
+                <label for="action-category-input">Action Category</label>
+                <select id="action-category-input" required>
+                    <option value="">-- Select a category --</option>
+                    <option value="Law Enforcement">Law Enforcement</option>
+                    <option value="Medical/Hospitalisation">Medical/Hospitalisation</option>
+                    <option value="Environmental">Environmental</option>
+                    <option value="Community/Education">Community/Education</option>
+                    <option value="Research/Monitoring">Research/Monitoring</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <button id="add-action-submit-button" class="btn" type="submit">Add Action Type</button>
+        </form>
+    </div>
+    
+    <div id="log-action" class="submit-tab-panel" data-submit-panel="log-action" role="tabpanel" aria-labelledby="log-action-tab">
         <form id="log-action-form">
             
             <div class="form-group">
+                <h3>Log a particular conservation action taken in relation to a partiular report</h3>
+                <br>
                 <label for="report-selection">Select Report</label>
                 <select id="report-selection" required>
                     <option value="">-- Select a report --</option>
@@ -55,9 +84,9 @@
             </div>
 
             <div class="form-group">
-                <label for="action-selection">Select Action</label>
+                <label for="action-selection">Select Action Type</label>
                 <select id="action-selection" required>
-                    <option value="">-- Select an action --</option>
+                    <option value="">-- Select an action type --</option>
                     </select> 
             </div>
 
@@ -74,35 +103,108 @@
             <button id="log-action-submit-button" class="btn" type="submit">Submit Action</button>
         </form>
     </div>
-
-    <div id="add-action" class="submit-tab-panel" data-submit-panel="add-action" role="tabpanel" aria-labelledby="add-action-tab">
-        <form id="add-action-form">
-            
-            <div class="form-group">
-                <label for="action-name-input">Action Name</label>
-                <input type="text" id="action-name-input" placeholder="e.g. Dispatch Veterinary Team" required>
-            </div>
-
-            <div class="form-group">
-                <label for="action-category-input">Action Category</label>
-                <select id="action-category-input" required>
-                    <option value="">-- Select a category --</option>
-                    <option value="Law Enforcement">Law Enforcement</option>
-                    <option value="Medical">Medical</option>
-                    <option value="Environmental">Environmental</option>
-                    <option value="Community">Community</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-
-            <button id="add-action-submit-button" class="btn" type="submit">Add Action Type</button>
-        </form>
-    </div>
 </div>
 
 <script src="js/run-query.js"></script>
 <script src="js/validation-utilities.js"></script>
-<script src="js/submit-action.js"></script>
+<!--script src="js/submit-action.js"></script-->
+
+<script>
+    const submitTabButtons = [...document.querySelectorAll("[data-submit-tab]")];
+    const submitTabPanels = {
+        "add-action": document.querySelector('[data-submit-panel="add-action"]'),
+        "log-action": document.querySelector('[data-submit-panel="log-action"]')
+    };
+
+    function setActiveSubmitTab(tabName) {
+        Object.entries(submitTabPanels).forEach(([name, panel]) => panel?.classList.toggle("is-active", name === tabName));
+        submitTabButtons.forEach((button) => {
+            const isActive = button.dataset.submitTab === tabName;
+            button.classList.toggle("is-active", isActive);
+            button.setAttribute("aria-selected", String(isActive));
+            button.tabIndex = isActive ? 0 : -1;
+        });
+    }
+
+    if (submitTabButtons.length) {
+        submitTabButtons.forEach((button) => button.addEventListener("click", () => setActiveSubmitTab(button.dataset.submitTab)));
+    };
+
+    const addActionForm = document.getElementById("add-action-form");
+    addActionForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const actionName = document.getElementById("action-name-input").value.trim();
+        const escapedActionName = escapeSql(actionName);
+        const actionCategory = document.getElementById("action-category-input").value;
+
+        let isValid = true;
+
+        // VALIDATION GOES HERE
+
+        if(isValid) {
+            const insertResult = await runQuery(`
+                INSERT INTO Conservation_Action (ActionName, Category)
+                VALUES ('${escapedActionName}', '${actionCategory}')
+            `);
+
+            if(insertResult?.error) {
+                console.error("Action save failed", { insertResult });
+                showAlert("Unable to save action.", true);
+            } else if (insertResult?.success) {
+                showAlert("action added successfully", false);
+                addActionForm.reset();
+            } else {
+                console.log(insertResult);
+                showAlert("Something went wrong adding the action", true);
+            }
+        }
+    });
+
+    function renderReportSelection(rows) {
+        const reportSelection = document.getElementById("report-selection");
+        reportSelection.innerHTML = "";
+        for (let row of rows) {
+            reportSelection.innerHTML += `<option value="${row.ReportID}">Report ${row.ReportID}: ${row.Description}</option>`;
+        }
+    }
+
+    function renderActionSelection(rows) {
+        const actionSelection = document.getElementById("action-selection");
+        actionSelection.innerHTML = "";
+        for (let row of rows) {
+            actionSelection.innerHTML += `<option value="${row.ActionID}">${row.ActionName}</option>`;
+        }
+    }
+
+    const renderSelections = async () => {
+        const reportResult = await runQuery("SELECT * FROM Report");
+        const actionResult = await runQuery("SELECT * FROM Conservation_Action");
+
+        if (reportResult?.success && Array.isArray(reportResult.data)) {
+            renderReportSelection(speciesResult.data);
+        }
+
+        if (actionResult?.success && Array.isArray(trackedAnimalResult.data)) {
+            renderActionSelection(actionResult.data);
+        }
+
+        if (reportResult?.error || actionResult?.error) {
+            console.error("Data load error", {reportResult, actionResult});
+        }
+    }
+    /*const reportSelection = document.getElementById("report-selection");
+    reportSelection.
+    const reportsList = await runQuery("SELECT ReportID, ReportDescription FROM Report");
+    for (report)
+
+    const logActionForm = document.getElementById("log-action-form");
+    logActionForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const 
+    })*/
+</script>
 
 
 <footer class="footer">

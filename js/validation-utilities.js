@@ -78,7 +78,7 @@ function escapeSql(value) {
 // ----------- VISUAL ALERT BOX ----------------
 function showAlert(alertText, isError) {
 
-    var alertBox = document.getElementById("alertBox");
+    let alertBox = document.getElementById("alertBox");
     alertBox.textContent = alertText;
     
     if (isError == true) { // If error the class is set to CSS error alert to change its colour

@@ -51,6 +51,20 @@
     <div class="container">
 
         <div>
+            <div class="form-group-radio">
+                    <fieldset>
+                        <legend>Get the most or least reported on animal?</legend>
+                        <div>
+                        <label for="most-radio">Most</label>
+                        <input type="radio" id="most-radio" name="report-1-question" value="most">
+                        </div>
+                        
+                        <div>
+                        <label for="least-radio">Least</label>
+                        <input type="radio" id="least-radio" name="report-1-question" value="least" checked>
+                        </div>
+                    </fieldset>
+                </div>
             <h2>Report 1</h2>
             <p>This chart answers the business question of which species to give attention to while at the same time being a helpful graphic to inform people. This report is presented in the form of a bar chart.</p>
             <div class="chart-container">
@@ -140,12 +154,22 @@
         });
     }
 
-    document.addEventListener("DOMContentLoaded", async () => {
-        //report 1:
+    async function renderReport1() {
+
+        const checkedRadioButton = document.querySelectorAll('input[name="report-1-question"]:checked');
+        
+        let variableSQL = "";
+        if (checkedRadioButton.value = "least") {
+            variableSQL = "ASC";
+        }
+        else if (checkedRadioButton.value = "most") {
+            variableSQL = "DESC"
+        }
+
         const report1QueryResult = await runQuery(
             `SELECT vrq.CommonName, vrq.ReportQuantity, vrq.SpeciesID
             FROM v_SpeciesAliveReportQuantity vrq
-            ORDER BY vrq.ReportQuantity ASC
+            ORDER BY vrq.ReportQuantity ${variableSQL}
             LIMIT 10;`
         );
 
@@ -163,6 +187,14 @@
 
             createBarChart(animalNames, sightingNumbers);
         }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+        //report 1:
+
+        //change report1QueryResult based on "report-1-question" radio group
+
+        renderReport1();
 
         //report 2:
 
@@ -206,6 +238,14 @@
                 `;
             }
         }
+    });
+
+    const report1RadioGroup = document.querySelectorAll('input[name="report-1-question"]');
+
+    report1RadioGroup.forEach((radio) => {
+        radio.addEventListener("change", () => {
+            renderReport1();
+        });
     });
 
     </script>

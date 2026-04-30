@@ -190,7 +190,7 @@ reportForm.addEventListener("submit", async (event) => {
 
     const escapedReportDescription = escapeSql(description);
 
- if (!animalID) {
+    if (!animalID) {
         const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, ReportType, ReportDescription, UrgencyLevel, IssueObserved) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, '${reportType}', '${escapedReportDescription}', ${escapedUrgency}, ${escapedIssue})`);
         if (insertResult?.error) {
             console.error("Report save failed", { insertResult });
@@ -205,8 +205,8 @@ reportForm.addEventListener("submit", async (event) => {
             showAlert("Something went wrong submitting the report", true);
         }
     }
- else {
-        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, AnimalID, ReportType, ReportDescription, Urgency, Issue) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, ${animalID}, '${reportType}', '${escapedReportDescription}', ${escapedUrgency}, ${escapedIssue})`);
+    else {
+        const insertResult = await runQuery(`INSERT INTO Report (LoggerID, LocationID, EvidenceID, ReportDate, SpeciesID, AnimalID, ReportType, ReportDescription, UrgencyLevel, IssueObserved) VALUES (${loggerID}, ${locationID}, ${evidenceID}, '${reportDate}', ${speciesID}, ${animalID}, '${reportType}', '${escapedReportDescription}', ${escapedUrgency}, ${escapedIssue})`);
 
         if (insertResult?.error) {
             console.error("Report save failed", { insertResult });

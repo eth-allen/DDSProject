@@ -44,7 +44,7 @@ function isValidAnimalOrSpeciesName(name) {
 // --- PASSWORD VALIDATION
 
 function isValidPassword(password) {
-    if ((password.length > 32 || password.length <= 8) || !(usernameAndPasswordRegex.test(password)) || password === "")  {
+    if ((password.length > 32 || password.length < 8) || !(usernameAndPasswordRegex.test(password)) || password === "")  {
         return false;
     } else { return true; }
 }

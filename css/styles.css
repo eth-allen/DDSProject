@@ -662,3 +662,7 @@ body.login-page {
     opacity: 0.75 !important;
     cursor: not-allowed !important;
 }
+
+.report-meta-data {
+    padding-bottom: 20px;
+}

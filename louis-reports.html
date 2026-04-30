@@ -39,15 +39,16 @@
     </div>
 
     <div class="report-section">
-        <h3>Report 1: Animals that have little data to show they're still alive</h3>
-        <p>Business Question: Which animals are recorded as alive in the database however have little to no reports in recent years to show they are?</p>
-        <p>Why this report is useful: Identifies animals which have low likelyhood of being alive, allowing for invalid data to be identified and deleted by system admins</p>
-        <p>Tables Used: Tracked_Animal, Report, Logger</p>
+        <div class="report-meta-data">
+            <h3>Report 1: Animals that have little data to show they're still alive</h3>
+            <p><strong>Business Question:</strong> Which animals are recorded as alive in the database however have little to no reports in recent years to show they are?</p>
+            <p><strong>Why this report is useful:</strong> Identifies animals which have low likelyhood of being alive, allowing for invalid data to be identified and deleted by system admins</p>
+            <p><strong>Tables Used:</strong> Tracked_Animal, Report, Logger</p>
+        </div>
         
-        <div style="margin-bottom: 15px;">
+        <div class="form-group" style="max-width: 300px;">
             <label for="yearFilter"><strong>Sighting Timeframe (Years):</strong></label>
             <input type="number" id="yearFilter" value="5" min="1" max="50">
-            <button id="updateReport1Btn" class="btn" style="width: auto; ">Update Table</button>
         </div>
 
         <div class="report-data">
@@ -68,12 +69,14 @@
     </div>
 
     <div class="report-section">
-        <h3>Report 2: High-Value, Low-Monitored Countries</h3>
-        <p>Business Question: Which countries have confirmed sightings of endangered animals but are being monitored by very few loggers?</p>
-        <p>Why this report is useful: Highlights regions that critically need more conservation staff deployed.</p>
-        <p>Tables Used: Location, Report, Logger, Species</p>
+        <div class="report-meta-data">
+            <h3>Report 2: High-Value, Low-Monitored Countries</h3>
+            <p><strong>Business Question:</strong> Which countries have confirmed sightings of endangered animals but are being monitored by very few loggers?</p>
+            <p><strong>Why this report is useful:</strong> Highlights regions that critically need more conservation staff deployed.</p>
+            <p><strong>Tables Used:</strong> Location, Report, Logger, Species</p>
+        </div>
 
-        <div style="margin-bottom: 15px;">
+        <div class="form-group" style="max-width: 300px;">
             <label for="statusFilter"><strong>Conservation Status:</strong></label>
             <select id="statusFilter" style="padding: 5px; margin-right: 10px;">
                 <option value="'Critically Endangered', 'Endangered'">High Risk (CR & EN)</option>
@@ -81,19 +84,33 @@
                 <option value="'Endangered'">Endangered Only</option>
                 <option value="'Vulnerable'">Vulnerable Only</option>
             </select>
-            <button id="updateReport2Btn" class="btn" style="width: auto; padding: 6px 15px; margin-top: 0;">Update Chart</button>
         </div>
 
-    <div class="report-data">
+        <div class="report-data">
             <canvas id="louis-report2-chart"></canvas>
         </div>
     </div>
 
     <div class="report-section">
-        <h3>Report 3: Logger Evidence & Significance</h3>
-        <p>Business Question: Which loggers have the lowest likelihood of submitting evidence, and what is the significance of their sightings?</p>
-        <p>Why this report is useful: Flags potentially unreliable loggers who are claiming highly significant sightings without proof, which can create an inaccurate database</p>
-        <p>Tables Used: Logger, Report, Evidence, Species</p>
+
+        <div class="report-meta-data">
+            <h3>Report 3: Logger Evidence & Significance</h3>
+            <p><strong>Business Question:</strong> Which loggers have the lowest likelihood of submitting evidence, and what is the significance of their sightings?</p>
+            <p><strong>Why this report is useful:</strong> Flags potentially unreliable loggers who are claiming highly significant sightings without proof, which can create an inaccurate database</p>
+            <p><strong>Tables Used:</strong> Logger, Report, Evidence, Species</p>
+        </div>
+
+        <div class="form-group" style="max-width: 300px;">
+        <label for="sortFilter"><strong>Sort By:</strong></label>
+        <select id="sortFilter" style="padding: 5px;">
+            <option value="evidence_asc">Lowest % Evidence</option>
+            <option value="evidence_desc">Highest % Evidence</option>
+            <option value="significance_desc">Highest Average Significance</option>
+            <option value="species_desc">Highest Unique Species seen</option>
+        </select>
+        </div>
+
+
         <div class="report-data">
             <table class="data-table">
                 <thead>
@@ -129,6 +146,7 @@
         }
 
         // --- REPORT 2: Chart Rendering ---
+        Chart.defaults.font.size = 14;
         let report2ChartInstance = null;
 
         function renderReport2Chart(rows) {
@@ -279,8 +297,10 @@
             if (res3?.success && Array.isArray(res3.data)) populateReport3(res3.data);
             else console.error("Report 3 error", res3);
 
-            document.getElementById("updateReport1Btn").addEventListener("click", async () => {
-                const years = document.getElementById("yearFilter").value;
+            document.getElementById("yearFilter").addEventListener("input", async (e) => {
+                const years = e.target.value;
+                if (!years || years < 1) return; 
+                
                 const dynSql1 = `
                 SELECT 
                     Tracked_Animal.AnimalID, 
@@ -307,10 +327,10 @@
                 `;
                 const r1 = await runQuery(dynSql1.trim());
                 if (r1?.success && Array.isArray(r1.data)) populateReport1(r1.data);
-            });
+            }); // End of year filter event listener
 
-            document.getElementById("updateReport2Btn").addEventListener("click", async () => {
-                const status = document.getElementById("statusFilter").value;
+            document.getElementById("statusFilter").addEventListener("change", async (e) => {
+                const status = e.target.value;
                 const dynSql2 = `
                 SELECT 
                     Country AS 'Country',
@@ -326,8 +346,53 @@
                 `;
                 const r2 = await runQuery(dynSql2.trim());
                 if (r2?.success && Array.isArray(r2.data)) renderReport2Chart(r2.data);
-            });
-        });
+            }); // End of status filter event listeer
+
+            document.getElementById("sortFilter").addEventListener("change", async (e) => {
+                const sortChoice = e.target.value;
+
+                // Default order by SQl (by lowest % evidence )
+                let orderByClause = "ORDER BY ROUND((SUM(CASE WHEN Evidence.EvidenceType = 'Sighting' THEN 1 ELSE 0 END) * 100.0) / COUNT(Report.ReportID), 1) ASC";
+                
+                // Selectable order by SQL 
+                if (sortChoice === "evidence_desc") {
+                    orderByClause = "ORDER BY ROUND((SUM(CASE WHEN Evidence.EvidenceType = 'Sighting' THEN 1 ELSE 0 END) * 100.0) / COUNT(Report.ReportID), 1) DESC";
+                } else if (sortChoice === "significance_desc") {
+                    orderByClause = "ORDER BY AVG(CASE WHEN Species.ConservationStatus = 'Least Concern' THEN 1 WHEN Species.ConservationStatus = 'Vulnerable' THEN 2.5 WHEN Species.ConservationStatus = 'Endangered' THEN 5 WHEN Species.ConservationStatus = 'Critically Endangered' THEN 10 ELSE 0 END) DESC";
+                } else if(sortChoice === "species_desc") {
+                    orderByClause = "ORDER BY COUNT(DISTINCT Species.SpeciesID) DESC";
+                }
+
+                const dynSql3 = `
+                SELECT 
+                    CONCAT(Logger.Username, ' (', Logger.LoggerID, ')') AS 'Logger username (with id)', 
+                    CONCAT(ROUND((SUM(CASE WHEN Evidence.EvidenceType = "Sighting" THEN 1 ELSE 0 END) * 100.0) / COUNT(Report.ReportID), 1), '%') AS '% of reports with submitted evidence',
+                    CONCAT(ROUND(AVG(
+                        CASE 
+                            WHEN Species.ConservationStatus = "Least Concern" THEN 1
+                            WHEN Species.ConservationStatus = "Vulnerable" THEN 2.5
+                            WHEN Species.ConservationStatus = "Endangered" THEN 5
+                            WHEN Species.ConservationStatus = "Critically Endangered" THEN 10
+                            ELSE 0
+                        END
+                    ), 1), '/10') AS 'Reports avg significance (1-10)',
+                    COUNT(DISTINCT Species.SpeciesID) AS 'Unique Species Seen',
+                    (SELECT ROUND(COUNT(DISTINCT SpeciesID) / COUNT(DISTINCT LoggerID), 1) FROM Report) AS 'Logger unique species avg'
+                FROM Logger
+                INNER JOIN Report ON Logger.LoggerID = Report.LoggerID
+                LEFT JOIN Evidence ON Report.EvidenceID = Evidence.EvidenceID
+                LEFT JOIN Species ON Report.SpeciesID = Species.SpeciesID
+                GROUP BY 
+                    Logger.LoggerID, 
+                    Logger.Username
+                ${orderByClause}
+                LIMIT 30;
+                `;
+                
+                const r3 = await runQuery(dynSql3.trim());
+                if (r3?.success && Array.isArray(r3.data)) populateReport3(r3.data);
+            }); // End of sort filter event listener
+        }); // End of initial event listener
     </script>
 
     <footer class="footer">

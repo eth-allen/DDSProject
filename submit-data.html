@@ -261,33 +261,33 @@
                 trackedAnimalDetails.style.display = "none";
                 newTrackedAnimalDetails.style.display = "none";
                 existingTrackedAnimalDetails.style.display = "none";
+                
+                document.getElementById("tracked-animal-name").required = false; 
             }
         });
     });
 
     const newTrackedAnimalRadios = document.querySelectorAll('input[name="new-tracked-animal-question"]');
-
     const newTrackedAnimalDetails = document.getElementById("new-tracked-animal-details");
     const existingTrackedAnimalDetails = document.getElementById("existing-tracked-animal-details");
+    
     newTrackedAnimalRadios.forEach((radio) => {
         radio.addEventListener("change", () => {
             const isNew = document.querySelector('input[name="new-tracked-animal-question"]:checked').value === "new";
-            
+            const nameInput = document.getElementById("tracked-animal-name");
             
             if (isNew) {
                 newTrackedAnimalDetails.style.display = "block";
                 existingTrackedAnimalDetails.style.display = "none";
-
-                const nameInput = document.getElementById("tracked-animal-name");
-                nameInput.required = true;
-                // Update the name input requirement
+                nameInput.required = true; 
             }
             else {
                 newTrackedAnimalDetails.style.display = "none";
                 existingTrackedAnimalDetails.style.display = "block";
+                
+                // FIX: Remove required tag if they select 'Previously Existing'
+                nameInput.required = false; 
             }
-            
-            
         });
     });
 

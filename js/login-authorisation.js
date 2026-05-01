@@ -39,8 +39,6 @@
                     link.setAttribute('title', 'Logger or admin account type required'); // tooltip for good ux
 
                 }
-
-
             });
         }
     });

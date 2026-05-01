@@ -97,8 +97,8 @@
             </div>
 
             <div class="form-group">
-                <label for="outcome-notes-input">Outcome Notes</label>
-                <input type="text" id="outcome-notes-input" placeholder="Enter outcome notes here" required> 
+                <label for="action-details-input">Action Details</label>
+                <input type="text" id="action-details-input" placeholder="Enter details of action taken here" required> 
             </div>
 
             <div class="form-group">
@@ -216,7 +216,7 @@
         const actionID = document.getElementById("action-selection").value;
         const loggerID = escapeSql(sessionStorage.getItem("loggerID"));
         const actionDate = document.getElementById("action-date-input").value;
-        const outcomeNotes = escapeSql(document.getElementById("outcome-notes-input").value.trim());
+        const actionDetails = escapeSql(document.getElementById("action-details-input").value.trim());
         const actionStatus = document.getElementById("action-status-selection").value;
 
         let isValid = true;
@@ -226,7 +226,7 @@
         if(isValid) {
             const insertResult = await runQuery(`
                 INSERT INTO Report_Action (ReportID, ActionID, LoggerID, ActionDate, ActionDetails, ActionStatus)
-                VALUES ('${reportID}', '${actionID}', '${loggerID}', '${actionDate}', '${outcomeNotes}', '${actionStatus}');
+                VALUES ('${reportID}', '${actionID}', '${loggerID}', '${actionDate}', '${actionDetails}', '${actionStatus}');
             `);
 
             if(insertResult?.error) {

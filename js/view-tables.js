@@ -252,7 +252,7 @@ async function handleFormSubmit(e) {
             applyHighlight("edit-country-input", true);
             return showAlert("Country name must be between 2 and 100 characters.", true);
         }
-        // Strict Numeric Check added here
+
         if (/\d/.test(country)) {
             applyHighlight("edit-country-input", true);
             return showAlert("Country name cannot contain numbers.", true);
@@ -272,7 +272,7 @@ async function handleFormSubmit(e) {
             applyHighlight("edit-evidence-desc-input", true);
             return showAlert("Description is too short (min 5 characters).", true);
         }
-        // Evidence descriptions might legitimately contain numbers (e.g. "Saw 2 bears"), so we don't block them here.
+
         query = `UPDATE Evidence SET EvidenceType='${type}', Description='${escapeSql(desc)}' WHERE EvidenceID = ${activeEditId}`;
     }
 

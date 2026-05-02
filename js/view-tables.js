@@ -322,7 +322,7 @@ async function handleFormSubmit(e) {
             applyHighlight("edit-report-type-input", true);
             return showAlert("Report type cannot contain numbers.", true);
         }
-        if (type !="Poaching" || type !="Animal Spotting" )
+
         if (desc.length < 5) { applyHighlight("edit-report-description-input", true); return showAlert("Detailed description required.", true); }
 
         query = `UPDATE Report SET LoggerID=${loggerId}, LocationID=${locationId}, EvidenceID=${evidenceId}, ReportDate='${date}', SpeciesID=${speciesId}, ReportType='${escapeSql(type)}', ReportDescription='${escapeSql(desc)}' WHERE ReportID = ${activeEditId}`;

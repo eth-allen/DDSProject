@@ -247,7 +247,7 @@ this allows the end user to easily adjust the report to their needs without havi
                             borderWidth: 1,
                         }],
                     },
-                    options: {  <!-- options pane for chart -->
+                    options: {  // options setup for the chart.
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
@@ -287,7 +287,7 @@ this allows the end user to easily adjust the report to their needs without havi
             }
 
             async function loadReportThree() {
-                const minIncidents = document.getElementById("r3-min-incidents").value || 1;
+                const minIncidents = document.getElementById("r3-min-incidents").value || 1; // default parameters
 
                 const query = `SELECT L.Country, COUNT(R.ReportID) AS Incident_Count, GROUP_CONCAT(DISTINCT E.EvidenceType SEPARATOR ', ') AS Evidence_Methods FROM Report R INNER JOIN Location L ON R.LocationID = L.LocationID INNER JOIN Evidence E ON R.EvidenceID = E.EvidenceID WHERE R.ReportType = 'Poaching' GROUP BY L.Country HAVING Incident_Count >= ${minIncidents} ORDER BY Incident_Count DESC LIMIT 12;`;
 

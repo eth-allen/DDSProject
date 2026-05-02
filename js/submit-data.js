@@ -56,24 +56,17 @@ reportForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const country = document.getElementById("country-input").value.trim();
-
     const escapedCountry = escapeSql(country);
-    const saveResult = await runQuery(`INSERT INTO Location (Country) VALUES ('${escapedCountry}');`);
-    if (saveResult?.error) {
-        console.error("Location save failed", { saveResult });
-        showAlert("Unable to save location.", true);
+    
+    const locationResult = await runQuery(`SELECT LocationID FROM Location WHERE Country = '${escapedCountry}';`);
+    
+    if (locationResult?.error || !locationResult.data || locationResult.data.length === 0) {
+        console.error("Location retrieval failed or country not found", { locationResult });
+        showAlert("Please select a valid, existing country from the list.", true);
         return;
     }
 
-    const mostRecentLocationResults = await runQuery(`SELECT MAX(LocationID) FROM Location;`);
-    if (mostRecentLocationResults?.error) {
-        console.error("Failed to get location when submitting", { mostRecentLocationResults });
-        showAlert("Unable to complete report submission.", true);
-        return;
-    }
-
-    const lastGivenLocation = mostRecentLocationResults.data[0]["MAX(LocationID)"];
-
+    const lastGivenLocation = locationResult.data[0].LocationID;
     const evidenceType = document.getElementById("evidence-type-selection").value;
     const evidenceDescription = document.getElementById("evidence-description-input").value.trim();
     const escapedEvidenceDescription = escapeSql(evidenceDescription);
